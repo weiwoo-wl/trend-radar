@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>趋势雷达 · 数据看板系统</title>
+  <link rel="stylesheet" href="css/style.css?v=9">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body>
+
+<!-- ========== 侧边栏 ========== -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>趋势雷达</h1>
+    <p>数据看板系统 v1.1</p>
+  </div>
+  <nav class="nav-menu">
+    <div class="nav-section">总览</div>
+    <div class="nav-item active" data-page="overview">
+      <span class="nav-icon">📡</span>
+      <span>综合总览</span>
+    </div>
+    <div class="nav-section">频度数据</div>
+    <div class="nav-item" data-page="daily">
+      <span class="nav-icon">📅</span>
+      <span>天数据</span>
+      <span class="nav-badge">日频</span>
+    </div>
+    <div class="nav-item" data-page="weekly">
+      <span class="nav-icon">📆</span>
+      <span>周数据</span>
+      <span class="nav-badge">周频</span>
+    </div>
+    <div class="nav-item" data-page="monthly">
+      <span class="nav-icon">🗓️</span>
+      <span>月数据</span>
+      <span class="nav-badge">月频</span>
+    </div>
+    <div class="nav-section">分析层</div>
+    <div class="nav-item" data-page="fundamentals">
+      <span class="nav-icon">🏛️</span>
+      <span>市场基本面</span>
+    </div>
+    <div class="nav-item" data-page="meso">
+      <span class="nav-icon">🏭</span>
+      <span>中观结构</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    模型版本 v1.1 · 2026-07-21<br>
+    数据日期 2026-08-07
+  </div>
+</aside>
+
+<!-- ========== 主内容区 ========== -->
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-title" id="pageTitle">综合总览</div>
+    <div class="topbar-info">
+      <div class="info-item"><span class="dot"></span> 数据已更新</div>
+      <div class="info-item">报告日期：<span id="reportDate">2026-08-07</span></div>
+      <div class="info-item">市场状态：<span style="color:var(--color-yellow)">收盘</span></div>
+    </div>
+  </div>
+
+  <div class="content-scroll">
+
+    <!-- ========== 综合总览页 ========== -->
+    <div class="page active" id="page-overview">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🎯</span> 综合雷达总览</div>
+          <div id="overview-radar" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📊</span> 各层级状态</div>
+          <div id="overview-layers" style="display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+      </div>
+
+      <div class="section-title">核心指数速览</div>
+      <div class="grid-4" id="overview-metrics"></div>
+
+      <div class="section-title">市场关键数据</div>
+      <div class="grid-4" id="overview-market-data"></div>
+
+      <div class="section-title">行业资金热力图</div>
+      <div class="card">
+        <div id="overview-heatmap" style="width:100%;height:280px;"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📈</span> 主要指数走势</div>
+          <div id="overview-indices" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💰</span> ETF资金流向</div>
+          <div id="overview-etf" class="chart-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 天数据页 ========== -->
+    <div class="page" id="page-daily">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📡</span> 天数据雷达</div>
+          <div id="daily-radar" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">⚡</span> 综合判断</div>
+          <div id="daily-judgment"></div>
+        </div>
+      </div>
+
+      <div class="section-title">核心指数表现（上证 · 深证 · 创业板 · 科创综指）</div>
+      <div class="card">
+        <table class="data-table" id="daily-indices-core-table"></table>
+      </div>
+
+      <div class="section-title">宽基指数表现（沪深300 · 中证500 · 中证1000 · 科创50 · 北证50）</div>
+      <div class="card">
+        <table class="data-table" id="daily-indices-broad-table"></table>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🔥</span> 行业涨跌</div>
+          <div id="daily-industry" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📊</span> 市场广度</div>
+          <div id="daily-breadth" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">成交额 & 融资融券</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💹</span> 成交额</div>
+          <div id="daily-turnover" class="chart-container-sm"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🏦</span> 融资融券</div>
+          <div id="daily-margin" class="chart-container-sm"></div>
+        </div>
+      </div>
+
+      <div class="section-title">ETF资金</div>
+      <div class="card">
+        <table class="data-table" id="daily-etf-table"></table>
+      </div>
+
+      <div class="section-title">主力资金流向（8月7日 收盘 · 来源：数据宝）</div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:16px 20px;border-bottom:1px solid var(--border-color)">
+          <div style="text-align:center">
+            <div style="color:var(--text-secondary);font-size:13px;margin-bottom:6px">主力净流入</div>
+            <div style="font-size:26px;font-weight:700;color:#ef4444;font-family:monospace">+427.46亿</div>
+          </div>
+          <div style="text-align:center">
+            <div style="color:var(--text-secondary);font-size:13px;margin-bottom:6px">净流入行业</div>
+            <div style="font-size:26px;font-weight:700;color:#ef4444;font-family:monospace">13</div>
+          </div>
+          <div style="text-align:center">
+            <div style="color:var(--text-secondary);font-size:13px;margin-bottom:6px">净流出行业</div>
+            <div style="font-size:26px;font-weight:700;color:#22c55e;font-family:monospace">18</div>
+          </div>
+          <div style="text-align:center">
+            <div style="color:var(--text-secondary);font-size:13px;margin-bottom:6px">尾盘净流入</div>
+            <div style="font-size:26px;font-weight:700;color:#ef4444;font-family:monospace">+72.06亿</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 20px;border-bottom:1px solid var(--border-color)">
+          <div style="text-align:center;padding:8px 0">
+            <div style="color:var(--text-secondary);font-size:12px">创业板净流入</div>
+            <div style="font-size:18px;font-weight:600;color:#ef4444;font-family:monospace">+51.95亿</div>
+          </div>
+          <div style="text-align:center;padding:8px 0">
+            <div style="color:var(--text-secondary);font-size:12px">科创板净流入</div>
+            <div style="font-size:18px;font-weight:600;color:#ef4444;font-family:monospace">+104.35亿</div>
+          </div>
+          <div style="text-align:center;padding:8px 0">
+            <div style="color:var(--text-secondary);font-size:12px">沪深300净流入</div>
+            <div style="font-size:18px;font-weight:600;color:#ef4444;font-family:monospace">+62.96亿</div>
+          </div>
+        </div>
+        <div class="card-title" style="margin-top:16px"><span class="title-icon">💰</span> 申万一级行业资金流向（31个行业）</div>
+        <div id="daily-fundflow-rank" style="width:100%;height:620px"></div>
+      </div>
+    </div>
+
+    <!-- ========== 周数据页 ========== -->
+    <div class="page" id="page-weekly">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📡</span> 周度市场雷达</div>
+          <div id="weekly-radar" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💪</span> 资金强度评级</div>
+          <div id="weekly-fund-strength"></div>
+        </div>
+      </div>
+
+      <div class="section-title">指数周涨跌 & 行业表现</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📈</span> 主要指数周涨跌</div>
+          <div id="weekly-indices" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🏭</span> 行业周表现</div>
+          <div id="weekly-industry" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">ETF净申赎</div>
+      <div class="card">
+        <div id="weekly-etf" class="chart-container"></div>
+      </div>
+
+      <div class="section-title">下周观察重点</div>
+      <div id="weekly-observation"></div>
+    </div>
+
+    <!-- ========== 月数据页 ========== -->
+    <div class="page" id="page-monthly">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📡</span> 月度趋势雷达</div>
+          <div id="monthly-radar" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">⭐</span> 月度评级</div>
+          <div id="monthly-rating"></div>
+        </div>
+      </div>
+
+      <div class="section-title">指数月度表现 & 风格比较</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📈</span> 主要指数月度涨跌</div>
+          <div id="monthly-indices" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🔄</span> 风格比较</div>
+          <div id="monthly-style" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">行业月度表现</div>
+      <div class="card">
+        <div id="monthly-industry" class="chart-container"></div>
+      </div>
+
+      <div class="section-title">ETF资金 & 债券商品</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💰</span> ETF月度资金流向</div>
+          <div id="monthly-etf" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🏦</span> 债券利率商品月度变化</div>
+          <div id="monthly-bonds" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">下月观察重点</div>
+      <div id="monthly-observation"></div>
+    </div>
+
+    <!-- ========== 市场基本面页 ========== -->
+    <div class="page" id="page-fundamentals">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📡</span> 基本面雷达</div>
+          <div id="fund-radar" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">⭐</span> 基本面评级</div>
+          <div id="fund-rating"></div>
+        </div>
+      </div>
+
+      <div class="section-title">经济增长</div>
+      <div class="card">
+        <table class="data-table" id="fund-growth-table"></table>
+      </div>
+
+      <div class="section-title">企业盈利</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💼</span> 盈利数据</div>
+          <table class="data-table" id="fund-earnings-table"></table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🔍</span> 盈利驱动分析</div>
+          <div id="fund-earnings-driver"></div>
+        </div>
+      </div>
+
+      <div class="section-title">流动性</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">💧</span> 流动性指标</div>
+          <table class="data-table" id="fund-liquidity-table"></table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🧠</span> 流动性判断</div>
+          <div id="fund-liquidity-judgment"></div>
+        </div>
+      </div>
+
+      <div class="section-title">利率、债券与商品</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🏦</span> 利率与债券</div>
+          <table class="data-table" id="fund-rates-table"></table>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🛢️</span> 商品市场</div>
+          <table class="data-table" id="fund-commodities-table"></table>
+        </div>
+      </div>
+
+      <div class="section-title">基本面观察重点</div>
+      <div id="fund-observation"></div>
+    </div>
+
+    <!-- ========== 中观结构页 ========== -->
+    <div class="page" id="page-meso">
+      <div class="radar-section">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📡</span> 行业雷达总览</div>
+          <div id="meso-radar" class="chart-container-lg"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">⭐</span> 行业综合评级</div>
+          <div id="meso-rating" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">行业景气度</div>
+      <div class="card">
+        <table class="data-table" id="meso-prosperity-table"></table>
+      </div>
+
+      <div class="section-title">行业估值</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📊</span> PE/PB对比</div>
+          <div id="meso-valuation" class="chart-container"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📈</span> 估值分位</div>
+          <div id="meso-percentile" class="chart-container"></div>
+        </div>
+      </div>
+
+      <div class="section-title">资金拥挤度</div>
+      <div class="card">
+        <div id="meso-crowding" class="chart-container-lg"></div>
+      </div>
+
+      <div class="section-title">资金切换</div>
+      <div class="card">
+        <div id="meso-switching" class="chart-container"></div>
+      </div>
+
+      <div class="section-title">中观观察重点</div>
+      <div id="meso-observation"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/data.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
+</body>
+</html>
