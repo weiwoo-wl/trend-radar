@@ -28,10 +28,10 @@ const DASHBOARD_DATA = {
 
     // 股指表现 - 2026-08-07收盘（数据来源：交易所公开数据）
     indices: [
-      { name: '上证指数', close: 3940.04, change: 39.69, changePct: 1.02, volume: 12095, avg5: 11091 },
-      { name: '深证成指', close: 14311.01, change: 200.89, changePct: 1.42, volume: 14549, avg5: 13036 },
-      { name: '创业板指', close: 3563.12, change: 47.56, changePct: 1.35, volume: 7348, avg5: 6393 },
-      { name: '科创综指', close: 2019.44, change: 65.39, changePct: 3.35, volume: 4150, avg5: 3736 },
+      { name: '上证指数', close: 3940.04, change: 39.69, changePct: 1.02, volume: 12095, avg5: 11091, avg10: 10908 },
+      { name: '深证成指', close: 14311.01, change: 200.89, changePct: 1.42, volume: 14549, avg5: 13036, avg10: 12439 },
+      { name: '创业板指', close: 3563.12, change: 47.56, changePct: 1.35, volume: 7301, avg5: 6403, avg10: 6038 },
+      { name: '科创综指', close: 2019.44, change: 65.39, changePct: 3.35, volume: 4150, avg5: 3736, avg10: 3879 },
       { name: '沪深300', close: 4694.44, change: 43.13, changePct: 0.93, volume: 7884 },
       { name: '中证500', close: 7980.12, change: 150.76, changePct: 1.93, volume: 5253 },
       { name: '中证1000', close: 7679.53, change: 149.10, changePct: 1.98, volume: 5684 },
@@ -57,12 +57,14 @@ const DASHBOARD_DATA = {
       ],
     },
 
-    // 成交额 - 2026-08-07（来源：同花顺/交易所）
+    // 成交额 - 2026-08-07（来源：交易所/同花顺，沪深两市）
     turnover: {
-      sh: 12095, sz: 14549, bj: 191, total: 26834,
-      prevDay: 25475, change: 1359, changePct: 5.33,
-      avg5: 25267,
-      vs5d: 1567,
+      sh: 12095, sz: 14549, bj: 191, total: 26644,
+      prevDay: 25288, change: 1356, changePct: 5.36,
+      avg5: 24128,
+      avg10: 23348,
+      vs5d: 2516,
+      vs10d: 3296,
     },
 
     // 市场广度 - 2026-08-07
@@ -521,6 +523,15 @@ const DASHBOARD_DATA = {
     },
   },
 };
+
+// 历史数据（供日期选择器使用，由 fetch_data.py 自动维护）
+// 每个元素: { date: 'YYYY-MM-DD', daily: {...} }
+const DASHBOARD_HISTORY = [
+  {
+    date: '2026-08-07',
+    daily: DASHBOARD_DATA.daily,
+  },
+];
 
 // 状态颜色映射
 const STATUS_COLORS = {

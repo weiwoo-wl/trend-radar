@@ -1,14 +1,14 @@
 # 趋势雷达数据看板 - 部署指南
 
 > **域名**：chinghuo.com
-> **GitHub**：shwl3030（邮箱 shwl3030@yahoo.com）
+> **GitHub**：weiwoo-wl（邮箱 shwl3030@yahoo.com）
 
 ---
 
 ## 架构说明
 
 ```
-GitHub仓库 (shwl3030/trend-radar)
+GitHub仓库 (weiwoo-wl/trend-radar)
 ├── index.html          # 看板主页面
 ├── css/style.css       # 样式
 ├── js/data.js          # 数据文件（每天自动更新）
@@ -56,7 +56,7 @@ git commit -m "初始化趋势雷达数据看板"
 git branch -M main
 
 # 关联远程仓库并推送
-git remote add origin https://github.com/shwl3030/trend-radar.git
+git remote add origin https://github.com/weiwoo-wl/trend-radar.git
 git push -u origin main
 ```
 
@@ -71,7 +71,7 @@ git push -u origin main
 2. `Source` 选择 `Deploy from a branch`
 3. `Branch` 选择 `main`，文件夹选 `/ (root)`
 4. 点击 `Save`
-5. 等 1-2 分钟，页面顶部显示：`Your site is live at https://shwl3030.github.io/trend-radar/`
+5. 等 1-2 分钟，页面顶部显示：`Your site is live at https://weiwoo-wl.github.io/trend-radar/`
 
 ### 第四步：绑定域名 chinghuo.com
 
@@ -91,7 +91,7 @@ git push -u origin main
 | A | @ | 185.199.109.153 | GitHub Pages IP 2 |
 | A | @ | 185.199.110.153 | GitHub Pages IP 3 |
 | A | @ | 185.199.111.153 | GitHub Pages IP 4 |
-| CNAME | www | shwl3030.github.io | www 子域名跳转 |
+| CNAME | www | weiwoo-wl.github.io | www 子域名跳转 |
 
 > **说明**：4 条 A 记录都要加，把 chinghuo.com 直接指向 GitHub Pages。
 > CNAME 的 www 记录让 www.chinghuo.com 也能访问。
@@ -177,7 +177,7 @@ GitHub 已不支持密码登录，需要 Personal Access Token：
 
 **Q: 想改用子域名（如 radar.chinghuo.com）？**
 1. 改 `CNAME` 文件内容为 `radar.chinghuo.com`
-2. DNS 只留一条：`CNAME  radar  shwl3030.github.io`
+2. DNS 只留一条：`CNAME  radar  weiwoo-wl.github.io`
 3. GitHub Pages 设置里改 Custom domain
 
 **Q: 想修改更新时间？**

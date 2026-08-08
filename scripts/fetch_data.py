@@ -3,6 +3,11 @@
 趋势雷达数据看板 - 自动数据抓取脚本
 使用 AKShare 抓取真实市场数据，重新生成 data.js
 
+功能：
+1. 自动判断交易日（周末和节假日跳过）
+2. 抓取失败时保留旧数据（不覆盖）
+3. 保存历史数据（最近30个交易日），供前端日期选择器使用
+
 数据源：
 - 指数行情：东方财富 (stock_zh_index_spot_em)
 - 历史数据：东方财富 (index_zh_a_hist)
@@ -15,19 +20,17 @@
 运行方式：
     python fetch_data.py          # 正常模式，抓取真实数据
     python fetch_data.py --test   # 测试模式，生成示例数据（不联网）
-
-输出：
-    覆盖 js/data.js
+    python fetch_data.py --force  # 强制模式，跳过交易日检查
 """
 
 import json
 import os
 import sys
-import time
 from datetime import datetime, timedelta
 
 OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'data.js')
 TEST_MODE = '--test' in sys.argv
+FORCE_MODE = '--force' in sys.argv
 
 if not TEST_MODE:
     import akshare as ak
@@ -62,6 +65,8 @@ BOND_NAME_MAP = {
     '美国国债收益率30年': '美国30年国债',
 }
 
+MAX_HISTORY = 30  # 保留最近30个交易日的数据
+
 # ============================================================
 # 工具函数
 # ============================================================
@@ -84,6 +89,32 @@ def fmt_volume(val):
         return round(float(val) / 1e8, 0)
     except (ValueError, TypeError):
         return 0
+
+def is_trading_day():
+    """判断今天是否为交易日（排除周末）"""
+    today = datetime.now()
+    # 周六=5, 周日=6
+    if today.weekday() >= 5:
+        return False
+    return True
+
+def is_market_open_today():
+    """通过AKShare检查今天是否有交易数据（排除节假日）"""
+    if TEST_MODE:
+        return True
+    try:
+        df = ak.stock_zh_index_spot_em()
+        if len(df) == 0:
+            return False
+        # 检查最新价是否有变化（非交易日可能返回0或None）
+        sh_row = df[df['代码'] == '000001']
+        if len(sh_row) > 0:
+            close = safe_float(sh_row.iloc[0].get('最新价'))
+            if close and close > 0:
+                return True
+        return False
+    except Exception:
+        return True  # 无法判断时假设是交易日，让后续数据验证来把关
 
 # ============================================================
 # 数据抓取函数
@@ -138,7 +169,8 @@ def fetch_index_history(name, code, days=10):
         df = df.tail(days)
         if '成交额' in df.columns:
             avg5 = safe_float(df['成交额'].tail(5).mean() / 1e8, 0)
-            return {'avg5': avg5}
+            avg10 = safe_float(df['成交额'].tail(10).mean() / 1e8, 0)
+            return {'avg5': avg5, 'avg10': avg10}
         return None
     except Exception:
         return None
@@ -359,6 +391,7 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
         }
         if hist:
             idx['avg5'] = hist.get('avg5', 0)
+            idx['avg10'] = hist.get('avg10', 0)
         indices.append(idx)
 
     sh_vol = index_spot.get('上证指数', {}).get('volume', 0)
@@ -369,11 +402,13 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
     sh_hist = fetch_index_history('上证指数', '000001') if not TEST_MODE else None
     sz_hist = fetch_index_history('深证成指', '399001') if not TEST_MODE else None
     avg5_total = (sh_hist or {}).get('avg5', 0) + (sz_hist or {}).get('avg5', 0)
+    avg10_total = (sh_hist or {}).get('avg10', 0) + (sz_hist or {}).get('avg10', 0)
 
     turnover = {
         'sh': sh_vol, 'sz': sz_vol, 'bj': bj_vol, 'total': total_vol,
         'prevDay': 0, 'change': 0, 'changePct': 0,
         'avg5': round(avg5_total, 0), 'vs5d': round(total_vol - avg5_total, 0),
+        'avg10': round(avg10_total, 0), 'vs10d': round(total_vol - avg10_total, 0),
     }
 
     fund_flow_data = {
@@ -500,25 +535,94 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
 
 
 # ============================================================
+# 历史数据管理
+# ============================================================
+
+def load_existing_data():
+    """读取现有 data.js 中的数据"""
+    try:
+        existing_path = os.path.normpath(OUTPUT_PATH)
+        if not os.path.exists(existing_path):
+            return None
+        with open(existing_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        start = content.find('const DASHBOARD_DATA = ')
+        if start == -1:
+            return None
+        start = content.find('{', start)
+        if start == -1:
+            return None
+        end = content.rfind('};')
+        if end == -1:
+            return None
+        json_str = content[start:end + 1]
+        return json.loads(json_str)
+    except Exception as e:
+        print(f'  ! 读取现有数据失败: {e}')
+        return None
+
+
+def has_valid_indices(index_spot):
+    """检查是否有有效的指数数据"""
+    if not index_spot:
+        return False
+    valid_count = 0
+    for name in CORE_INDICES:
+        spot = index_spot.get(name, {})
+        if spot.get('close', 0) and spot.get('close', 0) > 0:
+            valid_count += 1
+    return valid_count >= 2
+
+
+def build_history(existing_data, new_data):
+    """构建历史数据数组：把旧数据存入history，保留最近MAX_HISTORY天"""
+    history = []
+    # 从现有数据中提取history
+    if existing_data:
+        old_history = existing_data.get('history', [])
+        history.extend(old_history)
+        # 把旧的当日数据加入history
+        old_date = existing_data.get('meta', {}).get('reportDate', '')
+        old_daily = existing_data.get('daily', {})
+        if old_date and old_daily:
+            # 去重：如果该日期已在history中，先移除
+            history = [h for h in history if h.get('date') != old_date]
+            history.append({'date': old_date, 'daily': old_daily})
+    # 按日期降序排序
+    history.sort(key=lambda x: x.get('date', ''), reverse=True)
+    # 保留最近MAX_HISTORY条
+    history = history[:MAX_HISTORY]
+    return history
+
+
+# ============================================================
 # 生成 data.js
 # ============================================================
 
-def generate_js(data):
+def generate_js(data, history):
     json_str = json.dumps(data, ensure_ascii=False, indent=2)
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     report_date = data.get('meta', {}).get('reportDate', '')
     mode_str = '测试模式' if TEST_MODE else '自动抓取'
+
+    # 单独输出history（避免嵌套在DASHBOARD_DATA中过大）
+    history_str = json.dumps(history, ensure_ascii=False, indent=2)
+
     js_content = f"""/**
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：{mode_str}
  * 自动更新时间：{now_str}
  * 数据日期：{report_date}
+ * 历史数据：{len(history)}个交易日
  *
  * 由 scripts/fetch_data.py 自动生成，请勿手动编辑
  */
 
 const DASHBOARD_DATA = {json_str};
+
+// 历史数据（供日期选择器使用，每个元素含 date 和 daily）
+const DASHBOARD_HISTORY = {history_str};
 
 // 状态颜色映射
 const STATUS_COLORS = {{
@@ -547,16 +651,97 @@ def main():
     print(f'运行时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
     if TEST_MODE:
         print('模式: 测试模式（不联网，生成空数据）')
+    elif FORCE_MODE:
+        print('模式: 强制模式（跳过交易日检查）')
     print('=' * 60)
 
+    # 检查交易日
+    if not TEST_MODE and not FORCE_MODE:
+        if not is_trading_day():
+            print('\n⏭ 今天是周末，非交易日，跳过更新。')
+            print('  下一个工作日16:30会自动运行。')
+            print('  如需强制运行，使用: python fetch_data.py --force')
+            return
+        print(f'[交易日检查] 今天是交易日，继续执行。')
+
+    # 读取现有数据
+    existing_data = None
+    if not TEST_MODE:
+        existing_data = load_existing_data()
+        if existing_data:
+            old_date = existing_data.get('meta', {}).get('reportDate', '未知')
+            print(f'[0/8] 已加载现有数据（数据日期: {old_date}），抓取失败时将保留旧数据')
+        else:
+            print('[0/8] 未找到现有数据，将使用新抓取的数据')
+
     index_spot = fetch_index_spot()
+
+    # 检查指数数据是否有效
+    if not TEST_MODE and not has_valid_indices(index_spot):
+        print('\n⚠ 指数数据抓取失败！保留现有 data.js 不覆盖。')
+        print('  可能原因：非交易日、节假日、或数据源暂时不可达。')
+        print('  下次定时运行时会自动重试。')
+        return
+
+    # 部分指数失败时用旧数据补
+    if not TEST_MODE and existing_data:
+        old_indices = {i['name']: i for i in existing_data.get('daily', {}).get('indices', [])}
+        for name in CORE_INDICES + BROAD_INDICES:
+            spot = index_spot.get(name, {})
+            if not spot.get('close'):
+                old = old_indices.get(name, {})
+                if old.get('close'):
+                    index_spot[name] = {
+                        'close': old.get('close', 0),
+                        'change': old.get('change', 0),
+                        'changePct': old.get('changePct', 0),
+                        'volume': old.get('volume', 0),
+                    }
+                    print(f'  - {name} 使用旧数据: {old.get("close")}')
+
     weekly_changes = fetch_weekly_changes()
     fund_flow = fetch_fund_flow()
+
+    # 资金流向失败时用旧数据
+    if not TEST_MODE and existing_data:
+        old_fund_flow = existing_data.get('daily', {}).get('fundFlow', {})
+        if not fund_flow.get('sectors'):
+            print('  - 资金流向抓取为空，保留旧数据')
+            fund_flow = old_fund_flow
+
     margin = fetch_margin()
     northbound = fetch_northbound()
     bonds = fetch_bonds()
     commodities = fetch_commodities()
     breadth = fetch_market_breadth()
+
+    # 各数据源失败时用旧数据
+    if not TEST_MODE and existing_data:
+        if not bonds:
+            old_bonds = existing_data.get('fundamentals', {}).get('ratesBonds', [])
+            if old_bonds:
+                print('  - 债券数据为空，保留旧数据')
+                bonds = old_bonds
+        if not commodities:
+            old_commodities = existing_data.get('fundamentals', {}).get('commodities', [])
+            if old_commodities:
+                print('  - 商品数据为空，保留旧数据')
+                commodities = old_commodities
+        if breadth.get('upCount', 0) == 0:
+            old_breadth = existing_data.get('daily', {}).get('breadth', {})
+            if old_breadth.get('upCount', 0) > 0:
+                print('  - 市场广度为空，保留旧数据')
+                breadth = old_breadth
+        if margin.get('totalBalance', 0) == 0:
+            old_margin = existing_data.get('daily', {}).get('margin', {})
+            if old_margin.get('totalBalance', 0) > 0:
+                print('  - 融资融券为空，保留旧数据')
+                margin = old_margin
+        if northbound.get('netBuy', 0) == 0:
+            old_north = existing_data.get('daily', {}).get('northbound', {})
+            if old_north.get('netBuy', 0) != 0:
+                print('  - 北向资金为空，保留旧数据')
+                northbound = old_north
 
     print('\n组装数据...')
     data = build_data(
@@ -564,7 +749,13 @@ def main():
         bonds, commodities, breadth, weekly_changes
     )
 
-    js_content = generate_js(data)
+    # 构建历史数据
+    history = []
+    if not TEST_MODE:
+        history = build_history(existing_data, data)
+        print(f'历史数据: {len(history)}个交易日')
+
+    js_content = generate_js(data, history)
     output_path = os.path.normpath(OUTPUT_PATH)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -577,6 +768,7 @@ def main():
     print(f'资金流向板块: {len(data["daily"]["fundFlow"]["sectors"])}')
     print(f'债券数据: {len(data["fundamentals"]["ratesBonds"])}')
     print(f'商品数据: {len(data["fundamentals"]["commodities"])}')
+    print(f'历史数据: {len(history)}个交易日')
     print(f'{"=" * 60}')
 
 

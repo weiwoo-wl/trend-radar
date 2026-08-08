@@ -2,6 +2,60 @@
  * 趋势雷达数据看板 - 主应用逻辑
  */
 
+// ========== 日期选择器逻辑 ==========
+let _originalDaily = null;  // 保存原始daily数据
+let _currentDate = '';     // 当前选中的日期（空=最新）
+
+function initDateSelector() {
+  const selector = document.getElementById('dateSelector');
+  if (!selector) return;
+
+  // 保存原始 daily 数据
+  _originalDaily = JSON.parse(JSON.stringify(DASHBOARD_DATA.daily));
+
+  // 构建 option 列表：默认显示真实日期 + "最新"标签
+  let options = '<option value="">' + DASHBOARD_DATA.meta.reportDate + '（最新）</option>';
+
+  // 从 DASHBOARD_HISTORY 获取历史日期
+  if (typeof DASHBOARD_HISTORY !== 'undefined' && DASHBOARD_HISTORY && DASHBOARD_HISTORY.length > 0) {
+    DASHBOARD_HISTORY.forEach(h => {
+      options += `<option value="${h.date}">${h.date}</option>`;
+    });
+  }
+
+  selector.innerHTML = options;
+}
+
+function onDateChange() {
+  const selector = document.getElementById('dateSelector');
+  if (!selector) return;
+
+  const selectedDate = selector.value;
+  _currentDate = selectedDate;
+
+  if (!selectedDate) {
+    // 恢复最新数据
+    DASHBOARD_DATA.daily = JSON.parse(JSON.stringify(_originalDaily));
+    document.getElementById('updateStatus').textContent = '最新数据';
+  } else {
+    // 从历史数据中查找
+    if (typeof DASHBOARD_HISTORY !== 'undefined' && DASHBOARD_HISTORY) {
+      const histItem = DASHBOARD_HISTORY.find(h => h.date === selectedDate);
+      if (histItem && histItem.daily) {
+        DASHBOARD_DATA.daily = JSON.parse(JSON.stringify(histItem.daily));
+        document.getElementById('updateStatus').textContent = '历史数据 · ' + selectedDate;
+      }
+    }
+  }
+
+  // 重新渲染当前页面
+  const activePage = document.querySelector('.nav-item.active');
+  if (activePage) {
+    const page = activePage.dataset.page;
+    setTimeout(() => renderPage(page), 50);
+  }
+}
+
 // ========== 全局 ECharts 主题配置 ==========
 const CHART_THEME = {
   backgroundColor: 'transparent',
@@ -374,7 +428,7 @@ function renderDaily() {
     const up = cur >= avg;
     return `<span style="color:var(--${up ? 'color-up' : 'color-down'});font-size:11px">${up ? '+' : ''}${pct}%</span>`;
   };
-  // 核心指数：有5日成交额均值（来源：交易所数据）
+  // 核心指数：有5日/10日成交额均值（来源：交易所数据）
   const coreRowFn = idx => `<tr>
       <td style="font-weight:600">${idx.name}</td>
       <td style="font-family:monospace">${idx.close.toFixed(2)}</td>
@@ -382,8 +436,9 @@ function renderDaily() {
       <td class="${priceColor(idx.changePct)}" style="font-family:monospace;font-weight:600">${fmtPct(idx.changePct)}</td>
       <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${idx.volume.toLocaleString()}</td>
       <td style="color:var(--text-secondary);font-family:monospace">${idx.avg5.toLocaleString()} <br>${volDiff(idx.volume, idx.avg5)}</td>
+      <td style="color:var(--text-secondary);font-family:monospace">${idx.avg10.toLocaleString()} <br>${volDiff(idx.volume, idx.avg10)}</td>
     </tr>`;
-  // 宽基指数：无5日均值数据，仅显示成交额
+  // 宽基指数：无均值数据，仅显示成交额
   const broadRowFn = idx => `<tr>
       <td style="font-weight:600">${idx.name}</td>
       <td style="font-family:monospace">${idx.close.toFixed(2)}</td>
@@ -391,12 +446,13 @@ function renderDaily() {
       <td class="${priceColor(idx.changePct)}" style="font-family:monospace;font-weight:600">${fmtPct(idx.changePct)}</td>
       <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${idx.volume.toLocaleString()}</td>
       <td style="color:var(--text-tertiary);font-size:12px">—</td>
+      <td style="color:var(--text-tertiary);font-size:12px">—</td>
     </tr>`;
   buildTable('daily-indices-core-table',
-    ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)'],
+    ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'],
     coreIndices, coreRowFn);
   buildTable('daily-indices-broad-table',
-    ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)'],
+    ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'],
     broadIndices, broadRowFn);
 
   // 行业涨跌
@@ -568,9 +624,10 @@ function renderDailyTurnover() {
   });
   // 用文本展示成交额关键数据
   el.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:10px 0">
       <div class="metric-card"><div class="metric-label">两市成交额</div><div class="metric-value">${t.total.toLocaleString()}亿</div><div class="metric-change" style="color:var(--color-up)">较昨日 ${t.change > 0 ? '+' : ''}${t.change.toLocaleString()}亿</div></div>
       <div class="metric-card"><div class="metric-label">5日平均</div><div class="metric-value" style="font-size:18px">${t.avg5.toLocaleString()}亿</div><div class="metric-change" style="color:var(--${t.vs5d >= 0 ? 'color-up' : 'color-down'})">${t.vs5d >= 0 ? '+' : ''}${t.vs5d.toLocaleString()}亿 (${((t.vs5d/t.avg5)*100).toFixed(1)}%)</div></div>
+      <div class="metric-card"><div class="metric-label">10日平均</div><div class="metric-value" style="font-size:18px">${t.avg10.toLocaleString()}亿</div><div class="metric-change" style="color:var(--${t.vs10d >= 0 ? 'color-up' : 'color-down'})">${t.vs10d >= 0 ? '+' : ''}${t.vs10d.toLocaleString()}亿 (${((t.vs10d/t.avg10)*100).toFixed(1)}%)</div></div>
     </div>`;
 }
 
@@ -1166,5 +1223,5 @@ window.addEventListener('resize', () => {
 });
 
 // ========== 初始化 ==========
-document.getElementById('reportDate').textContent = DASHBOARD_DATA.meta.reportDate;
+initDateSelector();
 renderOverview();

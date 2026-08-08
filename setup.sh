@@ -5,7 +5,7 @@
 
 set -e
 
-REPO_URL="https://github.com/shwl3030/trend-radar.git"
+REPO_URL="https://github.com/weiwoo-wl/trend-radar.git"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "========================================="
@@ -50,7 +50,7 @@ echo "  推送完成！"
 echo "========================================="
 echo ""
 echo "下一步："
-echo "1. 打开 https://github.com/shwl3030/trend-radar"
+echo "1. 打开 https://github.com/weiwoo-wl/trend-radar"
 echo "2. Settings → Pages → 开启 (Branch: main, /root)"
 echo "3. Pages → Custom domain → 填入 chinghuo.com"
 echo "4. 配置 DNS（见 DEPLOY.md 第四步）"

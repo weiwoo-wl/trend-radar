@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>趋势雷达 · 数据看板系统</title>
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=12">
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -58,8 +58,13 @@
   <div class="topbar">
     <div class="topbar-title" id="pageTitle">综合总览</div>
     <div class="topbar-info">
-      <div class="info-item"><span class="dot"></span> 数据已更新</div>
-      <div class="info-item">报告日期：<span id="reportDate">2026-08-07</span></div>
+      <div class="info-item">
+        <span class="date-picker-label">📅 数据日期</span>
+        <select id="dateSelector" class="date-selector" onchange="onDateChange()">
+          <option value="">最新</option>
+        </select>
+      </div>
+      <div class="info-item"><span class="dot"></span> <span id="updateStatus">数据已更新</span></div>
       <div class="info-item">市场状态：<span style="color:var(--color-yellow)">收盘</span></div>
     </div>
   </div>
@@ -377,7 +382,7 @@
   </div>
 </div>
 
-<script src="js/data.js?v=9"></script>
-<script src="js/app.js?v=9"></script>
+<script src="js/data.js?v=12"></script>
+<script src="js/app.js?v=12"></script>
 </body>
 </html>
