@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>趋势雷达 · 数据看板系统</title>
-  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/style.css?v=13">
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -45,6 +45,12 @@
     <div class="nav-item" data-page="meso">
       <span class="nav-icon">🏭</span>
       <span>中观结构</span>
+    </div>
+    <div class="nav-section">估值分析</div>
+    <div class="nav-item" data-page="valuation">
+      <span class="nav-icon">💎</span>
+      <span>估值模型</span>
+      <span class="nav-badge">新增</span>
     </div>
   </nav>
   <div class="sidebar-footer">
@@ -379,10 +385,90 @@
       <div id="meso-observation"></div>
     </div>
 
+    <!-- ========== 估值模型页 ========== -->
+    <div class="page" id="page-valuation">
+      <!-- 股票输入区 -->
+      <div class="card valuation-search-card">
+        <div class="valuation-search-bar">
+          <input type="text" id="stockCodeInput" class="stock-input" placeholder="输入股票代码，如 600519（贵州茅台）、000001（平安银行）、300750（宁德时代）" onkeydown="if(event.key==='Enter')searchStock()">
+          <button onclick="searchStock()" class="search-btn">查询估值</button>
+        </div>
+        <div id="companyInfo" class="company-info">
+          <div style="text-align:center;padding:40px;color:var(--text-muted)">输入股票代码开始估值分析</div>
+        </div>
+      </div>
+
+      <!-- 模型标签页 -->
+      <div class="valuation-tabs">
+        <div class="val-tab active" data-model="dcf" onclick="switchValuationTab('dcf')"><span class="val-tab-icon">📊</span> DCF 现金流折现</div>
+        <div class="val-tab" data-model="ddm" onclick="switchValuationTab('ddm')"><span class="val-tab-icon">💰</span> DDM 股利折现</div>
+        <div class="val-tab" data-model="relative" onclick="switchValuationTab('relative')"><span class="val-tab-icon">📐</span> 相对估值法</div>
+        <div class="val-tab" data-model="montecarlo" onclick="switchValuationTab('montecarlo')"><span class="val-tab-icon">🎲</span> 蒙特卡洛模拟</div>
+        <div class="val-tab" data-model="realoptions" onclick="switchValuationTab('realoptions')"><span class="val-tab-icon">🔮</span> 实物期权法</div>
+        <div class="val-tab" data-model="summary" onclick="switchValuationTab('summary')"><span class="val-tab-icon">📋</span> 估值汇总</div>
+      </div>
+
+      <!-- DCF 面板 -->
+      <div class="val-panel active" id="panel-dcf">
+        <div class="grid-2">
+          <div class="card"><div class="card-title"><span class="title-icon">📖</span> 模型说明 & 公式</div><div id="dcf-formula"></div></div>
+          <div class="card"><div class="card-title"><span class="title-icon">⚙️</span> 参数设置</div><div id="dcf-params"></div></div>
+        </div>
+        <div class="card" style="margin-top:20px"><div class="card-title"><span class="title-icon">🧮</span> 计算过程 & 结果</div><div id="dcf-result"></div></div>
+      </div>
+
+      <!-- DDM 面板 -->
+      <div class="val-panel" id="panel-ddm">
+        <div class="grid-2">
+          <div class="card"><div class="card-title"><span class="title-icon">📖</span> 模型说明 & 公式</div><div id="ddm-formula"></div></div>
+          <div class="card"><div class="card-title"><span class="title-icon">⚙️</span> 参数设置</div><div id="ddm-params"></div></div>
+        </div>
+        <div class="card" style="margin-top:20px"><div class="card-title"><span class="title-icon">🧮</span> 计算过程 & 结果</div><div id="ddm-result"></div></div>
+      </div>
+
+      <!-- 相对估值面板 -->
+      <div class="val-panel" id="panel-relative">
+        <div class="grid-2">
+          <div class="card"><div class="card-title"><span class="title-icon">📖</span> 模型说明 & 公式</div><div id="rel-formula"></div></div>
+          <div class="card"><div class="card-title"><span class="title-icon">⚙️</span> 参数设置</div><div id="rel-params"></div></div>
+        </div>
+        <div class="card" style="margin-top:20px"><div class="card-title"><span class="title-icon">🧮</span> 计算过程 & 结果</div><div id="rel-result"></div></div>
+      </div>
+
+      <!-- 蒙特卡洛面板 -->
+      <div class="val-panel" id="panel-montecarlo">
+        <div class="grid-2">
+          <div class="card"><div class="card-title"><span class="title-icon">📖</span> 模型说明 & 公式</div><div id="mc-formula"></div></div>
+          <div class="card"><div class="card-title"><span class="title-icon">⚙️</span> 参数设置</div><div id="mc-params"></div></div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-title"><span class="title-icon">🎲</span> 蒙特卡洛模拟结果</div>
+          <div id="mc-result"></div>
+          <button onclick="runMonteCarlo()" class="search-btn" style="margin-top:12px">运行模拟</button>
+        </div>
+      </div>
+
+      <!-- 实物期权面板 -->
+      <div class="val-panel" id="panel-realoptions">
+        <div class="grid-2">
+          <div class="card"><div class="card-title"><span class="title-icon">📖</span> 模型说明 & 公式</div><div id="ro-formula"></div></div>
+          <div class="card"><div class="card-title"><span class="title-icon">⚙️</span> 参数设置</div><div id="ro-params"></div></div>
+        </div>
+        <div class="card" style="margin-top:20px"><div class="card-title"><span class="title-icon">🔮</span> 计算过程 & 结果</div><div id="ro-result"></div></div>
+      </div>
+
+      <!-- 估值汇总面板 -->
+      <div class="val-panel" id="panel-summary">
+        <div class="card"><div class="card-title"><span class="title-icon">📋</span> 各模型估值对比</div><div id="summary-content"></div></div>
+        <div class="card" style="margin-top:20px"><div class="card-title"><span class="title-icon">📈</span> 估值区间图</div><div id="summary-chart" class="chart-container"></div></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<script src="js/data.js?v=12"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/data.js?v=13"></script>
+<script src="js/app.js?v=13"></script>
+<script src="js/valuation.js?v=13"></script>
 </body>
 </html>

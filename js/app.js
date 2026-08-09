@@ -119,7 +119,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
 
     const titles = {
       overview: '综合总览', daily: '天数据', weekly: '周数据',
-      monthly: '月数据', fundamentals: '市场基本面', meso: '中观结构'
+      monthly: '月数据', fundamentals: '市场基本面', meso: '中观结构',
+      valuation: '估值模型'
     };
     document.getElementById('pageTitle').textContent = titles[page];
 

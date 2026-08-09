@@ -438,7 +438,373 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-/* ========== 分隔线 ========== */
+/* ========== 估值模型页 ========== */
+.valuation-search-card {
+  margin-bottom: 20px;
+}
+
+.valuation-search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stock-input {
+  flex: 1;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.stock-input::placeholder {
+  color: var(--text-muted);
+  font-family: inherit;
+}
+
+.stock-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(6,182,212,0.1);
+}
+
+.search-btn {
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.search-btn:hover { opacity: 0.9; }
+.search-btn:active { transform: scale(0.97); }
+
+.company-info {
+  margin-top: 4px;
+}
+
+.company-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.company-info-main {
+  display: flex;
+  align-items: baseline;
+  padding: 8px 0;
+}
+
+.company-info-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.ci-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.ci-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ci-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--text-primary);
+}
+
+/* ========== 估值标签页 ========== */
+.valuation-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.val-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.val-tab:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.val-tab.active {
+  background: rgba(6,182,212,0.12);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.val-tab-icon {
+  font-size: 15px;
+}
+
+.val-panel { display: none; }
+.val-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+/* ========== 公式展示 ========== */
+.formula-block {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 16px 18px;
+  border-left: 3px solid var(--accent-purple);
+}
+
+.formula-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-purple);
+  margin-bottom: 12px;
+}
+
+.formula-line {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-family: 'SF Mono', 'Consolas', monospace;
+}
+
+.formula-line strong { color: var(--accent-cyan); }
+
+.formula-indent { padding-left: 20px; }
+
+.formula-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 8px 0 4px;
+}
+
+.formula-sum {
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.formula-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+.model-note {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(234,179,8,0.08);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ========== 参数输入 ========== */
+.param-group-title {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(30,41,59,0.5);
+}
+
+.param-label {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.param-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: right;
+}
+
+.param-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.param-unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 24px;
+}
+
+.param-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  grid-column: 1 / -1;
+  padding-top: 2px;
+}
+
+/* ========== 计算过程 ========== */
+.calc-process {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calc-step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--border-light);
+}
+
+.calc-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.calc-formula {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Consolas', monospace;
+  line-height: 1.6;
+}
+
+.calc-formula strong { color: var(--accent-cyan); font-size: 14px; }
+
+.calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.calc-table th {
+  text-align: left;
+  padding: 6px 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calc-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(30,41,59,0.4);
+  font-family: 'SF Mono', 'Consolas', monospace;
+}
+
+/* ========== 结果展示 ========== */
+.result-box {
+  margin-top: 20px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.result-undervalued {
+  background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.result-overvalued {
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+.result-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.result-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.result-price {
+  font-size: 36px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--text-primary);
+}
+
+.result-undervalued .result-price { color: var(--color-up); }
+.result-overvalued .result-price { color: var(--color-down); }
+
+.result-unit {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.result-vs {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-left: 16px;
+  padding: 4px 12px;
+  background: var(--bg-card);
+  border-radius: 6px;
+}
+
+.result-warning {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-yellow);
+  background: rgba(234,179,8,0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(234,179,8,0.2);
+  font-size: 14px;
+}
 .divider {
   height: 1px;
   background: var(--border-color);
