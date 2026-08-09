@@ -46,6 +46,11 @@
       <span class="nav-icon">🏭</span>
       <span>中观结构</span>
     </div>
+    <div class="nav-item" data-page="policy-funds">
+      <span class="nav-icon">🛡️</span>
+      <span>政策性资金</span>
+      <span class="nav-badge">观察</span>
+    </div>
     <div class="nav-section">估值分析</div>
     <div class="nav-item" data-page="valuation">
       <span class="nav-icon">💎</span>
@@ -385,6 +390,46 @@
       <div id="meso-observation"></div>
     </div>
 
+    <!-- ========== 政策性资金观察页 ========== -->
+    <div class="page" id="page-policy-funds">
+      <div id="policy-summary" class="metric-grid"></div>
+
+      <div class="card policy-notice">
+        <div class="card-title"><span class="title-icon">🧭</span> 观察口径</div>
+        <div>用八类宽基 ETF 的已核验份额变化观察异常申赎；异常值按过去 60 个交易日的中位数与 MAD 识别。这里展示的是“潜在政策性资金线索”，不是国家队账户余额，也不把普通投资者申赎强行归因。</div>
+      </div>
+
+      <div class="section-title">两年趋势</div>
+      <div class="card">
+        <div class="card-title"><span class="title-icon">📈</span> 宽基 ETF 净流量与异常流量</div>
+        <div id="policy-flow-chart" class="chart-container-lg"></div>
+      </div>
+
+      <div class="section-title">结构拆分</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">📊</span> 最新分类异常流量</div>
+          <div id="policy-category-chart" class="chart-container"></div>
+        </div>
+        <div class="card policy-table-wrap">
+          <div class="card-title"><span class="title-icon">🔍</span> 数据覆盖与分类明细</div>
+          <table class="data-table" id="policy-category-table"></table>
+        </div>
+      </div>
+
+      <div class="section-title">证据与锚点</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="title-icon">🧾</span> 重点异动记录</div>
+          <div id="policy-events"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="title-icon">⚓</span> 季报确认锚点</div>
+          <div id="policy-quarterly"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ========== 估值模型页 ========== -->
     <div class="page" id="page-valuation">
       <!-- 股票输入区 -->
@@ -467,8 +512,10 @@
   </div>
 </div>
 
-<script src="js/data.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
-<script src="js/valuation.js?v=13"></script>
+<script src="js/data.js?v=14"></script>
+<script src="js/policy-funds-data.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
+<script src="js/policy-funds.js?v=14"></script>
+<script src="js/valuation.js?v=14"></script>
 </body>
 </html>

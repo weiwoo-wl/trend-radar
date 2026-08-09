@@ -1,0 +1,24 @@
+{
+  "version": "2026-08-09-v1",
+  "effectiveFrom": "2024-08-09",
+  "categories": [
+    { "id": "csi300", "name": "沪深300", "patterns": ["沪深300", "300ETF"] },
+    { "id": "sse50", "name": "上证50", "patterns": ["上证50", "50ETF"] },
+    { "id": "csi500", "name": "中证500", "patterns": ["中证500", "500ETF"] },
+    { "id": "csi1000", "name": "中证1000", "patterns": ["中证1000", "1000ETF"] },
+    { "id": "chinext", "name": "创业板", "patterns": ["创业板ETF", "创业板50"] },
+    { "id": "star50", "name": "科创50", "patterns": ["科创50", "科创板50"] },
+    { "id": "sse180", "name": "上证180", "patterns": ["上证180", "180ETF"] },
+    { "id": "csi_a500", "name": "中证A500", "patterns": ["中证A500", "A500ETF"] }
+  ],
+  "excludePatterns": ["增强", "策略", "红利", "港股", "海外", "联接", "LOF", "债", "商品", "黄金"],
+  "minimumListingDays": 20,
+  "baselineWindow": 60,
+  "minimumBaselinePoints": 40,
+  "madMultiplier": 2.0,
+  "minimumCoverage": 0.8,
+  "retentionTradingDays": 520,
+  "marketProxy": "000300",
+  "marketDropThresholdPct": -1.0,
+  "synchronousCategoryCount": 3
+}

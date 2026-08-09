@@ -818,3 +818,10 @@ body {
   padding-left: 12px;
   border-left: 3px solid var(--accent-cyan);
 }
+
+.policy-notice { margin-bottom: 20px; line-height: 1.8; color: var(--text-secondary); }
+.policy-table-wrap { overflow-x: auto; }
+.policy-empty { min-height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--text-secondary); line-height: 1.8; padding: 24px; }
+.policy-event { padding: 12px 0; border-bottom: 1px solid var(--border-color); line-height: 1.6; }
+.policy-event:last-child { border-bottom: 0; }
+.policy-level { display: inline-block; padding: 2px 8px; margin-right: 8px; border-radius: 10px; background: rgba(6,182,212,.12); color: var(--accent-cyan); font-size: 12px; }
