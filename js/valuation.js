@@ -220,6 +220,21 @@ function getParam(id, defaultVal) {
   return parseFloat(el.value);
 }
 
+function requireParams(ids, resultId) {
+  const missing = ids.filter(id => {
+    const el = document.getElementById(id);
+    return !el || el.value.trim() === '' || !Number.isFinite(Number(el.value));
+  });
+  if (!missing.length) return true;
+  const result = document.getElementById(resultId);
+  if (result) result.innerHTML = '<div class="result-warning">关键参数缺失，暂不生成估值结果。请补充空白参数；系统不会用猜测值代替真实数据。</div>';
+  return false;
+}
+
+function inputValue(value, scale = 1, decimals = 2) {
+  return Number.isFinite(value) && value !== 0 ? (value / scale).toFixed(decimals) : '';
+}
+
 function onParamChange(id) {
   // 根据变化的参数重新计算对应模型
   if (id.startsWith('dcf_')) calcDCF();
@@ -234,23 +249,14 @@ function initDCF() {
   const d = VAL_STOCK_DATA;
   const f = VAL_FINANCE_DATA && VAL_FINANCE_DATA[0] ? VAL_FINANCE_DATA[0] : {};
 
-  // 自动填充参数
-  const netProfit = f.PARENT_NETPROFIT || (d.eps * d.totalShares) || 0;
-  const revenue = f.TOTAL_OPERATE_INCOME || (d.revenuePS * d.totalShares) || 0;
-  const revenueGrowth = d.revenueYoY || (f.YSTZ ? f.YSTZ / 100 : 0.1);
-  const profitGrowth = d.profitYoY || (f.SJLTZ ? f.SJLTZ / 100 : 0.1);
-
-  // FCFF 估算：净利润 + 折旧摊销（约营收8%）- 资本支出（约营收5%）
-  const da = revenue * 0.08;
-  const capex = revenue * 0.05;
-  const fcff = netProfit + da - capex;
+  const revenueGrowth = Number.isFinite(d.revenueYoY) && d.revenueYoY !== 0 ? d.revenueYoY : (Number.isFinite(f.YSTZ) ? f.YSTZ / 100 : null);
 
   const paramsEl = document.getElementById('dcf-params');
   paramsEl.innerHTML = `
-    ${buildParamRow('dcf_fcff', '当前FCFF（自由现金流）', (fcff/1e8).toFixed(1), '亿元',
-      'FCFF = 净利润 + 折旧摊销 - 资本支出。已从财报自动估算，可调整')}
-    ${buildParamRow('dcf_growth1', '高增长期增长率', (revenueGrowth*100).toFixed(1), '%',
-      '未来1-5年的预期年化增长率')}
+    ${buildParamRow('dcf_fcff', '当前FCFF（自由现金流）', '', '亿元',
+      '当前接口未提供完整现金流量表，请按财报手工输入')}
+    ${buildParamRow('dcf_growth1', '高增长期增长率', Number.isFinite(revenueGrowth) ? (revenueGrowth*100).toFixed(1) : '', '%',
+      '来源：最新财报营收同比；为空时请手工输入模型假设')}
     ${buildParamRow('dcf_growth_years', '高增长期年数', '5', '年',
       '高增长持续的年数，通常3-10年')}
     ${buildParamRow('dcf_growth_terminal', '永续增长率', '3.0', '%',
@@ -261,14 +267,11 @@ function initDCF() {
       '中国股市ERP约5-6%')}
     ${buildParamRow('dcf_beta', 'Beta系数', '1.0', '',
       '个股相对市场波动的敏感度。>1高风险，<1低风险')}
-    ${buildParamRow('dcf_debt', '有息负债', ((d.marketCap * 0.1)/1e8).toFixed(0), '亿元',
-      '公司的有息负债总额')}
-    ${buildParamRow('dcf_cash', '现金及等价物', ((d.marketCap * 0.05)/1e8).toFixed(0), '亿元',
-      '公司账面现金')}
+    ${buildParamRow('dcf_debt', '有息负债', '', '亿元', '请按最新资产负债表手工输入')}
+    ${buildParamRow('dcf_cash', '现金及等价物', '', '亿元', '请按最新资产负债表手工输入')}
     ${buildParamRow('dcf_tax', '税率', '25', '%',
       '企业所得税率')}
-    ${buildParamRow('dcf_shares', '总股本', (d.totalShares/1e8).toFixed(2), '亿股',
-      '公司总股本数')}
+    ${buildParamRow('dcf_shares', '总股本', inputValue(d.totalShares, 1e8), '亿股', '来源：最新行情接口')}
   `;
 
   // 渲染公式说明
@@ -291,6 +294,7 @@ function initDCF() {
 }
 
 function calcDCF() {
+  if (!requireParams(['dcf_fcff','dcf_growth1','dcf_growth_years','dcf_growth_terminal','dcf_rf','dcf_erp','dcf_beta','dcf_debt','dcf_cash','dcf_tax','dcf_shares'], 'dcf-result')) return;
   const fcff = getParam('dcf_fcff', 100) * 1e8;
   const g1 = getParam('dcf_growth1', 10) / 100;
   const n = Math.round(getParam('dcf_growth_years', 5));
@@ -395,14 +399,11 @@ function calcDCF() {
 // ========== DDM 股利折现模型 ==========
 function initDDM() {
   const d = VAL_STOCK_DATA;
-  const dividendPS = d.dividendPS || 0;
-  const growthEstimate = (d.profitYoY || 0.1) * 0.4; // 分红增长率 ≈ 利润增长率 × 40%
+  const dividendPS = Number.isFinite(d.dividendPS) && d.dividendPS > 0 ? d.dividendPS : null;
 
   document.getElementById('ddm-params').innerHTML = `
-    ${buildParamRow('ddm_d0', '当前每股股息', dividendPS.toFixed(2), '元',
-      '最近一年每股分红金额')}
-    ${buildParamRow('ddm_growth1', '高增长期股息增长率', (growthEstimate*100).toFixed(1), '%',
-      '分红增长预期')}
+    ${buildParamRow('ddm_d0', '当前每股股息', dividendPS === null ? '' : dividendPS.toFixed(2), '元', '来源：最新行情接口；为空时请按年报输入')}
+    ${buildParamRow('ddm_growth1', '高增长期股息增长率', '', '%', '模型假设，请根据历史分红手工输入')}
     ${buildParamRow('ddm_growth_years', '高增长期年数', '5', '年',
       '高增长持续年数')}
     ${buildParamRow('ddm_growth_terminal', '永续股息增长率', '2.0', '%',
@@ -432,6 +433,7 @@ function initDDM() {
 }
 
 function calcDDM() {
+  if (!requireParams(['ddm_d0','ddm_growth1','ddm_growth_years','ddm_growth_terminal','ddm_rf','ddm_erp','ddm_beta'], 'ddm-result')) return;
   const d0 = getParam('ddm_d0', 0);
   const g1 = getParam('ddm_growth1', 5) / 100;
   const n = Math.round(getParam('ddm_growth_years', 5));
@@ -510,25 +512,19 @@ function initRelativeValuation() {
   const d = VAL_STOCK_DATA;
   const f = VAL_FINANCE_DATA && VAL_FINANCE_DATA[0] ? VAL_FINANCE_DATA[0] : {};
 
-  // 行业平均估值（根据行业自动估算，用户可调整）
-  const industryPE = d.pe ? Math.round(d.pe * 0.85) : 20;  // 行业均值通常比个股低15%
-  const industryPB = d.pb ? Math.round(d.pb * 0.85 * 100) / 100 : 2.0;
-  const industryPS = 3.0; // 默认
-  const industryEVEBITDA = 12.0;
-
   document.getElementById('rel-params').innerHTML = `
     <div class="param-group-title">公司数据（自动填充）</div>
-    ${buildParamRow('rel_eps', '每股收益 EPS', (d.eps || 0).toFixed(2), '元', '')}
-    ${buildParamRow('rel_bps', '每股净资产 BPS', (d.bps || 0).toFixed(2), '元', '')}
-    ${buildParamRow('rel_revenuePS', '每股营收 SPS', (d.revenuePS || 0).toFixed(2), '元', '')}
-    ${buildParamRow('rel_ebitda', 'EBITDA', ((d.eps * d.totalShares) * 1.3 / 1e8 || 100).toFixed(0), '亿元', '息税折旧摊销前利润')}
-    ${buildParamRow('rel_debt', '净负债', ((d.marketCap * 0.1)/1e8 || 0).toFixed(0), '亿元', '')}
-    ${buildParamRow('rel_cash', '现金', ((d.marketCap * 0.05)/1e8 || 0).toFixed(0), '亿元', '')}
+    ${buildParamRow('rel_eps', '每股收益 EPS', inputValue(d.eps), '元', '来源：最新行情接口')}
+    ${buildParamRow('rel_bps', '每股净资产 BPS', inputValue(d.bps), '元', '来源：最新行情接口')}
+    ${buildParamRow('rel_revenuePS', '每股营收 SPS', inputValue(d.revenuePS), '元', '来源：最新行情接口')}
+    ${buildParamRow('rel_ebitda', 'EBITDA', '', '亿元', '当前数据源未提供，请按财报输入')}
+    ${buildParamRow('rel_debt', '净负债', '', '亿元', '请按最新财报输入')}
+    ${buildParamRow('rel_cash', '现金', '', '亿元', '请按最新财报输入')}
     <div class="param-group-title" style="margin-top:16px">行业平均估值倍数（可调整）</div>
-    ${buildParamRow('rel_indPE', '行业平均PE', industryPE, '', '行业市盈率中位数')}
-    ${buildParamRow('rel_indPB', '行业平均PB', industryPB.toFixed(2), '', '行业市净率中位数')}
-    ${buildParamRow('rel_indPS', '行业平均PS', industryPS.toFixed(1), '', '行业市销率中位数')}
-    ${buildParamRow('rel_indEV', '行业平均EV/EBITDA', industryEVEBITDA.toFixed(1), '', '行业企业价值倍数中位数')}
+    ${buildParamRow('rel_indPE', '行业平均PE', '', '', '尚未接入可比公司数据，请手工输入')}
+    ${buildParamRow('rel_indPB', '行业平均PB', '', '', '尚未接入可比公司数据，请手工输入')}
+    ${buildParamRow('rel_indPS', '行业平均PS', '', '', '尚未接入可比公司数据，请手工输入')}
+    ${buildParamRow('rel_indEV', '行业平均EV/EBITDA', '', '', '尚未接入可比公司数据，请手工输入')}
   `;
 
   document.getElementById('rel-formula').innerHTML = `
@@ -548,6 +544,7 @@ function initRelativeValuation() {
 }
 
 function calcRelative() {
+  if (!requireParams(['rel_eps','rel_bps','rel_revenuePS','rel_ebitda','rel_debt','rel_cash','rel_indPE','rel_indPB','rel_indPS','rel_indEV'], 'rel-result')) return;
   const eps = getParam('rel_eps', 0);
   const bps = getParam('rel_bps', 0);
   const sps = getParam('rel_revenuePS', 0);
@@ -606,17 +603,17 @@ function calcRelative() {
 function initMonteCarlo() {
   const d = VAL_STOCK_DATA;
   const f = VAL_FINANCE_DATA && VAL_FINANCE_DATA[0] ? VAL_FINANCE_DATA[0] : {};
-  const baseGrowth = d.profitYoY || (f.SJLTZ ? f.SJLTZ / 100 : 0.1);
+  const baseGrowth = Number.isFinite(d.profitYoY) && d.profitYoY !== 0 ? d.profitYoY : (Number.isFinite(f.SJLTZ) ? f.SJLTZ / 100 : null);
 
   document.getElementById('mc-params').innerHTML = `
-    ${buildParamRow('mc_baseFCFF', '基础FCFF', ((d.eps * d.totalShares)/1e8 || 50).toFixed(1), '亿元', '起始自由现金流')}
-    ${buildParamRow('mc_growthMean', '增长率均值', (baseGrowth*100).toFixed(1), '%', '增长率正态分布的均值')}
+    ${buildParamRow('mc_baseFCFF', '基础FCFF', '', '亿元', '当前接口未提供完整现金流量表，请按财报输入')}
+    ${buildParamRow('mc_growthMean', '增长率均值', Number.isFinite(baseGrowth) ? (baseGrowth*100).toFixed(1) : '', '%', '来源：最新财报利润同比；也可作为模型假设调整')}
     ${buildParamRow('mc_growthStd', '增长率标准差', '5.0', '%', '越大波动越大')}
     ${buildParamRow('mc_years', '模拟年数', '10', '年', '模拟的时间跨度')}
     ${buildParamRow('mc_terminalG', '永续增长率', '3.0', '%', '期末稳定增长率')}
     ${buildParamRow('mc_waccMean', 'WACC均值', '8.0', '%', '折现率均值')}
     ${buildParamRow('mc_waccStd', 'WACC标准差', '1.0', '%', '折现率波动')}
-    ${buildParamRow('mc_shares', '总股本', ((d.totalShares)/1e8 || 1).toFixed(2), '亿股', '')}
+    ${buildParamRow('mc_shares', '总股本', inputValue(d.totalShares, 1e8), '亿股', '来源：最新行情接口')}
     ${buildParamRow('mc_simulations', '模拟次数', '5000', '次', '运行次数越多结果越精确')}
   `;
 
@@ -647,6 +644,7 @@ function normalRandom(mean, std) {
 }
 
 function runMonteCarlo() {
+  if (!requireParams(['mc_baseFCFF','mc_growthMean','mc_growthStd','mc_years','mc_terminalG','mc_waccMean','mc_waccStd','mc_shares','mc_simulations'], 'mc-result')) return;
   const baseFCFF = getParam('mc_baseFCFF', 50) * 1e8;
   const gMean = getParam('mc_growthMean', 10) / 100;
   const gStd = getParam('mc_growthStd', 5) / 100;
@@ -773,22 +771,17 @@ function runMonteCarlo() {
 // ========== 实物期权法 ==========
 function initRealOptions() {
   const d = VAL_STOCK_DATA;
-  const marketCap = d.marketCap || 0;
 
   document.getElementById('ro-params').innerHTML = `
-    ${buildParamRow('ro_pvExpansion', '扩张期权标的现值', ((marketCap * 0.3)/1e8 || 100).toFixed(0), '亿元',
-      '扩张带来的未来现金流现值')}
-    ${buildParamRow('ro_investCost', '扩张所需投资', ((marketCap * 0.2)/1e8 || 80).toFixed(0), '亿元',
-      '执行扩张期权的成本')}
+    ${buildParamRow('ro_pvExpansion', '扩张期权标的现值', '', '亿元', '模型假设，请根据项目现金流手工输入')}
+    ${buildParamRow('ro_investCost', '扩张所需投资', '', '亿元', '模型假设，请根据项目预算手工输入')}
     ${buildParamRow('ro_time', '期权到期时间', '5', '年',
       '决策窗口期')}
     ${buildParamRow('ro_rf', '无风险利率', '2.5', '%',
       '10年期国债收益率')}
-    ${buildParamRow('ro_volatility', '标的波动率', '35', '%',
-      '业务波动率，科技股40-50%，消费30%，公用事业20%')}
-    ${buildParamRow('ro_shares', '总股本', ((d.totalShares)/1e8 || 1).toFixed(2), '亿股', '')}
-    ${buildParamRow('ro_navValue', '不扩张时的内在价值', (d.price || 0).toFixed(2), '元',
-      '无扩张期权的DCF估值，默认现价')}
+    ${buildParamRow('ro_volatility', '标的波动率', '', '%', '模型假设，请根据项目价值波动输入')}
+    ${buildParamRow('ro_shares', '总股本', inputValue(d.totalShares, 1e8), '亿股', '来源：最新行情接口')}
+    ${buildParamRow('ro_navValue', '不扩张时的内在价值', '', '元', '请使用已完成的DCF估值，不以现价代替')}
   `;
 
   document.getElementById('ro-formula').innerHTML = `
@@ -822,6 +815,7 @@ function normCDF(x) {
 }
 
 function calcRealOptions() {
+  if (!requireParams(['ro_pvExpansion','ro_investCost','ro_time','ro_rf','ro_volatility','ro_shares','ro_navValue'], 'ro-result')) return;
   const S = getParam('ro_pvExpansion', 100) * 1e8;
   const K = getParam('ro_investCost', 80) * 1e8;
   const T = getParam('ro_time', 5);

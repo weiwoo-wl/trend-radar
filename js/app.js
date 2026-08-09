@@ -69,16 +69,31 @@ const CHART_THEME = {
   },
 };
 
+function hasVerifiedDataset() {
+  return DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.scoringMode === 'strict';
+}
+
+function showUnavailable(el, message = '数据尚未通过严格校验') {
+  if (!el) return;
+  el.innerHTML = `<div style="height:100%;min-height:120px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);text-align:center;padding:20px">${message}</div>`;
+}
+
 // ========== 工具函数 ==========
 function fmtPct(v, withSign = true) {
-  if (v === null || v === undefined || v === '--') return '--';
+  if (!Number.isFinite(v)) return '数据暂缺';
   const sign = withSign && v > 0 ? '+' : '';
   return sign + v.toFixed(2) + '%';
 }
 
 function fmtNum(v, decimals = 2) {
-  if (v === null || v === undefined) return '--';
+  if (!Number.isFinite(v)) return '数据暂缺';
   return v.toFixed(decimals);
+}
+
+function fmtValue(v, suffix = '', decimals = null) {
+  if (!Number.isFinite(v)) return '数据暂缺';
+  const value = decimals === null ? v.toLocaleString() : v.toFixed(decimals);
+  return value + suffix;
 }
 
 function priceColor(v) {
@@ -93,17 +108,6 @@ function statusLabel(s) {
 
 function statusClass(s) {
   return 'status-' + s;
-}
-
-// 生成模拟走势数据
-function genTrend(base, days, volatility = 0.015) {
-  const data = [];
-  let val = base;
-  for (let i = 0; i < days; i++) {
-    val *= (1 + (Math.random() - 0.48) * volatility);
-    data.push(parseFloat(val.toFixed(2)));
-  }
-  return data;
 }
 
 // ========== 导航逻辑 ==========
@@ -130,11 +134,27 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 function renderPage(page) {
+  if (!hasVerifiedDataset() && page !== 'valuation') {
+    renderUnverifiedPage(page);
+    return;
+  }
   const renderers = {
     overview: renderOverview, daily: renderDaily, weekly: renderWeekly,
     monthly: renderMonthly, fundamentals: renderFundamentals, meso: renderMeso
   };
   if (renderers[page]) renderers[page]();
+}
+
+function renderUnverifiedPage(page) {
+  const container = document.getElementById('page-' + page);
+  if (!container) return;
+  container.innerHTML = `
+    <div class="card" style="min-height:260px;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px">
+      <div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:12px">历史数据尚未通过严格校验</div>
+        <div style="color:var(--text-secondary);line-height:1.8">为避免展示固定分数、模拟走势或无法追溯的数字，本页暂不展示旧数据。<br>下一交易日自动更新通过校验后，将恢复原有页面结构和真实数据。</div>
+      </div>
+    </div>`;
 }
 
 // ========== 表格构建器 ==========
@@ -187,11 +207,17 @@ function renderRadar(containerId, radarData, title) {
   const el = document.getElementById(containerId);
   if (!el) return;
   if (charts[containerId]) charts[containerId].dispose();
+  const allItems = Array.isArray(radarData) ? radarData : [];
+  const validItems = allItems.filter(d => Number.isFinite(d.value) && d.formula && d.sourceDate);
+  if (!validItems.length) {
+    el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">暂无可验证评分</div>';
+    return;
+  }
   const chart = echarts.init(el);
   charts[containerId] = chart;
 
-  const indicators = radarData.map(d => ({ name: d.name, max: 100 }));
-  const values = radarData.map(d => d.value);
+  const indicators = validItems.map(d => ({ name: d.name, max: 100 }));
+  const values = validItems.map(d => d.value);
 
   chart.setOption({
     ...CHART_THEME,
@@ -231,31 +257,34 @@ function renderOverview() {
 
   // 各层级状态卡片
   const layersEl = document.getElementById('overview-layers');
+  const verified = hasVerifiedDataset();
   const layers = [
-    { name: '天数据', icon: '📅', data: DASHBOARD_DATA.daily.radar, page: 'daily' },
-    { name: '周数据', icon: '📆', data: DASHBOARD_DATA.weekly.radar, page: 'weekly' },
-    { name: '月数据', icon: '🗓️', data: DASHBOARD_DATA.monthly.radar, page: 'monthly' },
-    { name: '市场基本面', icon: '🏛️', data: DASHBOARD_DATA.fundamentals.radar, page: 'fundamentals' },
-    { name: '中观结构', icon: '🏭', data: DASHBOARD_DATA.meso.rating.slice(0, 4).map(r => ({
+    { name: '天数据', icon: '📅', data: verified ? DASHBOARD_DATA.daily.radar : [], page: 'daily' },
+    { name: '周数据', icon: '📆', data: verified ? DASHBOARD_DATA.weekly.radar : [], page: 'weekly' },
+    { name: '月数据', icon: '🗓️', data: verified ? DASHBOARD_DATA.monthly.radar : [], page: 'monthly' },
+    { name: '市场基本面', icon: '🏛️', data: verified ? DASHBOARD_DATA.fundamentals.radar : [], page: 'fundamentals' },
+    { name: '中观结构', icon: '🏭', data: verified ? DASHBOARD_DATA.meso.rating.slice(0, 4).map(r => ({
       name: r.industry, value: r.overall === 'green' ? 75 : r.overall === 'yellow' ? 50 : 25, status: r.overall
-    })), page: 'meso' },
+    })) : [], page: 'meso' },
   ];
 
   layersEl.innerHTML = layers.map(layer => {
-    const avgScore = (layer.data.reduce((s, d) => s + d.value, 0) / layer.data.length).toFixed(0);
-    const overallStatus = layer.data.some(d => d.status === 'red') ? 'red' :
-      layer.data.some(d => d.status === 'yellow') ? 'yellow' : 'green';
+    const valid = layer.data.filter(d => Number.isFinite(d.value));
+    const avgScore = valid.length ? (valid.reduce((s, d) => s + d.value, 0) / valid.length).toFixed(0) : '暂缺';
+    const overallStatus = valid.some(d => d.status === 'red') ? 'red' :
+      valid.some(d => d.status === 'yellow') ? 'yellow' : valid.length ? 'green' : 'missing';
+    const color = overallStatus === 'green' ? 'color-green' : overallStatus === 'yellow' ? 'color-yellow' : overallStatus === 'red' ? 'color-red' : 'text-muted';
     return `
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-secondary);border-radius:8px;cursor:pointer;border-left:3px solid var(--${overallStatus === 'green' ? 'color-green' : overallStatus === 'yellow' ? 'color-yellow' : 'color-red'})"
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-secondary);border-radius:8px;cursor:pointer;border-left:3px solid var(--${color})"
            onclick="document.querySelector('[data-page=${layer.page}]').click()">
         <span style="font-size:20px">${layer.icon}</span>
         <div style="flex:1">
           <div style="font-weight:600;font-size:14px">${layer.name}</div>
-          <div style="font-size:11px;color:var(--text-muted)">${layer.data.length} 个维度</div>
+          <div style="font-size:11px;color:var(--text-muted)">${valid.length}/${layer.data.length} 个有效维度</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:20px;font-weight:700;font-family:monospace;color:var(--${overallStatus === 'green' ? 'color-green' : overallStatus === 'yellow' ? 'color-yellow' : 'color-red'})">${avgScore}</div>
-          <div style="font-size:11px">${statusLabel(overallStatus)}</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;color:var(--${color})">${avgScore}</div>
+          <div style="font-size:11px">${valid.length ? statusLabel(overallStatus) : '数据暂缺'}</div>
         </div>
       </div>`;
   }).join('');
@@ -266,7 +295,7 @@ function renderOverview() {
   const coreIdx = d.indices.slice(0, 4); // 上证、深证、创业板、科创综指
   const metrics = coreIdx.map(idx => ({
     label: idx.name,
-    value: idx.close.toFixed(2),
+    value: fmtValue(idx.close, '', 2),
     change: fmtPct(idx.changePct),
     up: idx.changePct > 0,
   }));
@@ -281,10 +310,10 @@ function renderOverview() {
   const mdEl = document.getElementById('overview-market-data');
   if (mdEl) {
     const marketData = [
-      { label: '两市成交额', value: d.turnover.total.toLocaleString() + '亿', change: '+' + d.turnover.change + '亿', up: d.turnover.change > 0 },
-      { label: '融资余额', value: d.margin.financeBalance.toLocaleString() + '亿', change: (d.margin.balanceChange > 0 ? '+' : '') + d.margin.balanceChange + '亿', up: d.margin.balanceChange > 0 },
-      { label: '北向资金', value: '+' + d.northbound.netBuy + '亿', change: '成交' + d.northbound.turnover + '亿 占比' + d.northbound.turnoverPct + '%', up: d.northbound.netBuy > 0 },
-      { label: 'ETF周净流入', value: '+840亿', change: '宽基持续流入', up: true },
+      { label: '两市成交额', value: fmtValue(d.turnover.total, '亿'), change: Number.isFinite(d.turnover.change) ? fmtValue(d.turnover.change, '亿') : '数据暂缺', up: d.turnover.change > 0 },
+      { label: '融资余额', value: fmtValue(d.margin.financeBalance, '亿'), change: Number.isFinite(d.margin.balanceChange) ? fmtValue(d.margin.balanceChange, '亿') : '数据暂缺', up: d.margin.balanceChange > 0 },
+      { label: '北向资金', value: fmtValue(d.northbound.netBuy, '亿'), change: Number.isFinite(d.northbound.turnover) ? '成交' + fmtValue(d.northbound.turnover, '亿') : '数据暂缺', up: d.northbound.netBuy > 0 },
+      { label: 'ETF周净流入', value: '数据暂缺', change: '尚未接入可验证数据', up: false },
     ];
     mdEl.innerHTML = marketData.map(m => `
       <div class="metric-card">
@@ -307,6 +336,7 @@ function renderOverview() {
 function renderHeatmap() {
   const el = document.getElementById('overview-heatmap');
   if (!el) return;
+  if (!hasVerifiedDataset()) { showUnavailable(el); return; }
   if (charts['overview-heatmap']) charts['overview-heatmap'].dispose();
   const chart = echarts.init(el);
   charts['overview-heatmap'] = chart;
@@ -352,14 +382,25 @@ function renderOverviewIndices() {
   const chart = echarts.init(el);
   charts['overview-indices'] = chart;
 
-  const days = 30;
-  const dateList = Array.from({length: days}, (_, i) => `D-${days - i}`);
   const indices = DASHBOARD_DATA.daily.indices.slice(0, 4);
   const colors = ['#06b6d4', '#8b5cf6', '#ef4444', '#eab308'];
+  const history = (typeof DASHBOARD_HISTORY !== 'undefined' ? DASHBOARD_HISTORY : [])
+    .filter(h => h && h.date && h.daily && Array.isArray(h.daily.indices))
+    .slice().reverse();
+  const points = [...history, { date: DASHBOARD_DATA.meta.reportDate, daily: DASHBOARD_DATA.daily }]
+    .filter((item, pos, arr) => arr.findIndex(x => x.date === item.date) === pos);
+  const dateList = points.map(p => p.date);
+
+  if (points.length < 2) {
+    el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">暂无足够的真实历史数据</div>';
+    return;
+  }
 
   const series = indices.map((idx, i) => {
-    const base = idx.close;
-    const data = genTrend(base, days, 0.012);
+    const data = points.map(point => {
+      const found = point.daily.indices.find(item => item.name === idx.name);
+      return found && Number.isFinite(found.close) ? found.close : null;
+    });
     return {
       name: idx.name, type: 'line', data: data, smooth: true,
       lineStyle: { width: 2, color: colors[i] },
@@ -372,7 +413,7 @@ function renderOverviewIndices() {
     ...CHART_THEME,
     legend: { data: indices.map(i => i.name), bottom: 0, textStyle: { color: '#94a3b8', fontSize: 11 } },
     grid: { top: 20, right: 20, bottom: 40, left: 50 },
-    xAxis: { type: 'category', data: dateList, axisLabel: { show: false }, axisLine: { lineStyle: { color: '#1e293b' } } },
+    xAxis: { type: 'category', data: dateList, axisLabel: { color: '#64748b', fontSize: 10 }, axisLine: { lineStyle: { color: '#1e293b' } } },
     yAxis: { type: 'value', scale: true, axisLabel: { color: '#64748b' }, splitLine: { lineStyle: { color: '#1e293b' } } },
     series: series,
   });
@@ -381,6 +422,7 @@ function renderOverviewIndices() {
 function renderOverviewETF() {
   const el = document.getElementById('overview-etf');
   if (!el) return;
+  if (!hasVerifiedDataset() || !DASHBOARD_DATA.daily.etf.length) { showUnavailable(el, 'ETF 数据暂缺'); return; }
   if (charts['overview-etf']) charts['overview-etf'].dispose();
   const chart = echarts.init(el);
   charts['overview-etf'] = chart;
@@ -425,6 +467,7 @@ function renderDaily() {
   const coreIndices = allIndices.slice(0, 4);
   const broadIndices = allIndices.slice(4);
   const volDiff = (cur, avg) => {
+    if (!Number.isFinite(cur) || !Number.isFinite(avg) || avg === 0) return '<span style="color:var(--text-muted);font-size:11px">数据暂缺</span>';
     const pct = ((cur - avg) / avg * 100).toFixed(1);
     const up = cur >= avg;
     return `<span style="color:var(--${up ? 'color-up' : 'color-down'});font-size:11px">${up ? '+' : ''}${pct}%</span>`;
@@ -432,20 +475,20 @@ function renderDaily() {
   // 核心指数：有5日/10日成交额均值（来源：交易所数据）
   const coreRowFn = idx => `<tr>
       <td style="font-weight:600">${idx.name}</td>
-      <td style="font-family:monospace">${idx.close.toFixed(2)}</td>
-      <td class="${priceColor(idx.change)}" style="font-family:monospace">${idx.change > 0 ? '+' : ''}${idx.change.toFixed(2)}</td>
+      <td style="font-family:monospace">${fmtValue(idx.close, '', 2)}</td>
+      <td class="${priceColor(idx.change)}" style="font-family:monospace">${Number.isFinite(idx.change) && idx.change > 0 ? '+' : ''}${fmtValue(idx.change, '', 2)}</td>
       <td class="${priceColor(idx.changePct)}" style="font-family:monospace;font-weight:600">${fmtPct(idx.changePct)}</td>
-      <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${idx.volume.toLocaleString()}</td>
-      <td style="color:var(--text-secondary);font-family:monospace">${idx.avg5.toLocaleString()} <br>${volDiff(idx.volume, idx.avg5)}</td>
-      <td style="color:var(--text-secondary);font-family:monospace">${idx.avg10.toLocaleString()} <br>${volDiff(idx.volume, idx.avg10)}</td>
+      <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${fmtValue(idx.volume)}</td>
+      <td style="color:var(--text-secondary);font-family:monospace">${fmtValue(idx.avg5)} <br>${volDiff(idx.volume, idx.avg5)}</td>
+      <td style="color:var(--text-secondary);font-family:monospace">${fmtValue(idx.avg10)} <br>${volDiff(idx.volume, idx.avg10)}</td>
     </tr>`;
   // 宽基指数：无均值数据，仅显示成交额
   const broadRowFn = idx => `<tr>
       <td style="font-weight:600">${idx.name}</td>
-      <td style="font-family:monospace">${idx.close.toFixed(2)}</td>
-      <td class="${priceColor(idx.change)}" style="font-family:monospace">${idx.change > 0 ? '+' : ''}${idx.change.toFixed(2)}</td>
+      <td style="font-family:monospace">${fmtValue(idx.close, '', 2)}</td>
+      <td class="${priceColor(idx.change)}" style="font-family:monospace">${Number.isFinite(idx.change) && idx.change > 0 ? '+' : ''}${fmtValue(idx.change, '', 2)}</td>
       <td class="${priceColor(idx.changePct)}" style="font-family:monospace;font-weight:600">${fmtPct(idx.changePct)}</td>
-      <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${idx.volume.toLocaleString()}</td>
+      <td style="color:var(--text-primary);font-family:monospace;font-weight:600">${fmtValue(idx.volume)}</td>
       <td style="color:var(--text-tertiary);font-size:12px">—</td>
       <td style="color:var(--text-tertiary);font-size:12px">—</td>
     </tr>`;
@@ -591,6 +634,10 @@ function renderDailyBreadth() {
   charts['daily-breadth'] = chart;
 
   const b = DASHBOARD_DATA.daily.breadth;
+  if (![b.upCount, b.downCount, b.flatCount].some(Number.isFinite)) {
+    el.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">市场广度数据暂缺</div>';
+    return;
+  }
   chart.setOption({
     ...CHART_THEME,
     legend: { bottom: 0, textStyle: { color: '#94a3b8' } },
@@ -626,9 +673,9 @@ function renderDailyTurnover() {
   // 用文本展示成交额关键数据
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:10px 0">
-      <div class="metric-card"><div class="metric-label">两市成交额</div><div class="metric-value">${t.total.toLocaleString()}亿</div><div class="metric-change" style="color:var(--color-up)">较昨日 ${t.change > 0 ? '+' : ''}${t.change.toLocaleString()}亿</div></div>
-      <div class="metric-card"><div class="metric-label">5日平均</div><div class="metric-value" style="font-size:18px">${t.avg5.toLocaleString()}亿</div><div class="metric-change" style="color:var(--${t.vs5d >= 0 ? 'color-up' : 'color-down'})">${t.vs5d >= 0 ? '+' : ''}${t.vs5d.toLocaleString()}亿 (${((t.vs5d/t.avg5)*100).toFixed(1)}%)</div></div>
-      <div class="metric-card"><div class="metric-label">10日平均</div><div class="metric-value" style="font-size:18px">${t.avg10.toLocaleString()}亿</div><div class="metric-change" style="color:var(--${t.vs10d >= 0 ? 'color-up' : 'color-down'})">${t.vs10d >= 0 ? '+' : ''}${t.vs10d.toLocaleString()}亿 (${((t.vs10d/t.avg10)*100).toFixed(1)}%)</div></div>
+      <div class="metric-card"><div class="metric-label">两市成交额</div><div class="metric-value">${fmtValue(t.total, '亿')}</div><div class="metric-change">较昨日 ${fmtValue(t.change, '亿')}</div></div>
+      <div class="metric-card"><div class="metric-label">5日平均</div><div class="metric-value" style="font-size:18px">${fmtValue(t.avg5, '亿')}</div><div class="metric-change">差额 ${fmtValue(t.vs5d, '亿')}</div></div>
+      <div class="metric-card"><div class="metric-label">10日平均</div><div class="metric-value" style="font-size:18px">${fmtValue(t.avg10, '亿')}</div><div class="metric-change">差额 ${fmtValue(t.vs10d, '亿')}</div></div>
     </div>`;
 }
 
@@ -638,16 +685,21 @@ function renderDailyMargin() {
   const m = DASHBOARD_DATA.daily.margin;
   el.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0">
-      <div class="metric-card"><div class="metric-label">融资余额</div><div class="metric-value">${m.financeBalance.toLocaleString()}亿</div><div class="metric-change" style="font-size:12px;color:var(--text-secondary)">沪 ${m.shBalance.toLocaleString()} · 深 ${m.szBalance.toLocaleString()}</div></div>
-      <div class="metric-card"><div class="metric-label">两融余额</div><div class="metric-value">${m.totalBalance.toLocaleString()}亿</div><div class="metric-change" style="color:var(--${m.balanceChange > 0 ? 'color-up' : 'color-down'});font-size:12px">较前日 ${m.balanceChange > 0 ? '+' : ''}${m.balanceChange}亿</div></div>
-      <div class="metric-card"><div class="metric-label">融券余额</div><div class="metric-value" style="font-size:18px">${m.securitiesBalance}亿</div></div>
-      <div class="metric-card"><div class="metric-label">两融成交占比</div><div class="metric-value" style="font-size:18px">${m.marginTradePct}%</div></div>
+      <div class="metric-card"><div class="metric-label">融资余额</div><div class="metric-value">${fmtValue(m.financeBalance, '亿')}</div><div class="metric-change" style="font-size:12px;color:var(--text-secondary)">沪 ${fmtValue(m.shBalance)} · 深 ${fmtValue(m.szBalance)}</div></div>
+      <div class="metric-card"><div class="metric-label">两融余额</div><div class="metric-value">${fmtValue(m.totalBalance, '亿')}</div><div class="metric-change" style="font-size:12px">较前日 ${fmtValue(m.balanceChange, '亿')}</div></div>
+      <div class="metric-card"><div class="metric-label">融券余额</div><div class="metric-value" style="font-size:18px">${fmtValue(m.securitiesBalance, '亿')}</div></div>
+      <div class="metric-card"><div class="metric-label">两融成交占比</div><div class="metric-value" style="font-size:18px">${fmtValue(m.marginTradePct, '%')}</div></div>
     </div>
-    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px">数据日期：${m.dataDate}（${m.dataLevel}类·T+1披露）</div>`;
+    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px">数据日期：${m.dataDate || '暂缺'}（${m.dataLevel || '—'}类·T+1披露）</div>`;
 }
 
 // ========== 周数据页 ==========
 function renderWeekly() {
+  if (!hasVerifiedDataset() || !DASHBOARD_DATA.weekly.radar.length) {
+    showUnavailable(document.getElementById('weekly-radar'), '周度评分尚无可验证数据');
+    showUnavailable(document.getElementById('weekly-fund-strength'));
+    return;
+  }
   renderRadar('weekly-radar', DASHBOARD_DATA.weekly.radar, '周度市场');
 
   // 资金强度评级
@@ -740,6 +792,11 @@ function renderWeeklyETF() {
 
 // ========== 月数据页 ==========
 function renderMonthly() {
+  if (!hasVerifiedDataset() || !DASHBOARD_DATA.monthly.radar.length) {
+    showUnavailable(document.getElementById('monthly-radar'), '月度评分尚无可验证数据');
+    showUnavailable(document.getElementById('monthly-rating'));
+    return;
+  }
   renderRadar('monthly-radar', DASHBOARD_DATA.monthly.radar, '月度趋势');
 
   // 月度评级
@@ -981,6 +1038,11 @@ function renderFundamentals() {
 
 // ========== 中观结构页 ==========
 function renderMeso() {
+  if (!hasVerifiedDataset() || !DASHBOARD_DATA.meso.radar.length) {
+    showUnavailable(document.getElementById('meso-radar'), '中观数据尚未接入可验证来源');
+    showUnavailable(document.getElementById('meso-rating'));
+    return;
+  }
   // 行业雷达 - 多维度
   renderMesoRadar();
 
@@ -1225,4 +1287,8 @@ window.addEventListener('resize', () => {
 
 // ========== 初始化 ==========
 initDateSelector();
-renderOverview();
+if (!hasVerifiedDataset()) {
+  const status = document.getElementById('updateStatus');
+  if (status) status.textContent = '历史数据 · 尚未通过严格校验';
+}
+renderPage('overview');
