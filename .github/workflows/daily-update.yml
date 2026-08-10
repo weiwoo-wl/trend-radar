@@ -30,11 +30,12 @@ jobs:
         run: |
           python scripts/fetch_data.py
           python scripts/fetch_policy_funds.py
+          python scripts/fetch_earnings.py || echo "::warning::滚动盈利数据更新失败，保留上一批有效数据"
 
       - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add js/data.js js/policy-funds-data.js
+          git add js/data.js js/policy-funds-data.js js/earnings-data.js
           git diff --staged --quiet || git commit -m "data: auto-update $(date -u '+%Y-%m-%d %H:%M') UTC"
           git push
