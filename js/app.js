@@ -54,6 +54,7 @@ function onDateChange() {
     const page = activePage.dataset.page;
     setTimeout(() => renderPage(page), 50);
   }
+  if (typeof syncRealtimeState === 'function') syncRealtimeState();
 }
 
 // ========== 全局 ECharts 主题配置 ==========
@@ -602,6 +603,7 @@ function renderDailyFundFlow() {
       }],
     });
   }
+  if (typeof renderRealtimeIndustryFlow === 'function') renderRealtimeIndustryFlow();
 }
 
 function renderDailyIndustry() {
@@ -954,28 +956,43 @@ function renderFundamentals() {
       <td style="color:var(--text-secondary)">${g.implication}</td>
     </tr>`);
 
-  // 盈利表
+  // 滚动盈利表：独立数据文件优先，失败时保留原有日终数据
+  const rollingEarnings = typeof ROLLING_EARNINGS_DATA === 'object' &&
+    ROLLING_EARNINGS_DATA && ROLLING_EARNINGS_DATA.meta &&
+    ROLLING_EARNINGS_DATA.meta.status === 'valid' && Array.isArray(ROLLING_EARNINGS_DATA.records)
+    ? ROLLING_EARNINGS_DATA.records : null;
+  const earningsRows = rollingEarnings || DASHBOARD_DATA.fundamentals.earnings;
+  const earningsEscape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const typeNames = { macro: '总量', industry: '行业', company: '公司' };
   buildTable('fund-earnings-table',
     ['指标', '最新数据', '变化', '判断'],
-    DASHBOARD_DATA.fundamentals.earnings,
+    earningsRows,
     e => `<tr>
-      <td style="font-weight:600">${e.metric}</td>
-      <td style="font-family:monospace">${e.latest}</td>
-      <td style="font-family:monospace;color:var(--text-secondary)">${e.change}</td>
-      <td style="color:var(--text-secondary)">${e.judgment}</td>
+      <td style="font-weight:600">${earningsEscape(e.metric)}${e.entityType ? `<span class="earnings-type">${typeNames[e.entityType] || earningsEscape(e.entityType)}</span>` : ''}
+        ${e.sourceUrl ? `<div class="earnings-source">${earningsEscape(e.period)} · <a href="${earningsEscape(e.sourceUrl)}" target="_blank" rel="noopener">${earningsEscape(e.sourceName || '原始来源')}</a> · ${earningsEscape(e.sourceLevel || '')}</div>` : ''}
+        ${e.details ? `<details class="earnings-details"><summary>查看明细</summary><div>${Object.entries(e.details).map(([key, value]) => `${earningsEscape(key)}：${earningsEscape(value ?? '暂缺')}`).join('<br>')}</div></details>` : ''}
+      </td>
+      <td style="font-family:monospace">${earningsEscape(e.latest)}</td>
+      <td style="font-family:monospace;color:var(--text-secondary)">${earningsEscape(e.change)}</td>
+      <td style="color:var(--text-secondary)">${earningsEscape(e.judgment)}</td>
     </tr>`);
 
   // 盈利驱动
   const ed = DASHBOARD_DATA.fundamentals.earningsDriver;
-  document.getElementById('fund-earnings-driver').innerHTML = `
-    <div class="observation-box">
-      <div class="obs-title">上涨来源</div>
-      <div class="obs-content">${ed.source}</div>
-    </div>
-    <div class="observation-box">
-      <div class="obs-title">重点关注</div>
-      <div class="obs-content">${ed.focus}</div>
-    </div>`;
+  if (rollingEarnings) {
+    const counts = rollingEarnings.reduce((result, item) => {
+      result[item.entityType] = (result[item.entityType] || 0) + 1;
+      return result;
+    }, {});
+    document.getElementById('fund-earnings-driver').innerHTML = `
+      <div class="observation-box"><div class="obs-title">当前覆盖</div><div class="obs-content">固定指标 ${counts.macro || 0} 项 · 动态行业 ${counts.industry || 0} 项 · 动态公司 ${counts.company || 0} 家</div></div>
+      <div class="observation-box"><div class="obs-title">数据期间</div><div class="obs-content">工业数据 ${earningsEscape(ROLLING_EARNINGS_DATA.meta.macroPeriod)} · 公司财报 ${earningsEscape(ROLLING_EARNINGS_DATA.meta.companyPeriod)}</div></div>
+      <div class="observation-box"><div class="obs-title">筛选口径</div><div class="obs-content">全A股动态筛选；同一行业最多2家公司。判断由收入、利润、扣非每股收益、现金流及低基数规则生成。</div></div>`;
+  } else {
+    document.getElementById('fund-earnings-driver').innerHTML = `
+      <div class="observation-box"><div class="obs-title">上涨来源</div><div class="obs-content">${ed.source}</div></div>
+      <div class="observation-box"><div class="obs-title">重点关注</div><div class="obs-content">${ed.focus}</div></div>`;
+  }
 
   // 流动性表
   buildTable('fund-liquidity-table',
