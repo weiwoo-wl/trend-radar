@@ -825,3 +825,40 @@ body {
 .policy-event { padding: 12px 0; border-bottom: 1px solid var(--border-color); line-height: 1.6; }
 .policy-event:last-child { border-bottom: 0; }
 .policy-level { display: inline-block; padding: 2px 8px; margin-right: 8px; border-radius: 10px; background: rgba(6,182,212,.12); color: var(--accent-cyan); font-size: 12px; }
+
+/* ========== 实时刷新按钮 ========== */
+.rt-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.rt-toggle:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.rt-toggle.rt-on {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  background: rgba(6,182,212,0.08);
+}
+.rt-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  animation: rt-pulse 1.5s ease-in-out infinite;
+}
+@keyframes rt-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.7); }
+}

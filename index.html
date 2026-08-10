@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>趋势雷达 · 数据看板系统</title>
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -76,7 +76,8 @@
         </select>
       </div>
       <div class="info-item"><span class="dot"></span> <span id="updateStatus">数据已更新</span></div>
-      <div class="info-item">市场状态：<span style="color:var(--color-yellow)">收盘</span></div>
+      <div class="info-item"><button id="realtimeToggle" class="rt-toggle">&#9654; 实时</button></div>
+      <div class="info-item">市场状态：<span id="marketStatus"><span style="color:var(--color-yellow)">收盘</span></span></div>
     </div>
   </div>
 
@@ -512,10 +513,11 @@
   </div>
 </div>
 
-<script src="js/data.js?v=15"></script>
-<script src="js/policy-funds-data.js?v=15"></script>
-<script src="js/app.js?v=15"></script>
-<script src="js/policy-funds.js?v=15"></script>
-<script src="js/valuation.js?v=15"></script>
+<script src="js/data.js?v=16"></script>
+<script src="js/policy-funds-data.js?v=16"></script>
+<script src="js/app.js?v=16"></script>
+<script src="js/policy-funds.js?v=16"></script>
+<script src="js/valuation.js?v=16"></script>
+<script src="js/realtime.js?v=16"></script>
 </body>
 </html>
