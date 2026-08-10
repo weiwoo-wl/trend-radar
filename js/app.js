@@ -359,11 +359,13 @@ function renderOverview() {
   // 市场关键数据 - 成交额、融资、北向、ETF
   const mdEl = document.getElementById('overview-market-data');
   if (mdEl) {
+    const validEtfFlows = d.etf.map(item => item.shareChange).filter(Number.isFinite);
+    const etfFlow = validEtfFlows.length ? validEtfFlows.reduce((sum, value) => sum + value, 0) : null;
     const marketData = [
       { label: '两市成交额', value: fmtValue(d.turnover.total, '亿'), change: Number.isFinite(d.turnover.change) ? fmtValue(d.turnover.change, '亿') : '数据暂缺', up: d.turnover.change > 0 },
       { label: '融资余额', value: fmtValue(d.margin.financeBalance, '亿'), change: Number.isFinite(d.margin.balanceChange) ? fmtValue(d.margin.balanceChange, '亿') : '数据暂缺', up: d.margin.balanceChange > 0 },
       { label: '北向资金', value: fmtValue(d.northbound.netBuy, '亿'), change: Number.isFinite(d.northbound.turnover) ? '成交' + fmtValue(d.northbound.turnover, '亿') : '数据暂缺', up: d.northbound.netBuy > 0 },
-      { label: 'ETF周净流入', value: '数据暂缺', change: '尚未接入可验证数据', up: false },
+      { label: 'ETF当日净流量', value: Number.isFinite(etfFlow) ? fmtValue(etfFlow, '亿') : '数据暂缺', change: Number.isFinite(etfFlow) ? '仅统计已通过份额校验的ETF' : '尚无同日可验证份额数据', up: etfFlow > 0 },
     ];
     mdEl.innerHTML = marketData.map(m => `
       <div class="metric-card">
@@ -473,11 +475,12 @@ function renderOverviewETF() {
   const el = document.getElementById('overview-etf');
   if (!el) return;
   if (!hasVerifiedDataset() || !DASHBOARD_DATA.daily.etf.length) { showUnavailable(el, 'ETF 数据暂缺'); return; }
+  const etfs = DASHBOARD_DATA.daily.etf.filter(e => Number.isFinite(e.shareChange));
+  if (!etfs.length) { showUnavailable(el, 'ETF规模已记录，净流量仍在积累连续份额基线'); return; }
   if (charts['overview-etf']) charts['overview-etf'].dispose();
   const chart = echarts.init(el);
   charts['overview-etf'] = chart;
 
-  const etfs = DASHBOARD_DATA.daily.etf;
   chart.setOption({
     ...CHART_THEME,
     grid: { top: 20, right: 20, bottom: 60, left: 100 },
@@ -563,14 +566,14 @@ function renderDaily() {
 
   // ETF表
   buildTable('daily-etf-table',
-    ['ETF', '涨跌幅', '份额变化(亿)', '成交额(亿)', '方向'],
+    ['ETF', '宽基类别', '净流量(亿)', '规模(亿)', '方向'],
     DASHBOARD_DATA.daily.etf,
     e => `<tr>
       <td style="font-weight:600">${e.name}</td>
-      <td class="${priceColor(e.changePct)}" style="font-family:monospace">${fmtPct(e.changePct)}</td>
-      <td class="${priceColor(e.shareChange)}" style="font-family:monospace">${e.shareChange > 0 ? '+' : ''}${e.shareChange}</td>
-      <td style="color:var(--text-secondary);font-family:monospace">${e.volume.toLocaleString()}</td>
-      <td><span class="status-badge ${e.direction === '净申购' ? 'status-green' : 'status-red'}">${e.direction}</span></td>
+      <td style="color:var(--text-secondary)">${e.category || '—'}</td>
+      <td class="${priceColor(e.shareChange)}" style="font-family:monospace">${Number.isFinite(e.shareChange) ? (e.shareChange > 0 ? '+' : '') + e.shareChange : '基线积累中'}</td>
+      <td style="color:var(--text-secondary);font-family:monospace">${Number.isFinite(e.volume) ? e.volume.toLocaleString() : '数据暂缺'}</td>
+      <td><span class="status-badge ${e.direction === '净申购' ? 'status-green' : e.direction === '净赎回' ? 'status-red' : 'status-yellow'}">${e.direction}</span></td>
     </tr>`);
 
   // 主力资金流向
