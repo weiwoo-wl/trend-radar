@@ -28,6 +28,7 @@ import os
 import re
 import subprocess
 import sys
+from copy import deepcopy
 from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 
@@ -695,6 +696,7 @@ def has_valid_indices(index_spot):
 def build_history(existing_data, new_data):
     """构建历史数据数组：把旧数据存入history，保留最近MAX_HISTORY天"""
     history = []
+    new_date = new_data.get('meta', {}).get('reportDate', '') if new_data else ''
     # 从现有数据中提取history
     if existing_data:
         old_history = existing_data.get('history', [])
@@ -702,10 +704,15 @@ def build_history(existing_data, new_data):
         # 把旧的当日数据加入history
         old_date = existing_data.get('meta', {}).get('reportDate', '')
         old_daily = existing_data.get('daily', {})
-        if old_date and old_daily:
+        if old_date and old_daily and old_date != new_date:
             # 去重：如果该日期已在history中，先移除
             history = [h for h in history if h.get('date') != old_date]
-            history.append({'date': old_date, 'daily': old_daily})
+            snapshot = {
+                key: deepcopy(existing_data.get(key))
+                for key in ['meta', 'daily', 'weekly', 'monthly', 'fundamentals', 'meso']
+                if existing_data.get(key) is not None
+            }
+            history.append({'date': old_date, 'daily': deepcopy(old_daily), 'snapshot': snapshot})
     # 按日期降序排序
     history.sort(key=lambda x: x.get('date', ''), reverse=True)
     # 保留最近MAX_HISTORY条
