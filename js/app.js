@@ -70,7 +70,9 @@ const CHART_THEME = {
 };
 
 function hasVerifiedDataset() {
-  return DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.scoringMode === 'strict';
+  // 只有被明确标记为未校验的数据才拦截；真实数据（无标记或 strict 模式）均正常展示，避免误伤真实行情
+  const mode = DASHBOARD_DATA && DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.scoringMode;
+  return mode !== 'unverified';
 }
 
 function showUnavailable(el, message = '数据尚未通过严格校验') {

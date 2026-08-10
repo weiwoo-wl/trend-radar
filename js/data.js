@@ -11,6 +11,7 @@ const DASHBOARD_DATA = {
     reportDate: '2026-08-07',
     dataVersion: 'v1.1-real',
     marketSession: '收盘',
+    scoringMode: 'strict',
   },
 
   // ========== 天数据 ==========
