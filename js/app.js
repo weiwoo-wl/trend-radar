@@ -54,6 +54,7 @@ function onDateChange() {
     const page = activePage.dataset.page;
     setTimeout(() => renderPage(page), 50);
   }
+  if (typeof syncRealtimeState === 'function') syncRealtimeState();
 }
 
 // ========== 全局 ECharts 主题配置 ==========
@@ -602,6 +603,7 @@ function renderDailyFundFlow() {
       }],
     });
   }
+  if (typeof renderRealtimeIndustryFlow === 'function') renderRealtimeIndustryFlow();
 }
 
 function renderDailyIndustry() {

@@ -1,336 +1,453 @@
 /**
- * 趋势雷达 - 天数据实时刷新模块
- * 轻量级实现：每2分钟通过东方财富JSONP API刷新指数行情
- * 仅在交易时段(9:25-15:05)自动运行，手动可随时开关
- * 只刷新表格和卡片，不重建ECharts图表（避免闪烁）
+ * 趋势雷达盘中数据模块
+ * 每两分钟整批刷新指数与31个申万一级行业；任何一部分校验失败都保留上一笔有效快照。
  */
+(function () {
+  'use strict';
 
-// 9个指数的东方财富 secid（市场.代码）
-var RT_SECIDS = [
-  '1.000001', '0.399001', '0.399006', '1.000680',
-  '1.000300', '1.000905', '1.000852', '1.000688', '0.899050'
-];
-
-var RT_SECID_MAP = {
-  '1.000001': '上证指数', '0.399001': '深证成指', '0.399006': '创业板指',
-  '1.000680': '科创综指', '1.000300': '沪深300', '1.000905': '中证500',
-  '1.000852': '中证1000', '1.000688': '科创50', '0.899050': '北证50'
-};
-
-var _rtTimer = null;
-var _rtActive = false;
-var _rtLastUpdate = null;
-
-// 判断是否在交易时段
-function _rtIsTradingHours() {
-  var now = new Date();
-  var day = now.getDay();
-  if (day === 0 || day === 6) return false;
-  var minutes = now.getHours() * 60 + now.getMinutes();
-  return minutes >= 925 && minutes <= 1505;
-}
-
-// JSONP 请求
-function _rtJsonp(url, callback) {
-  var cbName = '_rt_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-  var script = document.createElement('script');
-  window[cbName] = function(data) {
-    try { callback(data); } catch(e) { console.warn('RT callback error:', e); }
-    delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
+  var RT_REFRESH_MS = 120000;
+  var RT_CLOCK_MS = 30000;
+  var RT_MIN_INDUSTRIES = 31;
+  var RT_SECIDS = [
+    '1.000001', '0.399001', '0.399006', '1.000680',
+    '1.000300', '1.000905', '1.000852', '1.000688', '0.899050'
+  ];
+  var RT_SECID_MAP = {
+    '1.000001': '上证指数', '0.399001': '深证成指', '0.399006': '创业板指',
+    '1.000680': '科创综指', '1.000300': '沪深300', '1.000905': '中证500',
+    '1.000852': '中证1000', '1.000688': '科创50', '0.899050': '北证50'
   };
-  script.onerror = function() {
-    delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-  };
-  script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'cb=' + cbName;
-  document.head.appendChild(script);
-  setTimeout(function() {
-    if (window[cbName]) {
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
+  var RT_SW_LEVEL1 = [
+    '农林牧渔', '基础化工', '钢铁', '有色金属', '电子', '家用电器', '食品饮料', '纺织服饰',
+    '轻工制造', '医药生物', '公用事业', '交通运输', '房地产', '商贸零售', '社会服务', '综合',
+    '建筑材料', '建筑装饰', '电力设备', '国防军工', '计算机', '传媒', '通信', '银行',
+    '非银金融', '汽车', '机械设备', '煤炭', '石油石化', '环保', '美容护理'
+  ];
+  var RT_SW_SET = RT_SW_LEVEL1.reduce(function (set, name) { set[name] = true; return set; }, {});
+
+  var _rtTimer = null;
+  var _rtClockTimer = null;
+  var _rtWanted = true;
+  var _rtInFlight = false;
+  var _rtLastUpdate = null;
+  var _rtLastDataTimestamp = 0;
+  var _rtLastError = '';
+  var _rtIndustrySnapshot = null;
+
+  function finite(value) {
+    var number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+    });
+  }
+
+  function sessionState(now) {
+    now = now || new Date();
+    var day = now.getDay();
+    if (day === 0 || day === 6) return 'weekend';
+    var minutes = now.getHours() * 60 + now.getMinutes();
+    if (minutes >= 9 * 60 + 25 && minutes <= 11 * 60 + 30) return 'trading';
+    if (minutes > 11 * 60 + 30 && minutes < 13 * 60) return 'lunch';
+    if (minutes >= 13 * 60 && minutes <= 15 * 60 + 5) return 'trading';
+    return minutes < 9 * 60 + 25 ? 'preopen' : 'closed';
+  }
+
+  function isLatestDate() {
+    var selector = document.getElementById('dateSelector');
+    return !selector || !selector.value;
+  }
+
+  function jsonp(url) {
+    return new Promise(function (resolve, reject) {
+      var callbackName = '_rt_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+      var script = document.createElement('script');
+      var settled = false;
+      var timer = setTimeout(function () { finish(new Error('请求超时')); }, 10000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      function finish(error, data) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        if (error) reject(error); else resolve(data);
+      }
+      window[callbackName] = function (data) { finish(null, data); };
+      script.onerror = function () { finish(new Error('网络请求失败')); };
+      script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'cb=' + callbackName;
+      document.head.appendChild(script);
+    });
+  }
+
+  function quoteRequest() {
+    var fields = 'f2,f3,f4,f6,f12,f13,f14,f104,f105,f106,f124';
+    var url = 'https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=' + fields + '&secids=' + RT_SECIDS.join(',');
+    return jsonp(url).then(normalizeQuotes);
+  }
+
+  function industryRequest() {
+    var fields = 'f2,f3,f6,f12,f14,f62,f124,f184';
+    function pageUrl(page) {
+      return 'https://push2.eastmoney.com/api/qt/clist/get?pn=' + page + '&pz=100&po=1&np=1&fltt=2&invt=2&fid=f62' +
+        '&fs=m%3A90%2Bt%3A2&fields=' + fields;
     }
-  }, 10000);
-}
+    return jsonp(pageUrl(1)).then(function (first) {
+      var total = finite(first && first.data && first.data.total);
+      if (total == null || total < RT_MIN_INDUSTRIES) throw new Error('行业总数异常');
+      var pageCount = Math.min(10, Math.ceil(total / 100));
+      var requests = [Promise.resolve(first)];
+      for (var page = 2; page <= pageCount; page++) requests.push(jsonp(pageUrl(page)));
+      return Promise.all(requests);
+    }).then(normalizeIndustries);
+  }
 
-// 拉取实时行情
-function _rtFetchQuotes() {
-  var secids = RT_SECIDS.join(',');
-  var fields = 'f2,f3,f4,f6,f12,f13,f14,f104,f105,f106';
-  var url = 'https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=' + fields + '&secids=' + secids;
-
-  _rtJsonp(url, function(data) {
-    if (!data || !data.data || !data.data.diff) return;
-
-    var diff = data.data.diff;
-    var updated = 0;
-    var shUp = 0, shDown = 0, shFlat = 0;
-    var szUp = 0, szDown = 0, szFlat = 0;
-
-    diff.forEach(function(item) {
-      var secid = item.f13 + '.' + item.f12;
+  function normalizeQuotes(response) {
+    var rows = response && response.data && response.data.diff;
+    if (!Array.isArray(rows)) throw new Error('指数响应为空');
+    var found = {};
+    var timestamp = 0;
+    rows.forEach(function (row) {
+      var secid = row.f13 + '.' + row.f12;
       var name = RT_SECID_MAP[secid];
-      if (!name) return;
+      if (!name || found[secid]) return;
+      var close = finite(row.f2), changePct = finite(row.f3), change = finite(row.f4), turnover = finite(row.f6);
+      if (close == null || close <= 0 || changePct == null || Math.abs(changePct) > 20 || change == null || turnover == null || turnover < 0) return;
+      found[secid] = {
+        secid: secid, name: name, close: close, changePct: changePct, change: change,
+        turnover: turnover / 1e8, upCount: finite(row.f104), downCount: finite(row.f105), flatCount: finite(row.f106)
+      };
+      timestamp = Math.max(timestamp, finite(row.f124) || 0);
+    });
+    var quotes = RT_SECIDS.map(function (secid) { return found[secid]; }).filter(Boolean);
+    if (quotes.length !== RT_SECIDS.length) throw new Error('指数数量不完整');
+    return { quotes: quotes, timestamp: timestamp };
+  }
 
-      var idx = null;
-      for (var i = 0; i < DASHBOARD_DATA.daily.indices.length; i++) {
-        if (DASHBOARD_DATA.daily.indices[i].name === name) { idx = DASHBOARD_DATA.daily.indices[i]; break; }
-      }
-      if (!idx) return;
+  function normalizeIndustries(responses) {
+    var allRows = [];
+    responses.forEach(function (response) {
+      var rows = response && response.data && response.data.diff;
+      if (!Array.isArray(rows)) throw new Error('行业分页响应为空');
+      allRows = allRows.concat(rows);
+    });
+    var byName = {};
+    var timestamp = 0;
+    allRows.forEach(function (row) {
+      var name = String(row.f14 || '').trim();
+      if (!RT_SW_SET[name] || byName[name]) return;
+      var changePct = finite(row.f3), turnover = finite(row.f6), netInflow = finite(row.f62), netRatio = finite(row.f184);
+      if (!/^BK\d{4}$/.test(String(row.f12 || '')) || changePct == null || Math.abs(changePct) > 20 ||
+          turnover == null || turnover < 0 || netInflow == null || netRatio == null || Math.abs(netRatio) > 100) return;
+      byName[name] = {
+        code: row.f12, name: name, changePct: changePct,
+        turnover: turnover / 1e8, netInflow: netInflow / 1e8, netRatio: netRatio
+      };
+      timestamp = Math.max(timestamp, finite(row.f124) || 0);
+    });
+    var sectors = RT_SW_LEVEL1.map(function (name) { return byName[name]; }).filter(Boolean);
+    if (sectors.length !== RT_MIN_INDUSTRIES) throw new Error('一级行业数量不足（' + sectors.length + '/31）');
+    return { sectors: sectors, timestamp: timestamp };
+  }
 
-      idx.close = item.f2;
-      idx.changePct = item.f3;
-      idx.change = item.f4;
-      if (item.f6 && item.f6 > 0) {
-        idx.volume = Math.round(item.f6 / 1e8);
-      }
+  function commitSnapshot(quoteBatch, industryBatch) {
+    var timestamp = Math.max(quoteBatch.timestamp || 0, industryBatch.timestamp || 0);
+    if (_rtLastDataTimestamp && timestamp && timestamp < _rtLastDataTimestamp) throw new Error('接口返回了过期快照');
 
-      // 涨跌家数（仅上证/深证有）
-      if (secid === '1.000001') { shUp = item.f104 || 0; shDown = item.f105 || 0; shFlat = item.f106 || 0; }
-      if (secid === '0.399001') { szUp = item.f104 || 0; szDown = item.f105 || 0; szFlat = item.f106 || 0; }
-
-      updated++;
+    var indices = DASHBOARD_DATA.daily.indices;
+    quoteBatch.quotes.forEach(function (quote) {
+      var target = indices.find(function (item) { return item.name === quote.name; });
+      if (!target) return;
+      target.close = quote.close;
+      target.changePct = quote.changePct;
+      target.change = quote.change;
+      target.volume = Math.round(quote.turnover);
     });
 
-    // 同步到 _originalDaily（避免切换历史日期后丢失实时数据）
-    if (typeof _originalDaily !== 'undefined' && _originalDaily) {
-      _originalDaily.indices.forEach(function(origIdx) {
-        for (var i = 0; i < DASHBOARD_DATA.daily.indices.length; i++) {
-          if (DASHBOARD_DATA.daily.indices[i].name === origIdx.name) {
-            origIdx.close = DASHBOARD_DATA.daily.indices[i].close;
-            origIdx.changePct = DASHBOARD_DATA.daily.indices[i].changePct;
-            origIdx.change = DASHBOARD_DATA.daily.indices[i].change;
-            origIdx.volume = DASHBOARD_DATA.daily.indices[i].volume;
-            break;
-          }
-        }
-      });
+    var sh = quoteBatch.quotes.find(function (item) { return item.secid === '1.000001'; });
+    var sz = quoteBatch.quotes.find(function (item) { return item.secid === '0.399001'; });
+    var bj = quoteBatch.quotes.find(function (item) { return item.secid === '0.899050'; });
+    var turnover = DASHBOARD_DATA.daily.turnover;
+    turnover.sh = Math.round(sh.turnover); turnover.sz = Math.round(sz.turnover); turnover.bj = Math.round(bj.turnover);
+    turnover.total = turnover.sh + turnover.sz + turnover.bj;
+    turnover.vs5d = Number.isFinite(turnover.avg5) ? Math.round(turnover.total - turnover.avg5) : null;
+    turnover.vs10d = Number.isFinite(turnover.avg10) ? Math.round(turnover.total - turnover.avg10) : null;
+
+    var breadth = DASHBOARD_DATA.daily.breadth;
+    breadth.upCount = (sh.upCount || 0) + (sz.upCount || 0);
+    breadth.downCount = (sh.downCount || 0) + (sz.downCount || 0);
+    breadth.flatCount = (sh.flatCount || 0) + (sz.flatCount || 0);
+    var breadthTotal = breadth.upCount + breadth.downCount + breadth.flatCount;
+    if (breadthTotal > 0) {
+      breadth.upPct = Math.round(breadth.upCount / breadthTotal * 1000) / 10;
+      breadth.downPct = Math.round(breadth.downCount / breadthTotal * 1000) / 10;
+      breadth.moneyEffect = breadth.upCount > breadth.downCount ? '偏强' : breadth.upCount < breadth.downCount ? '偏弱' : '均衡';
     }
 
-    // 更新成交额
-    var sh = _rtFindIndex('上证指数');
-    var sz = _rtFindIndex('深证成指');
-    var bj = _rtFindIndex('北证50');
-    if (sh && sz) {
-      var shVol = sh.volume || 0;
-      var szVol = sz.volume || 0;
-      var bjVol = bj ? (bj.volume || 0) : 0;
-      var total = shVol + szVol + bjVol;
-      var t = DASHBOARD_DATA.daily.turnover;
-      t.sh = shVol; t.sz = szVol; t.bj = bjVol; t.total = total;
-      if (t.avg5) t.vs5d = Math.round(total - t.avg5);
-      if (t.avg10) t.vs10d = Math.round(total - t.avg10);
-    }
+    var sectors = industryBatch.sectors.slice().sort(function (a, b) { return b.netInflow - a.netInflow; });
+    var totalNet = sectors.reduce(function (sum, item) { return sum + item.netInflow; }, 0);
+    _rtIndustrySnapshot = {
+      sectors: sectors,
+      netInflow: Math.round(totalNet * 100) / 100,
+      inflowCount: sectors.filter(function (item) { return item.netInflow > 0; }).length,
+      outflowCount: sectors.filter(function (item) { return item.netInflow < 0; }).length,
+      upCount: sectors.filter(function (item) { return item.changePct > 0; }).length,
+      downCount: sectors.filter(function (item) { return item.changePct < 0; }).length,
+      timestamp: timestamp,
+      updateTime: timestamp ? new Date(timestamp * 1000) : new Date(),
+      source: '东方财富行情平台'
+    };
+    DASHBOARD_DATA.daily.fundFlow = _rtIndustrySnapshot;
+    if (typeof _originalDaily !== 'undefined' && _originalDaily) _originalDaily = JSON.parse(JSON.stringify(DASHBOARD_DATA.daily));
 
-    // 更新市场广度
-    var totalUp = shUp + szUp;
-    var totalDown = shDown + szDown;
-    var totalFlat = shFlat + szFlat;
-    if (totalUp + totalDown > 0) {
-      var b = DASHBOARD_DATA.daily.breadth;
-      b.upCount = totalUp; b.downCount = totalDown; b.flatCount = totalFlat;
-      var sum = totalUp + totalDown + totalFlat;
-      if (sum > 0) {
-        b.upPct = Math.round(totalUp / sum * 1000) / 10;
-        b.downPct = Math.round(totalDown / sum * 1000) / 10;
-        b.moneyEffect = totalUp > totalDown ? '偏强' : totalUp < totalDown ? '偏弱' : '均衡';
-      }
-    }
-
+    _rtLastDataTimestamp = timestamp || _rtLastDataTimestamp;
     _rtLastUpdate = new Date();
-    if (updated > 0) _rtUpdateUI();
-  });
-}
-
-function _rtFindIndex(name) {
-  for (var i = 0; i < DASHBOARD_DATA.daily.indices.length; i++) {
-    if (DASHBOARD_DATA.daily.indices[i].name === name) return DASHBOARD_DATA.daily.indices[i];
-  }
-  return null;
-}
-
-// 更新UI（只刷新表格和卡片，不重建图表）
-function _rtUpdateUI() {
-  // 更新状态文本
-  var status = document.getElementById('updateStatus');
-  if (status && _rtLastUpdate) {
-    var t = _rtLastUpdate.toTimeString().slice(0, 8);
-    status.innerHTML = '<span class="rt-pulse"></span> 实时 ' + t;
-    status.style.color = 'var(--color-up)';
+    _rtLastError = '';
+    updateVisiblePage();
+    updateStatus();
   }
 
-  // 更新市场状态
-  var ms = document.getElementById('marketStatus');
-  if (ms) {
-    if (_rtIsTradingHours()) {
-      ms.innerHTML = '<span style="color:var(--color-up)">交易中</span>';
-    } else {
-      ms.innerHTML = '<span style="color:var(--color-yellow)">收盘</span>';
-    }
+  function fetchRealtime() {
+    if (_rtInFlight || !isLatestDate()) return Promise.resolve(false);
+    _rtInFlight = true;
+    setStatusText('正在更新实时数据…', 'var(--accent-cyan)');
+    return Promise.all([quoteRequest(), industryRequest()])
+      .then(function (batches) { commitSnapshot(batches[0], batches[1]); return true; })
+      .catch(function (error) {
+        _rtLastError = error && error.message ? error.message : '数据请求失败';
+        updateStatus();
+        renderRealtimeIndustryFlow();
+        console.warn('实时数据未覆盖：' + _rtLastError);
+        return false;
+      })
+      .finally(function () { _rtInFlight = false; });
   }
 
-  var activePage = document.querySelector('.nav-item.active');
-  if (!activePage) return;
-  var page = activePage.dataset.page;
-
-  // 查看历史数据时不刷新
-  var selector = document.getElementById('dateSelector');
-  if (selector && selector.value) return;
-
-  // 天数据页：刷新指数表 + 成交额 + 广度饼图
-  if (page === 'daily') {
-    _rtRebuildTables();
-    _rtUpdateTurnover();
-    _rtUpdateBreadth();
+  function formatMoney(value) {
+    if (!Number.isFinite(value)) return '数据暂缺';
+    return (value > 0 ? '+' : '') + value.toFixed(2) + '亿';
   }
 
-  // 总览页：刷新核心指标卡
-  if (page === 'overview') {
-    _rtUpdateOverview();
+  function formatTime(value) {
+    if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '时间暂缺';
+    return value.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
-}
 
-function _rtRebuildTables() {
-  var allIndices = DASHBOARD_DATA.daily.indices;
-  var coreIndices = allIndices.slice(0, 4);
-  var broadIndices = allIndices.slice(4);
-
-  var volDiff = function(cur, avg) {
-    if (!Number.isFinite(cur) || !Number.isFinite(avg) || avg === 0) return '<span style="color:var(--text-muted);font-size:11px">—</span>';
-    var pct = ((cur - avg) / avg * 100).toFixed(1);
-    var up = cur >= avg;
-    return '<span style="color:var(--' + (up ? 'color-up' : 'color-down') + ');font-size:11px">' + (up ? '+' : '') + pct + '%</span>';
-  };
-
-  var coreRowFn = function(idx) {
-    return '<tr>' +
-      '<td style="font-weight:600">' + idx.name + '</td>' +
-      '<td style="font-family:monospace">' + (Number.isFinite(idx.close) ? idx.close.toFixed(2) : '—') + '</td>' +
-      '<td class="' + priceColor(idx.change) + '" style="font-family:monospace">' + (Number.isFinite(idx.change) && idx.change > 0 ? '+' : '') + (Number.isFinite(idx.change) ? idx.change.toFixed(2) : '—') + '</td>' +
-      '<td class="' + priceColor(idx.changePct) + '" style="font-family:monospace;font-weight:600">' + fmtPct(idx.changePct) + '</td>' +
-      '<td style="color:var(--text-primary);font-family:monospace;font-weight:600">' + (Number.isFinite(idx.volume) ? idx.volume.toLocaleString() : '—') + '</td>' +
-      '<td style="color:var(--text-secondary);font-family:monospace">' + (Number.isFinite(idx.avg5) ? idx.avg5.toLocaleString() : '—') + ' <br>' + volDiff(idx.volume, idx.avg5) + '</td>' +
-      '<td style="color:var(--text-secondary);font-family:monospace">' + (Number.isFinite(idx.avg10) ? idx.avg10.toLocaleString() : '—') + ' <br>' + volDiff(idx.volume, idx.avg10) + '</td>' +
-    '</tr>';
-  };
-
-  var broadRowFn = function(idx) {
-    return '<tr>' +
-      '<td style="font-weight:600">' + idx.name + '</td>' +
-      '<td style="font-family:monospace">' + (Number.isFinite(idx.close) ? idx.close.toFixed(2) : '—') + '</td>' +
-      '<td class="' + priceColor(idx.change) + '" style="font-family:monospace">' + (Number.isFinite(idx.change) && idx.change > 0 ? '+' : '') + (Number.isFinite(idx.change) ? idx.change.toFixed(2) : '—') + '</td>' +
-      '<td class="' + priceColor(idx.changePct) + '" style="font-family:monospace;font-weight:600">' + fmtPct(idx.changePct) + '</td>' +
-      '<td style="color:var(--text-primary);font-family:monospace;font-weight:600">' + (Number.isFinite(idx.volume) ? idx.volume.toLocaleString() : '—') + '</td>' +
-      '<td style="color:var(--text-tertiary);font-size:12px">—</td>' +
-      '<td style="color:var(--text-tertiary);font-size:12px">—</td>' +
-    '</tr>';
-  };
-
-  if (typeof buildTable === 'function') {
-    buildTable('daily-indices-core-table',
-      ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'],
-      coreIndices, coreRowFn);
-    buildTable('daily-indices-broad-table',
-      ['指数', '收盘', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'],
-      broadIndices, broadRowFn);
+  function summaryCard(label, value, note, positive) {
+    var color = positive == null ? 'var(--text-primary)' : positive ? 'var(--color-up)' : 'var(--color-down)';
+    return '<div class="metric-card"><div class="metric-label">' + escapeHtml(label) + '</div>' +
+      '<div class="metric-value" style="color:' + color + '">' + escapeHtml(value) + '</div>' +
+      '<div class="metric-change">' + escapeHtml(note) + '</div></div>';
   }
-}
 
-function _rtUpdateTurnover() {
-  var t = DASHBOARD_DATA.daily.turnover;
-  var el = document.getElementById('daily-turnover');
-  if (!el) return;
-  var fmt = function(v, suffix) {
-    if (!Number.isFinite(v)) return '数据暂缺';
-    return v.toLocaleString() + (suffix || '');
-  };
-  var fmtSign = function(v, suffix) {
-    if (!Number.isFinite(v)) return '数据暂缺';
-    return (v > 0 ? '+' : '') + v + (suffix || '');
-  };
-  el.innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:10px 0">' +
-      '<div class="metric-card"><div class="metric-label">两市成交额</div><div class="metric-value">' + fmt(t.total, '亿') + '</div><div class="metric-change">较昨日 ' + fmtSign(t.change, '亿') + '</div></div>' +
-      '<div class="metric-card"><div class="metric-label">5日平均</div><div class="metric-value" style="font-size:18px">' + fmt(t.avg5, '亿') + '</div><div class="metric-change">差额 ' + fmtSign(t.vs5d, '亿') + '</div></div>' +
-      '<div class="metric-card"><div class="metric-label">10日平均</div><div class="metric-value" style="font-size:18px">' + fmt(t.avg10, '亿') + '</div><div class="metric-change">差额 ' + fmtSign(t.vs10d, '亿') + '</div></div>' +
-    '</div>';
-}
-
-function _rtUpdateBreadth() {
-  var b = DASHBOARD_DATA.daily.breadth;
-  if (charts['daily-breadth'] && b.upCount && b.downCount) {
-    charts['daily-breadth'].setOption({
-      series: [{
-        data: [
-          { value: b.upCount, name: '上涨 ' + b.upCount, itemStyle: { color: '#ef4444' } },
-          { value: b.downCount, name: '下跌 ' + b.downCount, itemStyle: { color: '#22c55e' } },
-          { value: b.flatCount, name: '平盘 ' + b.flatCount, itemStyle: { color: '#64748b' } },
-        ],
-      }],
-    });
-  }
-}
-
-function _rtUpdateOverview() {
-  var d = DASHBOARD_DATA.daily;
-  var coreIdx = d.indices.slice(0, 4);
-  var metricsEl = document.getElementById('overview-metrics');
-  if (!metricsEl) return;
-  metricsEl.innerHTML = coreIdx.map(function(idx) {
-    return '<div class="metric-card">' +
-      '<div class="metric-label">' + idx.name + '</div>' +
-      '<div class="metric-value">' + (Number.isFinite(idx.close) ? idx.close.toFixed(2) : '—') + '</div>' +
-      '<div class="metric-change" style="color:var(--' + (idx.changePct > 0 ? 'color-up' : 'color-down') + ')">' + fmtPct(idx.changePct) + '</div>' +
-    '</div>';
-  }).join('');
-
-  // 也更新成交额
-  var mdEl = document.getElementById('overview-market-data');
-  if (mdEl) {
-    mdEl.innerHTML = [
-      { label: '两市成交额', value: (Number.isFinite(d.turnover.total) ? d.turnover.total.toLocaleString() + '亿' : '—'), change: Number.isFinite(d.turnover.change) ? (d.turnover.change > 0 ? '+' : '') + d.turnover.change + '亿' : '—', up: d.turnover.change > 0 },
-      { label: '融资余额', value: (Number.isFinite(d.margin.financeBalance) ? d.margin.financeBalance + '亿' : '—'), change: Number.isFinite(d.margin.balanceChange) ? (d.margin.balanceChange > 0 ? '+' : '') + d.margin.balanceChange + '亿' : '—', up: d.margin.balanceChange > 0 },
-      { label: '北向资金', value: (Number.isFinite(d.northbound.netBuy) ? d.northbound.netBuy + '亿' : '—'), change: Number.isFinite(d.northbound.turnover) ? '成交' + d.northbound.turnover + '亿' : '—', up: d.northbound.netBuy > 0 },
-      { label: '涨跌家数', value: (d.breadth.upCount || 0) + '/' + (d.breadth.downCount || 0), change: d.breadth.moneyEffect || '—', up: (d.breadth.upCount || 0) > (d.breadth.downCount || 0) },
-    ].map(function(m) {
-      return '<div class="metric-card"><div class="metric-label">' + m.label + '</div><div class="metric-value">' + m.value + '</div><div class="metric-change" style="color:var(--' + (m.up ? 'color-up' : 'color-down') + ')">' + m.change + '</div></div>';
+  function renderRank(targetId, sectors) {
+    var target = document.getElementById(targetId);
+    if (!target) return;
+    target.innerHTML = sectors.map(function (item, index) {
+      return '<div class="industry-flow-row"><span class="industry-flow-rank">' + (index + 1) + '</span>' +
+        '<b>' + escapeHtml(item.name) + '</b><span class="industry-flow-money" style="color:var(--' + (item.netInflow >= 0 ? 'color-up' : 'color-down') + ')">' +
+        escapeHtml(formatMoney(item.netInflow)) + '</span><span class="industry-flow-change" style="color:var(--' + (item.changePct >= 0 ? 'color-up' : 'color-down') + ')">' +
+        escapeHtml((item.changePct > 0 ? '+' : '') + item.changePct.toFixed(2) + '%') + '</span></div>';
     }).join('');
   }
-}
 
-// 启动/停止
-function startRealtime() {
-  if (_rtTimer) return;
-  _rtActive = true;
-  _rtFetchQuotes();
-  _rtTimer = setInterval(_rtFetchQuotes, 120000);
-  var btn = document.getElementById('realtimeToggle');
-  if (btn) { btn.innerHTML = '<span class="rt-pulse"></span> 实时'; btn.classList.add('rt-on'); }
-}
+  function fallbackSnapshot() {
+    var flow = DASHBOARD_DATA && DASHBOARD_DATA.daily && DASHBOARD_DATA.daily.fundFlow;
+    if (!flow || !Array.isArray(flow.sectors) || !flow.sectors.length) return null;
+    var sectors = flow.sectors.filter(function (item) { return item && item.name && Number.isFinite(item.netInflow) && Number.isFinite(item.changePct); });
+    if (!sectors.length) return null;
+    return {
+      sectors: sectors.slice().sort(function (a, b) { return b.netInflow - a.netInflow; }),
+      netInflow: Number.isFinite(flow.netInflow) ? flow.netInflow : sectors.reduce(function (sum, item) { return sum + item.netInflow; }, 0),
+      inflowCount: Number.isFinite(flow.inflowCount) ? flow.inflowCount : sectors.filter(function (item) { return item.netInflow > 0; }).length,
+      outflowCount: Number.isFinite(flow.outflowCount) ? flow.outflowCount : sectors.filter(function (item) { return item.netInflow < 0; }).length,
+      upCount: sectors.filter(function (item) { return item.changePct > 0; }).length,
+      downCount: sectors.filter(function (item) { return item.changePct < 0; }).length,
+      updateTime: flow.updateTime || DASHBOARD_DATA.meta.reportDate,
+      source: '日终已核验数据'
+    };
+  }
 
-function stopRealtime() {
-  if (_rtTimer) { clearInterval(_rtTimer); _rtTimer = null; }
-  _rtActive = false;
-  var btn = document.getElementById('realtimeToggle');
-  if (btn) { btn.innerHTML = '▶ 实时'; btn.classList.remove('rt-on'); }
-  var status = document.getElementById('updateStatus');
-  if (status) { status.textContent = '最新数据'; status.style.color = ''; }
-}
+  function renderRealtimeIndustryFlow() {
+    var snapshot = _rtIndustrySnapshot || fallbackSnapshot();
+    var summary = document.getElementById('daily-fundflow-summary');
+    var status = document.getElementById('daily-fundflow-status');
+    var table = document.getElementById('daily-fundflow-table');
+    var chartEl = document.getElementById('daily-fundflow-rank');
+    if (!summary || !table || !chartEl) return;
+    if (!snapshot) {
+      summary.innerHTML = summaryCard('当前状态', '数据暂缺', '未取得通过校验的行业数据', null);
+      table.innerHTML = '<tbody><tr><td style="text-align:center;color:var(--text-muted)">暂未取得有效行业数据</td></tr></tbody>';
+      if (status) status.textContent = '等待有效数据';
+      return;
+    }
 
-function toggleRealtime() {
-  if (_rtActive) { stopRealtime(); } else { startRealtime(); }
-}
+    if (status) status.textContent = snapshot.source + ' · ' + (snapshot.updateTime instanceof Date ? formatTime(snapshot.updateTime) : snapshot.updateTime);
+    summary.innerHTML = [
+      summaryCard('31行业净额合计', formatMoney(snapshot.netInflow), '一级行业统计合计', snapshot.netInflow >= 0),
+      summaryCard('净流入 / 净流出', snapshot.inflowCount + ' / ' + snapshot.outflowCount, '按主力净流入金额', snapshot.inflowCount >= snapshot.outflowCount),
+      summaryCard('上涨 / 下跌行业', snapshot.upCount + ' / ' + snapshot.downCount, '按行业指数涨跌幅', snapshot.upCount >= snapshot.downCount),
+      summaryCard('数据状态', _rtLastError ? '已延迟' : (_rtIndustrySnapshot ? '盘中有效' : '日终数据'), _rtLastError || '已通过整批校验', _rtLastError ? false : true)
+    ].join('');
 
-// 初始化
-function _rtInit() {
-  var btn = document.getElementById('realtimeToggle');
-  if (btn) btn.addEventListener('click', toggleRealtime);
-  // 交易时段自动启动
-  if (_rtIsTradingHours()) startRealtime();
-}
+    var sectors = snapshot.sectors.slice().sort(function (a, b) { return b.netInflow - a.netInflow; });
+    renderRank('daily-fundflow-inflow', sectors.slice(0, 5));
+    renderRank('daily-fundflow-outflow', sectors.slice(-5).reverse());
+    table.innerHTML = '<thead><tr><th>排名</th><th>行业</th><th>涨跌幅</th><th>成交额</th><th>主力净流入</th><th>净流入占比</th></tr></thead><tbody>' +
+      sectors.map(function (item, index) {
+        return '<tr><td>' + (index + 1) + '</td><td><b>' + escapeHtml(item.name) + '</b></td>' +
+          '<td class="' + (item.changePct > 0 ? 'num-up' : item.changePct < 0 ? 'num-down' : 'num-flat') + '">' + escapeHtml((item.changePct > 0 ? '+' : '') + item.changePct.toFixed(2) + '%') + '</td>' +
+          '<td>' + (Number.isFinite(item.turnover) ? item.turnover.toFixed(2) + '亿' : '日终未提供') + '</td>' +
+          '<td class="' + (item.netInflow > 0 ? 'num-up' : item.netInflow < 0 ? 'num-down' : 'num-flat') + '">' + escapeHtml(formatMoney(item.netInflow)) + '</td>' +
+          '<td>' + (Number.isFinite(item.netRatio) ? item.netRatio.toFixed(2) + '%' : '日终未提供') + '</td></tr>';
+      }).join('') + '</tbody>';
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _rtInit);
-} else {
-  _rtInit();
-}
+    if (typeof echarts !== 'undefined') {
+      if (typeof charts !== 'undefined' && charts['daily-fundflow-rank']) charts['daily-fundflow-rank'].dispose();
+      var chart = echarts.init(chartEl);
+      if (typeof charts !== 'undefined') charts['daily-fundflow-rank'] = chart;
+      var ascending = sectors.slice().reverse();
+      chart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function (params) {
+          var item = ascending[params[0].dataIndex];
+          return '<b>' + escapeHtml(item.name) + '</b><br>主力净流入：' + escapeHtml(formatMoney(item.netInflow)) + '<br>涨跌幅：' + (item.changePct > 0 ? '+' : '') + item.changePct.toFixed(2) + '%';
+        } },
+        grid: { top: 12, right: 90, bottom: 25, left: 90 },
+        xAxis: { type: 'value', axisLabel: { color: '#64748b', formatter: '{value}亿' }, splitLine: { lineStyle: { color: '#1e293b' } } },
+        yAxis: { type: 'category', data: ascending.map(function (item) { return item.name; }), axisLabel: { color: '#94a3b8', fontSize: 11 } },
+        series: [{ type: 'bar', barWidth: '58%', data: ascending.map(function (item) { return { value: item.netInflow, itemStyle: { color: item.netInflow >= 0 ? '#ef4444' : '#22c55e' } }; }),
+          label: { show: true, position: 'right', color: '#cbd5e1', fontSize: 10, formatter: function (params) { return (params.value > 0 ? '+' : '') + Number(params.value).toFixed(1); } },
+          markLine: { symbol: 'none', data: [{ xAxis: 0 }], lineStyle: { color: '#475569' }, label: { show: false } }
+        }]
+      });
+    }
+  }
+
+  function updateVisiblePage() {
+    var active = document.querySelector('.nav-item.active');
+    if (!active) return;
+    if (active.dataset.page === 'daily') {
+      if (typeof _rtRebuildTables === 'function') _rtRebuildTables();
+      updateTurnover(); updateBreadth(); renderRealtimeIndustryFlow();
+    } else if (active.dataset.page === 'overview') {
+      updateOverview();
+    }
+  }
+
+  function updateTurnover() {
+    var target = document.getElementById('daily-turnover');
+    if (!target || typeof renderDailyTurnover !== 'function') return;
+    renderDailyTurnover();
+  }
+
+  function updateBreadth() {
+    if (typeof renderDailyBreadth === 'function') renderDailyBreadth();
+  }
+
+  function updateOverview() {
+    var data = DASHBOARD_DATA.daily;
+    var metrics = document.getElementById('overview-metrics');
+    if (metrics) metrics.innerHTML = data.indices.slice(0, 4).map(function (index) {
+      return '<div class="metric-card"><div class="metric-label">' + escapeHtml(index.name) + '</div><div class="metric-value">' +
+        (Number.isFinite(index.close) ? index.close.toFixed(2) : '数据暂缺') + '</div><div class="metric-change" style="color:var(--' +
+        (index.changePct >= 0 ? 'color-up' : 'color-down') + ')">' + (index.changePct > 0 ? '+' : '') + (Number.isFinite(index.changePct) ? index.changePct.toFixed(2) + '%' : '数据暂缺') + '</div></div>';
+    }).join('');
+  }
+
+  function _rtRebuildTables() {
+    if (typeof buildTable !== 'function') return;
+    var all = DASHBOARD_DATA.daily.indices;
+    function row(index, averages) {
+      function difference(current, average) {
+        if (!Number.isFinite(current) || !Number.isFinite(average) || !average) return '—';
+        var value = (current - average) / average * 100;
+        return '<span class="' + (value >= 0 ? 'num-up' : 'num-down') + '">' + (value > 0 ? '+' : '') + value.toFixed(1) + '%</span>';
+      }
+      return '<tr><td><b>' + escapeHtml(index.name) + '</b></td><td>' + index.close.toFixed(2) + '</td><td class="' + (index.change >= 0 ? 'num-up' : 'num-down') + '">' +
+        (index.change > 0 ? '+' : '') + index.change.toFixed(2) + '</td><td class="' + (index.changePct >= 0 ? 'num-up' : 'num-down') + '">' +
+        (index.changePct > 0 ? '+' : '') + index.changePct.toFixed(2) + '%</td><td>' + index.volume.toLocaleString() + '</td>' +
+        (averages ? '<td>' + (Number.isFinite(index.avg5) ? index.avg5.toLocaleString() : '—') + '<br>' + difference(index.volume, index.avg5) + '</td><td>' +
+          (Number.isFinite(index.avg10) ? index.avg10.toLocaleString() : '—') + '<br>' + difference(index.volume, index.avg10) + '</td>' : '<td>—</td><td>—</td>') + '</tr>';
+    }
+    buildTable('daily-indices-core-table', ['指数', '点位', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'], all.slice(0, 4), function (item) { return row(item, true); });
+    buildTable('daily-indices-broad-table', ['指数', '点位', '涨跌', '涨跌幅', '成交额(亿)', '5日均(亿)', '10日均(亿)'], all.slice(4), function (item) { return row(item, false); });
+  }
+
+  function setStatusText(text, color) {
+    var status = document.getElementById('updateStatus');
+    if (!status || !isLatestDate()) return;
+    status.textContent = text;
+    status.style.color = color || '';
+  }
+
+  function updateStatus() {
+    var state = sessionState();
+    var market = document.getElementById('marketStatus');
+    if (market) {
+      var labels = { trading: '交易中', lunch: '午间休市', preopen: '未开盘', closed: '已收盘', weekend: '休市' };
+      market.innerHTML = '<span style="color:var(--' + (state === 'trading' ? 'color-up' : 'color-yellow') + ')">' + labels[state] + '</span>';
+    }
+    if (!isLatestDate()) return;
+    if (_rtLastError) setStatusText('实时数据延迟 · ' + _rtLastError, 'var(--color-yellow)');
+    else if (_rtLastUpdate) setStatusText('<span class="rt-pulse"></span> 实时 ' + formatTime(_rtLastUpdate), 'var(--color-up)');
+    else setStatusText(state === 'trading' ? '等待实时数据' : '日终数据 · ' + (state === 'lunch' ? '午休' : '非交易时段'), '');
+    var status = document.getElementById('updateStatus');
+    if (status && _rtLastUpdate && !_rtLastError) status.innerHTML = '<span class="rt-pulse"></span> 实时 ' + formatTime(_rtLastUpdate);
+  }
+
+  function startTimer() {
+    if (_rtTimer) return;
+    fetchRealtime();
+    _rtTimer = setInterval(fetchRealtime, RT_REFRESH_MS);
+  }
+
+  function stopTimer() {
+    if (_rtTimer) clearInterval(_rtTimer);
+    _rtTimer = null;
+  }
+
+  function updateButton() {
+    var button = document.getElementById('realtimeToggle');
+    if (!button) return;
+    var active = _rtTimer !== null && isLatestDate();
+    button.innerHTML = active ? '<span class="rt-pulse"></span> 实时' : '▶ 实时';
+    button.classList.toggle('rt-on', active);
+  }
+
+  function syncRealtimeState() {
+    var shouldRun = _rtWanted && isLatestDate() && sessionState() === 'trading';
+    if (shouldRun) startTimer(); else stopTimer();
+    updateButton(); updateStatus();
+  }
+
+  function toggleRealtime() {
+    if (_rtWanted && _rtTimer) {
+      _rtWanted = false;
+      stopTimer();
+    } else {
+      _rtWanted = true;
+      if (isLatestDate()) fetchRealtime();
+    }
+    syncRealtimeState();
+  }
+
+  function init() {
+    var button = document.getElementById('realtimeToggle');
+    if (button) button.addEventListener('click', toggleRealtime);
+    syncRealtimeState();
+    _rtClockTimer = setInterval(syncRealtimeState, RT_CLOCK_MS);
+  }
+
+  window.renderRealtimeIndustryFlow = renderRealtimeIndustryFlow;
+  window.syncRealtimeState = syncRealtimeState;
+  window.__realtimeTest = { sessionState: sessionState, normalizeQuotes: normalizeQuotes, normalizeIndustries: normalizeIndustries };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
