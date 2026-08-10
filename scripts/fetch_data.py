@@ -25,6 +25,7 @@
 
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timedelta
 
@@ -593,17 +594,30 @@ def load_existing_data():
             return None
         with open(existing_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        start = content.find('const DASHBOARD_DATA = ')
-        if start == -1:
+        if 'const DASHBOARD_DATA' not in content:
             return None
-        start = content.find('{', start)
-        if start == -1:
+
+        # data.js is executable JavaScript rather than strict JSON: older files
+        # contain comments, unquoted keys and single-quoted strings.  Parse it
+        # with the Node runtime already provided by GitHub Actions, and also
+        # recover DASHBOARD_HISTORY when it is stored as a separate constant.
+        export_script = content + r'''
+process.stdout.write(JSON.stringify({
+  data: DASHBOARD_DATA,
+  history: typeof DASHBOARD_HISTORY === 'undefined' ? [] : DASHBOARD_HISTORY
+}));
+'''
+        result = subprocess.run(
+            ['node'], input=export_script, text=True, capture_output=True,
+            encoding='utf-8', timeout=20, check=True
+        )
+        parsed = json.loads(result.stdout)
+        data = parsed.get('data')
+        if not isinstance(data, dict):
             return None
-        end = content.rfind('};')
-        if end == -1:
-            return None
-        json_str = content[start:end + 1]
-        return json.loads(json_str)
+        history = parsed.get('history')
+        data['history'] = history if isinstance(history, list) else []
+        return data
     except Exception as e:
         print(f'  ! 读取现有数据失败: {e}')
         return None
