@@ -28,11 +28,14 @@ import os
 import re
 import subprocess
 import sys
+import time
 from copy import deepcopy
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'data.js')
+POLICY_FUNDS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'policy-funds-data.js')
 TEST_MODE = '--test' in sys.argv
 FORCE_MODE = '--force' in sys.argv
 
@@ -64,6 +67,19 @@ TENCENT_INDEX_SYMBOLS = {
     '中证1000': 'sh000852', '科创50': 'sh000688', '北证50': 'bj899050',
 }
 
+EASTMONEY_INDEX_SECIDS = {
+    '上证指数': '1.000001', '深证成指': '0.399001', '创业板指': '0.399006',
+    '科创综指': '1.000680', '沪深300': '1.000300', '中证500': '1.000905',
+    '中证1000': '1.000852', '科创50': '1.000688', '北证50': '0.899050',
+}
+
+SW_LEVEL1_INDUSTRIES = [
+    '农林牧渔', '基础化工', '钢铁', '有色金属', '电子', '家用电器', '食品饮料', '纺织服饰',
+    '轻工制造', '医药生物', '公用事业', '交通运输', '房地产', '商贸零售', '社会服务', '综合',
+    '建筑材料', '建筑装饰', '电力设备', '国防军工', '计算机', '传媒', '通信', '银行',
+    '非银金融', '汽车', '机械设备', '煤炭', '石油石化', '环保', '美容护理',
+]
+
 BOND_NAME_MAP = {
     '中国国债收益率1年': '中国1年国债',
     '中国国债收益率2年': '中国2年国债',
@@ -92,6 +108,15 @@ def safe_float(val, default=None):
 def today_str():
     return datetime.now().strftime('%Y-%m-%d')
 
+def normalize_date(value):
+    if value is None:
+        return None
+    text = str(value).strip()[:10]
+    digits = re.sub(r'\D', '', text)
+    if len(digits) >= 8:
+        return f'{digits[:4]}-{digits[4:6]}-{digits[6:8]}'
+    return None
+
 def fmt_volume(val):
     if val is None:
         return None
@@ -105,6 +130,19 @@ def clamp(value, lower=0, upper=100):
 
 def valid_number(value, allow_zero=True):
     return isinstance(value, (int, float)) and (allow_zero or value != 0)
+
+def fetch_json(url, referer='https://quote.eastmoney.com/', timeout=20, attempts=3):
+    last_error = None
+    for attempt in range(attempts):
+        try:
+            request = Request(url, headers={'Referer': referer, 'User-Agent': 'Mozilla/5.0'})
+            with urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read().decode('utf-8'))
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 < attempts:
+                time.sleep(1.5 * (attempt + 1))
+    raise last_error
 
 def radar_item(name, value, formula, inputs, source_date):
     """Create a traceable score. Missing inputs never become an estimated score."""
@@ -242,23 +280,44 @@ def fetch_index_spot():
     return {}
 
 
+def fetch_index_history_rows(name, days=10):
+    """Fetch dated closes and turnover from Eastmoney's direct kline API."""
+    secid = EASTMONEY_INDEX_SECIDS.get(name)
+    if not secid:
+        return []
+    query = urlencode({
+        'secid': secid, 'fields1': 'f1,f2,f3,f4,f5,f6',
+        'fields2': 'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61',
+        'klt': 101, 'fqt': 1, 'end': '20500101', 'lmt': max(days, 10),
+    })
+    payload = fetch_json('https://push2his.eastmoney.com/api/qt/stock/kline/get?' + query)
+    lines = (payload.get('data') or {}).get('klines') or []
+    rows = []
+    for line in lines:
+        fields = str(line).split(',')
+        if len(fields) < 7:
+            continue
+        close = safe_float(fields[2])
+        turnover = safe_float(fields[6])
+        if close is None or close <= 0 or turnover is None or turnover < 0:
+            continue
+        rows.append({'date': fields[0], 'close': close, 'turnover': turnover / 1e8})
+    return rows[-days:]
+
+
 def fetch_index_history(name, code, days=10):
-    """获取指数历史数据用于计算5日均值"""
+    """获取带真实日期和成交额的指数历史数据，用于5日、10日均值。"""
     if TEST_MODE:
         return None
     try:
-        end_date = datetime.now().strftime('%Y%m%d')
-        start_date = (datetime.now() - timedelta(days=days + 15)).strftime('%Y%m%d')
-        df = ak.index_zh_a_hist(symbol=code, period='daily', start_date=start_date, end_date=end_date)
-        if len(df) == 0:
-            return None
-        df = df.tail(days)
-        if '成交额' in df.columns:
-            avg5 = safe_float(df['成交额'].tail(5).mean() / 1e8, 0)
-            avg10 = safe_float(df['成交额'].tail(10).mean() / 1e8, 0)
-            return {'avg5': avg5, 'avg10': avg10}
-        return None
-    except Exception:
+        rows = fetch_index_history_rows(name, days)
+        turnover = [row['turnover'] for row in rows]
+        return {
+            'avg5': round(sum(turnover[-5:]) / 5, 0) if len(turnover) >= 5 else None,
+            'avg10': round(sum(turnover[-10:]) / 10, 0) if len(turnover) >= 10 else None,
+        }
+    except Exception as exc:
+        print(f'  ! {name}历史成交额获取失败: {exc}')
         return None
 
 
@@ -270,13 +329,11 @@ def fetch_weekly_changes():
     result = {}
     for name, code in INDEX_CODES.items():
         try:
-            end_date = datetime.now().strftime('%Y%m%d')
-            start_date = (datetime.now() - timedelta(days=14)).strftime('%Y%m%d')
-            df = ak.index_zh_a_hist(symbol=code, period='daily', start_date=start_date, end_date=end_date)
-            if len(df) < 2:
+            rows = fetch_index_history_rows(name, 10)
+            if len(rows) < 2:
                 result[name] = {'weekChange': None, 'trend': None}
                 continue
-            closes = df['收盘'].tolist()
+            closes = [row['close'] for row in rows[-5:]]
             week_change = round((closes[-1] - closes[0]) / closes[0] * 100, 2)
             trend = '反弹' if week_change > 0 else '调整'
             if abs(week_change) > 5:
@@ -289,8 +346,66 @@ def fetch_weekly_changes():
     return result
 
 
+def summarize_industry_flow(sectors, source, source_date):
+    by_name = {item.get('name'): item for item in sectors if item.get('name') in SW_LEVEL1_INDUSTRIES}
+    ordered = [by_name[name] for name in SW_LEVEL1_INDUSTRIES if name in by_name]
+    if len(ordered) != len(SW_LEVEL1_INDUSTRIES) or source_date != today_str():
+        return None
+    ordered.sort(key=lambda item: item['netInflow'], reverse=True)
+    return {
+        'sectors': ordered,
+        'netInflow': round(sum(item['netInflow'] for item in ordered), 2),
+        'inflowCount': sum(1 for item in ordered if item['netInflow'] > 0),
+        'outflowCount': sum(1 for item in ordered if item['netInflow'] < 0),
+        'source': source, 'sourceDate': source_date,
+    }
+
+
+def fetch_fund_flow_direct():
+    fields = 'f2,f3,f6,f12,f14,f62,f124,f184'
+    all_rows = []
+    total = 0
+    page = 1
+    while page == 1 or len(all_rows) < total:
+        query = urlencode({
+            'pn': page, 'pz': 100, 'po': 1, 'np': 1, 'fltt': 2, 'invt': 2,
+            'fid': 'f62', 'fs': 'm:90+t:2', 'fields': fields,
+            'ut': 'bd1d9ddb04089700cf9c27f6f7426281',
+        })
+        payload = fetch_json('https://push2.eastmoney.com/api/qt/clist/get?' + query)
+        data = payload.get('data') or {}
+        rows = data.get('diff') or []
+        total = int(data.get('total') or 0)
+        if not rows:
+            break
+        all_rows.extend(rows)
+        page += 1
+        if page > 10:
+            break
+    sectors = []
+    timestamp = 0
+    for row in all_rows:
+        name = str(row.get('f14') or '').strip()
+        net_inflow = safe_float(row.get('f62'))
+        change_pct = safe_float(row.get('f3'))
+        turnover = safe_float(row.get('f6'))
+        net_ratio = safe_float(row.get('f184'))
+        if name not in SW_LEVEL1_INDUSTRIES or net_inflow is None or change_pct is None:
+            continue
+        if abs(change_pct) > 20 or turnover is None or turnover < 0 or net_ratio is None or abs(net_ratio) > 100:
+            continue
+        sectors.append({
+            'name': name, 'netInflow': round(net_inflow / 1e8, 2),
+            'changePct': change_pct, 'turnover': round(turnover / 1e8, 2),
+            'netRatio': net_ratio,
+        })
+        timestamp = max(timestamp, int(safe_float(row.get('f124'), 0) or 0))
+    source_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d') if timestamp else None
+    return summarize_industry_flow(sectors, '东方财富行情平台', source_date)
+
+
 def fetch_fund_flow():
-    """获取板块资金流向"""
+    """获取31个申万一级行业资金流向，失败时使用直接行情接口。"""
     print('[3/8] 抓取主力资金流向...')
     if TEST_MODE:
         return {'sectors': [], 'netInflow': None, 'inflowCount': None, 'outflowCount': None}
@@ -308,16 +423,22 @@ def fetch_fund_flow():
                 'netInflow': net_inflow,
                 'changePct': change_pct,
             })
-        sectors = [s for s in sectors if s['netInflow'] is not None]
-        sectors.sort(key=lambda x: x['netInflow'], reverse=True)
-        inflow_count = sum(1 for s in sectors if s['netInflow'] > 0)
-        outflow_count = sum(1 for s in sectors if s['netInflow'] < 0)
-        total_net = round(sum(s['netInflow'] for s in sectors), 2) if sectors else None
-        print(f'  + {len(sectors)}个行业，净流入{total_net}亿')
-        return {'sectors': sectors, 'netInflow': total_net, 'inflowCount': inflow_count, 'outflowCount': outflow_count}
+        summary = summarize_industry_flow(sectors, '东方财富/AKShare', today_str())
+        if summary:
+            print(f'  + {len(summary["sectors"])}个申万一级行业，净流入{summary["netInflow"]}亿')
+            return summary
+        print('  ! AKShare行业批次不完整，切换直接行情接口')
     except Exception as e:
         print(f'  ! 资金流向抓取失败: {e}')
-        return {'sectors': [], 'netInflow': None, 'inflowCount': None, 'outflowCount': None}
+    try:
+        summary = fetch_fund_flow_direct()
+        if summary:
+            print(f'  + {len(summary["sectors"])}个申万一级行业，净流入{summary["netInflow"]}亿 [直接接口]')
+            return summary
+        print('  ! 行业直接接口未通过31行业和日期校验')
+    except Exception as exc:
+        print(f'  ! 行业直接接口失败: {exc}')
+    return {'sectors': [], 'netInflow': None, 'inflowCount': None, 'outflowCount': None, 'source': None, 'sourceDate': None}
 
 
 def fetch_margin():
@@ -330,25 +451,34 @@ def fetch_margin():
         start_date = (datetime.now() - timedelta(days=10)).strftime('%Y%m%d')
         sh_finance = None
         sz_finance = None
+        sh_date = None
+        sz_date = None
         try:
             df_sse = ak.stock_margin_sse(start_date=start_date, end_date=end_date)
             if len(df_sse) > 0:
-                sh_finance = safe_float(df_sse.iloc[-1].get('融资余额'))
+                latest_sse = df_sse.iloc[-1]
+                sh_finance = safe_float(latest_sse.get('融资余额'))
                 if sh_finance:
                     sh_finance = round(sh_finance / 1e8, 2)
+                raw_date = latest_sse.get('信用交易日期') or latest_sse.get('日期')
+                sh_date = normalize_date(raw_date)
         except Exception as e:
             print(f'  ! 上交所融资融券失败: {e}')
         try:
             df_szse = ak.stock_margin_szse(date=end_date)
             if len(df_szse) > 0:
-                sz_finance = safe_float(df_szse.iloc[-1].get('融资余额'))
+                latest_szse = df_szse.iloc[-1]
+                sz_finance = safe_float(latest_szse.get('融资余额'))
                 if sz_finance:
                     sz_finance = round(sz_finance / 1e8, 2)
+                raw_date = latest_szse.get('信用交易日期') or latest_szse.get('日期')
+                sz_date = normalize_date(raw_date) if raw_date is not None else today_str()
         except Exception as e:
             print(f'  ! 深交所融资融券失败: {e}')
         total_finance = round(sh_finance + sz_finance, 2) if sh_finance is not None and sz_finance is not None else None
+        data_date = min(sh_date, sz_date) if total_finance is not None and sh_date and sz_date else None
         print(f'  + 融资余额: {total_finance}亿')
-        return {'financeBalance': total_finance, 'securitiesBalance': None, 'totalBalance': total_finance, 'balanceChange': None, 'shBalance': sh_finance, 'szBalance': sz_finance, 'marginTradePct': None, 'dataDate': today_str() if total_finance is not None else None, 'dataLevel': 'B'}
+        return {'financeBalance': total_finance, 'securitiesBalance': None, 'totalBalance': total_finance, 'balanceChange': None, 'shBalance': sh_finance, 'szBalance': sz_finance, 'marginTradePct': None, 'dataDate': data_date, 'dataLevel': 'B'}
     except Exception as e:
         print(f'  ! 融资融券抓取失败: {e}')
         return {'financeBalance': None, 'securitiesBalance': None, 'totalBalance': None, 'balanceChange': None, 'shBalance': None, 'szBalance': None, 'marginTradePct': None, 'dataDate': None, 'dataLevel': 'B'}
@@ -439,6 +569,43 @@ def fetch_market_breadth():
     print('[8/8] 抓取市场广度...')
     if TEST_MODE:
         return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
+
+
+def load_policy_etf_daily(report_date):
+    """Reuse only same-date, individually validated ETF observations."""
+    try:
+        with open(os.path.normpath(POLICY_FUNDS_PATH), 'r', encoding='utf-8') as handle:
+            content = handle.read()
+        prefix = 'const POLICY_FUNDS_DATA = '
+        start = content.find(prefix)
+        end = content.rfind('};')
+        if start < 0 or end < 0:
+            return {'items': [], 'totalFlow': None, 'sourceDate': None}
+        payload = json.loads(content[start + len(prefix):end + 1])
+        record = next((item for item in reversed(payload.get('history', [])) if item.get('date') == report_date), None)
+        if not record:
+            return {'items': [], 'totalFlow': None, 'sourceDate': None}
+        category_names = {item.get('id'): item.get('name') for item in record.get('categories', [])}
+        items = []
+        for item in record.get('etfs', []):
+            net_flow = safe_float(item.get('netFlow'))
+            asset_value = safe_float(item.get('assetValue'))
+            if asset_value is None:
+                continue
+            items.append({
+                'name': item.get('name'), 'code': item.get('code'),
+                'category': category_names.get(item.get('category'), item.get('category')),
+                'changePct': None, 'shareChange': net_flow, 'volume': asset_value,
+                'direction': ('净申购' if net_flow > 0 else '净赎回' if net_flow < 0 else '持平') if net_flow is not None else '基线积累中',
+                'status': item.get('status'),
+                'source': item.get('source'), 'sourceDate': item.get('sourceDate'),
+            })
+        valid_flows = [item['shareChange'] for item in items if item['shareChange'] is not None]
+        total = round(sum(valid_flows), 2) if valid_flows else None
+        return {'items': items, 'totalFlow': total, 'sourceDate': report_date}
+    except Exception as exc:
+        print(f'  ! ETF日数据映射失败: {exc}')
+        return {'items': [], 'totalFlow': None, 'sourceDate': None}
     try:
         df = ak.stock_zh_a_spot_em()
         if len(df) == 0:
@@ -464,8 +631,9 @@ def fetch_market_breadth():
 # 数据组装
 # ============================================================
 
-def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, breadth, weekly_changes):
+def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, breadth, weekly_changes, etf_data=None):
     today = next((item.get('sourceDate') for item in index_spot.values() if item.get('sourceDate')), today_str())
+    etf_data = etf_data or {'items': [], 'totalFlow': None, 'sourceDate': None}
 
     indices = []
     for name in CORE_INDICES + BROAD_INDICES:
@@ -515,7 +683,7 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
         'inflowCount': fund_flow.get('inflowCount'),
         'outflowCount': fund_flow.get('outflowCount'),
         'sectors': fund_flow.get('sectors', []),
-        'source': '东方财富', 'sourceDate': today,
+        'source': fund_flow.get('source'), 'sourceDate': fund_flow.get('sourceDate'),
         'status': 'valid' if fund_flow.get('sectors') else 'missing',
     }
 
@@ -552,12 +720,15 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
     daily = {
         'radar': daily_radar,
         'indices': indices,
-        'industryPerformance': {'gainers': [], 'losers': []},
+        'industryPerformance': {
+            'gainers': sorted(fund_flow.get('sectors', []), key=lambda item: item.get('changePct', 0), reverse=True)[:5],
+            'losers': sorted(fund_flow.get('sectors', []), key=lambda item: item.get('changePct', 0))[:5],
+        },
         'turnover': turnover,
         'breadth': breadth,
         'margin': margin,
         'northbound': northbound,
-        'etf': [],
+        'etf': etf_data.get('items', []),
         'fundFlow': fund_flow_data,
         'judgment': {
             'completeness': f'有效评分完整度 {completeness}%（{len(valid_scores)}/{len(daily_radar)}）',
@@ -834,11 +1005,13 @@ def main():
     bonds = fetch_bonds()
     commodities = fetch_commodities()
     breadth = fetch_market_breadth()
+    report_date = next((item.get('sourceDate') for item in index_spot.values() if item.get('sourceDate')), today_str())
+    etf_data = load_policy_etf_daily(report_date)
 
     print('\n组装数据...')
     data = build_data(
         index_spot, fund_flow, margin, northbound,
-        bonds, commodities, breadth, weekly_changes
+        bonds, commodities, breadth, weekly_changes, etf_data
     )
 
     validation_errors = validate_report(data)
