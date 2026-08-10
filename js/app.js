@@ -3,15 +3,26 @@
  */
 
 // ========== 日期选择器逻辑 ==========
-let _originalDaily = null;  // 保存原始daily数据
-let _currentDate = '';     // 当前选中的日期（空=最新）
+let _originalSnapshot = null;  // 保存完整的最新数据快照
+let _currentDate = '';         // 当前选中的日期（空=最新）
+let _historyHasFullSnapshot = true;
+const _historicalPageMarkup = {};
+
+function cloneData(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function replaceDashboardData(snapshot) {
+  Object.keys(DASHBOARD_DATA).forEach(key => delete DASHBOARD_DATA[key]);
+  Object.assign(DASHBOARD_DATA, cloneData(snapshot));
+}
 
 function initDateSelector() {
   const selector = document.getElementById('dateSelector');
   if (!selector) return;
 
-  // 保存原始 daily 数据
-  _originalDaily = JSON.parse(JSON.stringify(DASHBOARD_DATA.daily));
+  // 保存完整最新快照，返回“最新”时不残留任何历史字段
+  _originalSnapshot = cloneData(DASHBOARD_DATA);
 
   // 构建 option 列表：默认显示真实日期 + "最新"标签
   let options = '<option value="">' + DASHBOARD_DATA.meta.reportDate + '（最新）</option>';
@@ -35,14 +46,24 @@ function onDateChange() {
 
   if (!selectedDate) {
     // 恢复最新数据
-    DASHBOARD_DATA.daily = JSON.parse(JSON.stringify(_originalDaily));
+    replaceDashboardData(_originalSnapshot);
+    _historyHasFullSnapshot = true;
     document.getElementById('updateStatus').textContent = '最新数据';
   } else {
     // 从历史数据中查找
     if (typeof DASHBOARD_HISTORY !== 'undefined' && DASHBOARD_HISTORY) {
       const histItem = DASHBOARD_HISTORY.find(h => h.date === selectedDate);
       if (histItem && histItem.daily) {
-        DASHBOARD_DATA.daily = JSON.parse(JSON.stringify(histItem.daily));
+        if (histItem.snapshot) {
+          replaceDashboardData(histItem.snapshot);
+          _historyHasFullSnapshot = true;
+        } else {
+          // 早期历史只保存了天数据；其余模块必须明确缺失，不能混入最新值。
+          replaceDashboardData(_originalSnapshot);
+          DASHBOARD_DATA.daily = cloneData(histItem.daily);
+          DASHBOARD_DATA.meta.reportDate = selectedDate;
+          _historyHasFullSnapshot = false;
+        }
         document.getElementById('updateStatus').textContent = '历史数据 · ' + selectedDate;
       }
     }
@@ -137,6 +158,11 @@ document.querySelectorAll('.nav-item').forEach(item => {
 });
 
 function renderPage(page) {
+  if (_currentDate && !_historyHasFullSnapshot && page !== 'overview' && page !== 'daily') {
+    renderHistoricalUnavailable(page);
+    return;
+  }
+  restoreHistoricalPage(page);
   if (!hasVerifiedDataset() && page !== 'valuation' && page !== 'policy-funds') {
     renderUnverifiedPage(page);
     return;
@@ -147,6 +173,26 @@ function renderPage(page) {
     'policy-funds': () => typeof renderPolicyFunds === 'function' && renderPolicyFunds()
   };
   if (renderers[page]) renderers[page]();
+}
+
+function renderHistoricalUnavailable(page) {
+  const container = document.getElementById('page-' + page);
+  if (!container) return;
+  if (!_historicalPageMarkup[page]) _historicalPageMarkup[page] = container.innerHTML;
+  container.innerHTML = `
+    <div class="card" style="min-height:260px;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px">
+      <div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:12px">该日期暂无完整历史快照</div>
+        <div style="color:var(--text-secondary);line-height:1.8">${_currentDate} 仅保存了天数据。<br>为避免混入最新日期的数据，本模块暂不展示。</div>
+      </div>
+    </div>`;
+}
+
+function restoreHistoricalPage(page) {
+  const container = document.getElementById('page-' + page);
+  if (!container || !_historicalPageMarkup[page]) return;
+  container.innerHTML = _historicalPageMarkup[page];
+  delete _historicalPageMarkup[page];
 }
 
 function renderUnverifiedPage(page) {
@@ -255,7 +301,7 @@ function renderOverview() {
   // 综合雷达
   const overviewRadar = [
     ...DASHBOARD_DATA.daily.radar.slice(0, 4),
-    ...DASHBOARD_DATA.fundamentals.radar,
+    ...(_currentDate && !_historyHasFullSnapshot ? [] : DASHBOARD_DATA.fundamentals.radar),
   ].slice(0, 8);
   renderRadar('overview-radar', overviewRadar, '综合状态');
 
@@ -264,10 +310,10 @@ function renderOverview() {
   const verified = hasVerifiedDataset();
   const layers = [
     { name: '天数据', icon: '📅', data: verified ? DASHBOARD_DATA.daily.radar : [], page: 'daily' },
-    { name: '周数据', icon: '📆', data: verified ? DASHBOARD_DATA.weekly.radar : [], page: 'weekly' },
-    { name: '月数据', icon: '🗓️', data: verified ? DASHBOARD_DATA.monthly.radar : [], page: 'monthly' },
-    { name: '市场基本面', icon: '🏛️', data: verified ? DASHBOARD_DATA.fundamentals.radar : [], page: 'fundamentals' },
-    { name: '中观结构', icon: '🏭', data: verified ? DASHBOARD_DATA.meso.rating.slice(0, 4).map(r => ({
+    { name: '周数据', icon: '📆', data: verified && _historyHasFullSnapshot ? DASHBOARD_DATA.weekly.radar : [], page: 'weekly' },
+    { name: '月数据', icon: '🗓️', data: verified && _historyHasFullSnapshot ? DASHBOARD_DATA.monthly.radar : [], page: 'monthly' },
+    { name: '市场基本面', icon: '🏛️', data: verified && _historyHasFullSnapshot ? DASHBOARD_DATA.fundamentals.radar : [], page: 'fundamentals' },
+    { name: '中观结构', icon: '🏭', data: verified && _historyHasFullSnapshot ? DASHBOARD_DATA.meso.rating.slice(0, 4).map(r => ({
       name: r.industry, value: r.overall === 'green' ? 75 : r.overall === 'yellow' ? 50 : 25, status: r.overall
     })) : [], page: 'meso' },
   ];
