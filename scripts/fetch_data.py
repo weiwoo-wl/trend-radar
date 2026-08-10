@@ -25,9 +25,11 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta
+from urllib.request import Request, urlopen
 
 OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'data.js')
 TEST_MODE = '--test' in sys.argv
@@ -54,6 +56,12 @@ INDEX_CODES = {
 
 CORE_INDICES = ['上证指数', '深证成指', '创业板指', '科创综指']
 BROAD_INDICES = ['沪深300', '中证500', '中证1000', '科创50', '北证50']
+
+TENCENT_INDEX_SYMBOLS = {
+    '上证指数': 'sh000001', '深证成指': 'sz399001', '创业板指': 'sz399006',
+    '科创综指': 'sh000680', '沪深300': 'sh000300', '中证500': 'sh000905',
+    '中证1000': 'sh000852', '科创50': 'sh000688', '北证50': 'bj899050',
+}
 
 BOND_NAME_MAP = {
     '中国国债收益率1年': '中国1年国债',
@@ -149,8 +157,40 @@ def is_market_open_today():
 # 数据抓取函数
 # ============================================================
 
+def fetch_index_spot_tencent():
+    """Fetch one coherent, timestamped batch from Tencent as a fallback."""
+    symbols = ','.join(TENCENT_INDEX_SYMBOLS.values())
+    reverse_names = {symbol: name for name, symbol in TENCENT_INDEX_SYMBOLS.items()}
+    request = Request(
+        f'https://qt.gtimg.cn/q={symbols}',
+        headers={'Referer': 'https://gu.qq.com/', 'User-Agent': 'Mozilla/5.0'},
+    )
+    result = {}
+    with urlopen(request, timeout=20) as response:
+        content = response.read().decode('gb18030', errors='replace')
+    for line in content.splitlines():
+        match = re.match(r'v_([a-z0-9]+)="(.*)";', line.strip(), re.I)
+        if not match or match.group(1) not in reverse_names:
+            continue
+        fields = match.group(2).split('~')
+        if len(fields) <= 37:
+            continue
+        timestamp = fields[30].strip()
+        source_date = f'{timestamp[:4]}-{timestamp[4:6]}-{timestamp[6:8]}' if len(timestamp) >= 8 else None
+        amount_ten_thousand = safe_float(fields[37])
+        result[reverse_names[match.group(1)]] = {
+            'close': safe_float(fields[3]),
+            'change': safe_float(fields[31]),
+            'changePct': safe_float(fields[32]),
+            'volume': round(amount_ten_thousand / 10000, 0) if amount_ten_thousand is not None else None,
+            'source': '腾讯行情',
+            'sourceDate': source_date,
+        }
+    return result
+
+
 def fetch_index_spot():
-    """获取实时指数行情"""
+    """获取实时指数行情；东方财富失败时整批切换腾讯行情。"""
     print('[1/8] 抓取指数行情...')
     if TEST_MODE:
         print('  [测试模式] 使用示例数据')
@@ -178,11 +218,27 @@ def fetch_index_spot():
                 'change': change,
                 'changePct': change_pct,
                 'volume': volume,
+                'source': '东方财富',
+                'sourceDate': today_str(),
             }
             print(f'  + {name}: {close} ({change_pct}%)')
     except Exception as e:
         print(f'  ! 指数行情抓取失败: {e}')
-    return result
+    if has_valid_indices(result):
+        return result
+
+    print('  ! 东方财富指数批次不完整，切换腾讯行情备用源...')
+    try:
+        fallback = fetch_index_spot_tencent()
+        if has_valid_indices(fallback):
+            for name in CORE_INDICES + BROAD_INDICES:
+                quote = fallback[name]
+                print(f'  + {name}: {quote["close"]} ({quote["changePct"]}%) [腾讯行情]')
+            return fallback
+        print('  ! 腾讯行情批次校验失败，保留现有市场数据')
+    except Exception as exc:
+        print(f'  ! 腾讯行情备用源失败: {exc}')
+    return {}
 
 
 def fetch_index_history(name, code, days=10):
@@ -408,7 +464,7 @@ def fetch_market_breadth():
 # ============================================================
 
 def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, breadth, weekly_changes):
-    today = today_str()
+    today = next((item.get('sourceDate') for item in index_spot.values() if item.get('sourceDate')), today_str())
 
     indices = []
     for name in CORE_INDICES + BROAD_INDICES:
@@ -420,7 +476,7 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
             'change': spot.get('change'),
             'changePct': spot.get('changePct'),
             'volume': spot.get('volume'),
-            'source': '东方财富', 'sourceDate': today,
+            'source': spot.get('source'), 'sourceDate': spot.get('sourceDate'),
             'status': 'valid' if valid_number(spot.get('close'), False) else 'missing',
         }
         if hist:
@@ -447,7 +503,7 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
         'vs5d': round(total_vol - avg5_total, 0) if total_vol is not None and avg5_total is not None else None,
         'avg10': round(avg10_total, 0) if avg10_total is not None else None,
         'vs10d': round(total_vol - avg10_total, 0) if total_vol is not None and avg10_total is not None else None,
-        'source': '东方财富', 'sourceDate': today,
+        'source': index_spot.get('上证指数', {}).get('source'), 'sourceDate': today,
         'status': 'valid' if total_vol is not None else 'missing',
     }
 
@@ -624,15 +680,16 @@ process.stdout.write(JSON.stringify({
 
 
 def has_valid_indices(index_spot):
-    """检查是否有有效的指数数据"""
+    """Only accept a complete nine-index batch stamped with today's date."""
     if not index_spot:
         return False
-    valid_count = 0
-    for name in CORE_INDICES:
+    for name in CORE_INDICES + BROAD_INDICES:
         spot = index_spot.get(name, {})
-        if spot.get('close', 0) and spot.get('close', 0) > 0:
-            valid_count += 1
-    return valid_count == len(CORE_INDICES)
+        if not valid_number(spot.get('close'), False):
+            return False
+        if spot.get('sourceDate') != today_str():
+            return False
+    return True
 
 
 def build_history(existing_data, new_data):
