@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-11 11:21:16
+ * 自动更新时间：2026-08-11 11:43:20
  * 数据日期：2026-08-11
  * 历史数据：2个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-11",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-11T11:21:16",
+    "fetchedAt": "2026-08-11T11:43:20",
     "scoringMode": "strict",
-    "completeness": 25
+    "completeness": 38
   },
   "daily": {
     "radar": [
@@ -37,11 +37,10 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "成交活跃度",
-        "value": null,
-        "status": "missing",
+        "value": 100,
+        "status": "green",
         "formula": "当日成交额÷5日均额×50",
-        "sourceDate": "2026-08-11",
-        "reason": "必需数据缺失"
+        "sourceDate": "2026-08-11"
       },
       {
         "name": "市场广度",
@@ -93,8 +92,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 6.0,
+        "avg10": 6.0
       },
       {
         "name": "深证成指",
@@ -105,8 +104,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 7.0,
+        "avg10": 7.0
       },
       {
         "name": "创业板指",
@@ -117,8 +116,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 2.0,
+        "avg10": 2.0
       },
       {
         "name": "科创综指",
@@ -129,8 +128,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 1.0,
+        "avg10": 1.0
       },
       {
         "name": "沪深300",
@@ -141,8 +140,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 2.0,
+        "avg10": 2.0
       },
       {
         "name": "中证500",
@@ -153,8 +152,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 2.0,
+        "avg10": 2.0
       },
       {
         "name": "中证1000",
@@ -165,8 +164,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 3.0,
+        "avg10": 3.0
       },
       {
         "name": "科创50",
@@ -177,8 +176,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 0.0,
+        "avg10": 0.0
       },
       {
         "name": "北证50",
@@ -189,8 +188,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-11",
         "status": "valid",
-        "avg5": null,
-        "avg10": null
+        "avg5": 0.0,
+        "avg10": 0.0
       }
     ],
     "industryPerformance": {
@@ -205,10 +204,10 @@ const DASHBOARD_DATA = {
       "prevDay": null,
       "change": null,
       "changePct": null,
-      "avg5": null,
-      "vs5d": null,
-      "avg10": null,
-      "vs10d": null,
+      "avg5": 13.0,
+      "vs5d": 23344.0,
+      "avg10": 13.0,
+      "vs10d": 23344.0,
       "source": "腾讯行情",
       "sourceDate": "2026-08-11",
       "status": "valid"
@@ -257,10 +256,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 25%（2/8）",
+      "completeness": "有效评分完整度 38%（3/8）",
       "fundSource": "主力资金数据暂缺",
       "rallyQuality": "有效数据不足，暂不形成判断",
-      "riskAlert": "缺失数据：行业表现、成交活跃度、杠杆资金、ETF资金、外资资金、市场情绪"
+      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金、市场情绪"
     }
   },
   "weekly": {
@@ -268,57 +267,57 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": null,
+        "weekChange": 1.44,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "深证成指",
-        "weekChange": null,
+        "weekChange": 0.81,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "创业板指",
-        "weekChange": null,
+        "weekChange": 0.4,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "科创综指",
-        "weekChange": null,
+        "weekChange": 3.1,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "沪深300",
-        "weekChange": null,
+        "weekChange": 0.12,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "中证500",
-        "weekChange": null,
+        "weekChange": 2.03,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "中证1000",
-        "weekChange": null,
+        "weekChange": 2.74,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": null,
+        "weekChange": 0.93,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "北证50",
-        "weekChange": null,
+        "weekChange": -0.56,
         "prevWeek": null,
-        "trend": null
+        "trend": "调整"
       }
     ],
     "industries": [],
@@ -350,57 +349,57 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": null,
+        "weekChange": 1.44,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "深证成指",
-        "weekChange": null,
+        "weekChange": 0.81,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "创业板指",
-        "weekChange": null,
+        "weekChange": 0.4,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "科创综指",
-        "weekChange": null,
+        "weekChange": 3.1,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "沪深300",
-        "weekChange": null,
+        "weekChange": 0.12,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "中证500",
-        "weekChange": null,
+        "weekChange": 2.03,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "中证1000",
-        "weekChange": null,
+        "weekChange": 2.74,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": null,
+        "weekChange": 0.93,
         "prevWeek": null,
-        "trend": null
+        "trend": "反弹"
       },
       {
         "name": "北证50",
-        "weekChange": null,
+        "weekChange": -0.56,
         "prevWeek": null,
-        "trend": null
+        "trend": "调整"
       }
     ],
     "styleComparison": {
@@ -483,21 +482,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": -0.17,
+        "changePct": -0.0,
         "prevChange": null,
-        "implication": "约4440.8美元/盎司"
+        "implication": "约4448.3美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.6,
+        "changePct": 0.63,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": -0.43,
+        "changePct": 0.05,
         "prevChange": null,
-        "implication": "约81.9美元/桶"
+        "implication": "约82.3美元/桶"
       }
     ],
     "rating": [],
