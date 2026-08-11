@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-11 13:32:15
+ * 自动更新时间：2026-08-11 14:08:58
  * 数据日期：2026-08-11
  * 历史数据：2个交易日
  *
@@ -14,7 +14,7 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-11",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-11T13:32:15",
+    "fetchedAt": "2026-08-11T14:08:58",
     "scoringMode": "strict",
     "completeness": 62
   },
@@ -481,21 +481,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.11,
+        "changePct": 0.12,
         "prevChange": null,
-        "implication": "约4453.4美元/盎司"
+        "implication": "约4453.7美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.19,
+        "changePct": 0.31,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": -0.6,
+        "changePct": -1.17,
         "prevChange": null,
-        "implication": "约81.8美元/桶"
+        "implication": "约81.3美元/桶"
       }
     ],
     "rating": [],
