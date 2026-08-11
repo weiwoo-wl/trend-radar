@@ -131,17 +131,17 @@ def clamp(value, lower=0, upper=100):
 def valid_number(value, allow_zero=True):
     return isinstance(value, (int, float)) and (allow_zero or value != 0)
 
-def fetch_json(url, referer='https://quote.eastmoney.com/', timeout=20, attempts=3):
+def fetch_json(url, referer='https://quote.eastmoney.com/', timeout=20, attempts=4):
     last_error = None
     for attempt in range(attempts):
         try:
-            request = Request(url, headers={'Referer': referer, 'User-Agent': 'Mozilla/5.0'})
+            request = Request(url, headers={'Referer': referer, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
             with urlopen(request, timeout=timeout) as response:
                 return json.loads(response.read().decode('utf-8'))
         except Exception as exc:
             last_error = exc
             if attempt + 1 < attempts:
-                time.sleep(1.5 * (attempt + 1))
+                time.sleep(2 * (2 ** attempt))
     raise last_error
 
 def radar_item(name, value, formula, inputs, source_date):
@@ -158,6 +158,24 @@ def radar_item(name, value, formula, inputs, source_date):
         'name': name, 'value': score, 'status': status,
         'formula': formula, 'sourceDate': source_date,
     }
+
+
+def with_retry(func, *args, attempts=4, base_delay=2, label='', **kwargs):
+    """Wrap an akshare/network call with exponential backoff retries.
+    Returns the result, or None if all attempts fail (so callers can handle
+    missing data honestly instead of crashing on a transient network blip)."""
+    last_error = None
+    for attempt in range(attempts):
+        try:
+            return func(*args, **kwargs)
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 < attempts:
+                time.sleep(base_delay * (2 ** attempt))
+    if label:
+        print(f'  ! {label} 重试{attempts}次仍失败: {last_error}')
+    return None
+
 
 def is_trading_day():
     """Use the exchange calendar; fail closed when the calendar is unavailable."""
@@ -236,7 +254,9 @@ def fetch_index_spot():
         return {}
     result = {}
     try:
-        df = ak.stock_zh_index_spot_em()
+        df = with_retry(ak.stock_zh_index_spot_em, label='指数行情')
+        if df is None or len(df) == 0:
+            raise Exception('东方财富指数行情为空')
         for name, code in INDEX_CODES.items():
             row = df[df['代码'] == code]
             if len(row) == 0:
@@ -410,7 +430,9 @@ def fetch_fund_flow():
     if TEST_MODE:
         return {'sectors': [], 'netInflow': None, 'inflowCount': None, 'outflowCount': None}
     try:
-        df = ak.stock_sector_fund_flow_rank(indicator='今日', sector_type='行业资金流')
+        df = with_retry(ak.stock_sector_fund_flow_rank, indicator='今日', sector_type='行业资金流')
+        if df is None:
+            raise Exception('AKShare行业资金流为空')
         sectors = []
         for _, row in df.iterrows():
             name = row.get('名称', '')
@@ -454,8 +476,8 @@ def fetch_margin():
         sh_date = None
         sz_date = None
         try:
-            df_sse = ak.stock_margin_sse(start_date=start_date, end_date=end_date)
-            if len(df_sse) > 0:
+            df_sse = with_retry(ak.stock_margin_sse, start_date=start_date, end_date=end_date)
+            if df_sse is not None and len(df_sse) > 0:
                 latest_sse = df_sse.iloc[-1]
                 sh_finance = safe_float(latest_sse.get('融资余额'))
                 if sh_finance:
@@ -465,8 +487,8 @@ def fetch_margin():
         except Exception as e:
             print(f'  ! 上交所融资融券失败: {e}')
         try:
-            df_szse = ak.stock_margin_szse(date=end_date)
-            if len(df_szse) > 0:
+            df_szse = with_retry(ak.stock_margin_szse, date=end_date)
+            if df_szse is not None and len(df_szse) > 0:
                 latest_szse = df_szse.iloc[-1]
                 sz_finance = safe_float(latest_szse.get('融资余额'))
                 if sz_finance:
@@ -490,9 +512,9 @@ def fetch_northbound():
     if TEST_MODE:
         return {'netBuy': None, 'turnover': None, 'turnoverPct': None, 'topStocks': None, 'dataLevel': 'A'}
     try:
-        df = ak.stock_hsgt_north_net_flow_in_em(symbol='北上')
-        if len(df) == 0:
-            df = ak.stock_hsgt_hist_em(symbol='沪股通')
+        df = with_retry(ak.stock_hsgt_north_net_flow_in_em, symbol='北上')
+        if df is None or len(df) == 0:
+            df = with_retry(ak.stock_hsgt_hist_em, symbol='沪股通')
         latest = df.iloc[-1]
         net_buy = safe_float(latest.get('当日成交净买额') or latest.get('净买额') or latest.get('value'))
         if net_buy:
@@ -514,7 +536,9 @@ def fetch_bonds():
         return []
     try:
         start_date = (datetime.now() - timedelta(days=15)).strftime('%Y%m%d')
-        df = ak.bond_zh_us_rate(start_date=start_date)
+        df = with_retry(ak.bond_zh_us_rate, start_date=start_date)
+        if df is None or len(df) == 0:
+            raise Exception('债券利率数据为空')
         bonds = []
         latest = df.iloc[-1] if len(df) > 0 else None
         prev = df.iloc[-2] if len(df) > 1 else None
@@ -570,8 +594,9 @@ def fetch_market_breadth():
     if TEST_MODE:
         return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
     try:
-        df = ak.stock_zh_a_spot_em()
-        if len(df) == 0:
+        df = with_retry(ak.stock_zh_a_spot_em, label='市场广度')
+        if df is None or len(df) == 0:
+            return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
             return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
         changes = df['涨跌幅']
         up_count = int((changes > 0).sum())
