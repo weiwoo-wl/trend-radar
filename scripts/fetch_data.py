@@ -532,6 +532,15 @@ def fetch_fund_flow():
         print('  ! 行业直接接口未通过31行业和日期校验')
     except Exception as exc:
         print(f'  ! 行业直接接口失败: {exc}')
+    # 路径A：东方财富系被屏蔽时，Tushare 备用源补充行业资金流
+    pro = get_tushare_pro()
+    if pro is not None:
+        try:
+            summary = fetch_fund_flow_tushare(pro)
+            if summary:
+                return summary
+        except Exception as exc:
+            print(f'  ! Tushare 行业资金流失败: {exc}')
     return {'sectors': [], 'netInflow': None, 'inflowCount': None, 'outflowCount': None, 'source': None, 'sourceDate': None}
 
 
@@ -734,6 +743,130 @@ def fetch_market_breadth():
     return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
 
 
+# ============================================================
+# 路径A：Tushare 备用数据源
+# 用途：东方财富被 GitHub Actions 服务器屏蔽时，用 Tushare(独立服务器)补充
+#       - 行业资金流 industry_rank
+#       - ETF 份额 fund_share
+# 说明：北向资金(外资)因港交所2024-08-20起停止日度披露、改为季度披露，
+#       Tushare hk_hold 亦无日度数据，无法补，如实标注停更。
+# 依赖：环境变量 TUSHARE_TOKEN（GitHub Secrets 注入）；未配置时本段自动跳过。
+# ============================================================
+
+def get_tushare_pro():
+    """返回 Tushare pro_api 客户端；无 token 或导入失败则返回 None（自动跳过）。"""
+    token = os.environ.get('TUSHARE_TOKEN')
+    if not token:
+        return None
+    try:
+        import tushare as ts
+        ts.set_token(token)
+        return ts.pro_api()
+    except Exception as exc:
+        print(f'  ! Tushare 初始化失败: {exc}')
+        return None
+
+
+def get_recent_trading_dates(n=2):
+    """最近 n 个交易日(YYYYMMDD)，用于 ETF 份额环比。新浪交易日历从 runner 可达。"""
+    try:
+        df = with_retry(ak.tool_trade_date_hist_sina)
+        if df is None or len(df) == 0:
+            return []
+        col = 'trade_date' if 'trade_date' in getattr(df, 'columns', []) else df.columns[0]
+        vals = []
+        for d in df[col].tolist()[-n:]:
+            if hasattr(d, 'strftime'):
+                vals.append(d.strftime('%Y%m%d'))
+            else:
+                digits = re.sub(r'\D', '', str(d))
+                if len(digits) >= 8:
+                    vals.append(digits[:8])
+        return vals
+    except Exception as exc:
+        print(f'  ! 获取交易日历失败: {exc}')
+        return []
+
+
+def fetch_fund_flow_tushare(pro):
+    """Tushare 行业资金流：按 industry 聚合个股 net_amount（单位千元 -> 亿元）。"""
+    trade_date = datetime.now().strftime('%Y%m%d')
+    try:
+        df = pro.industry_rank(trade_date=trade_date)
+    except Exception as exc:
+        print(f'  ! Tushare industry_rank 调用失败: {exc}')
+        return None
+    if df is None or len(df) == 0:
+        return None
+    agg = {}
+    for _, row in df.iterrows():
+        ind = str(row.get('industry') or '').strip()
+        na = safe_float(row.get('net_amount'))
+        chg = safe_float(row.get('pct_change'))
+        if not ind or na is None:
+            continue
+        bucket = agg.setdefault(ind, {'net': 0.0, 'chg': []})
+        bucket['net'] += na
+        if chg is not None:
+            bucket['chg'].append(chg)
+    sectors = []
+    for ind, v in agg.items():
+        net = round(v['net'] / 1e4, 2)  # 千元 -> 亿元
+        avg_chg = round(sum(v['chg']) / len(v['chg']), 2) if v['chg'] else None
+        sectors.append({'name': ind, 'netInflow': net, 'changePct': avg_chg})
+    if not sectors:
+        return None
+    total = round(sum(s['netInflow'] for s in sectors), 2)
+    sectors.sort(key=lambda x: x['netInflow'], reverse=True)
+    print(f'  + Tushare 行业资金流: {len(sectors)}个行业，合计净流入{total}亿')
+    return {
+        'sectors': sectors,
+        'netInflow': total,
+        'inflowCount': sum(1 for s in sectors if s['netInflow'] > 0),
+        'outflowCount': sum(1 for s in sectors if s['netInflow'] < 0),
+        'source': 'Tushare industry_rank', 'sourceDate': today_str(),
+    }
+
+
+ETF_BROAD = [
+    ('沪深300ETF', '510300.SH'), ('上证50ETF', '510050.SH'), ('中证500ETF', '510500.SH'),
+    ('创业板ETF', '159915.SZ'), ('科创50ETF', '588000.SH'), ('中证1000ETF', '512100.SH'),
+    ('中证A500ETF', '563360.SH'), ('上证180ETF', '510180.SH'),
+]
+
+
+def fetch_etf_flow_tushare(pro):
+    """Tushare ETF 份额净变动（主要宽基 ETF），份额(万份) -> 亿份。"""
+    dates = get_recent_trading_dates(2)
+    if len(dates) < 2:
+        print('  ! 无法获取交易日历，跳过 ETF 份额环比')
+        return None
+    today_dt, prev_dt = dates[0], dates[1]
+    items = []
+    for name, code in ETF_BROAD:
+        try:
+            df_t = pro.fund_share(ts_code=code, trade_date=today_dt)
+            df_p = pro.fund_share(ts_code=code, trade_date=prev_dt)
+            vt = safe_float(df_t.iloc[0]['fund_volume']) if df_t is not None and len(df_t) > 0 else None
+            vp = safe_float(df_p.iloc[0]['fund_volume']) if df_p is not None and len(df_p) > 0 else None
+            if vt is None or vp is None:
+                continue
+            delta_yi = round((vt - vp) / 1e4, 2)  # 万份 -> 亿份
+            items.append({
+                'name': name, 'code': code, 'shareChange': delta_yi,
+                'direction': '净申购' if delta_yi > 0 else '净赎回' if delta_yi < 0 else '持平',
+                'volume': vt, 'status': 'valid', 'source': 'Tushare fund_share', 'sourceDate': today_dt,
+            })
+            time.sleep(0.3)
+        except Exception as exc:
+            print(f'  ! ETF {name} 份额获取失败: {exc}')
+    if not items:
+        return None
+    total = round(sum(i['shareChange'] for i in items), 2)
+    print(f'  + Tushare ETF 份额净变动: {total}亿份（{len(items)}只宽基）')
+    return {'items': items, 'totalFlow': total, 'sourceDate': today_dt, 'source': 'Tushare fund_share'}
+
+
 def load_policy_etf_daily(report_date):
     """Reuse only same-date, individually validated ETF observations."""
     try:
@@ -858,14 +991,17 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
         emotion_inputs = [None]
         emotion_formula = '缺少市场广度数据无法计算'
 
+    etf_flow = etf_data.get('totalFlow') if etf_data else None
+    etf_score = clamp(50 + etf_flow) if etf_flow is not None else None
+
     daily_radar = [
         radar_item('股指表现', index_score, '50 + 四大核心指数平均涨跌幅×10', core_changes if len(core_changes) == 4 else [None], today),
         radar_item('行业表现', industry_score, '50 + 申万行业主力净流入(亿元)÷20', [industry_net], today),
         radar_item('成交活跃度', turnover_score, '当日成交额÷5日均额×50', [total_vol, avg5_total], today),
         radar_item('市场广度', breadth_score, '上涨家数÷有效股票数×100', [breadth.get('upCount'), breadth.get('downCount')], today),
         radar_item('杠杆资金', margin_score, '50 + 融资余额日变化(亿元)÷10', [margin_change], margin.get('dataDate')),
-        radar_item('ETF资金', None, '待接入可验证ETF份额数据', [None], today),
-        radar_item('外资资金', None, '停更：港交所2024-08起不再披露北向实时净买入', [None], today),
+        radar_item('ETF资金', etf_score, '50 + 主要宽基ETF净申购份额(亿份)', [etf_flow], etf_data.get('sourceDate') if etf_data else today),
+        radar_item('外资资金', None, '停更：港交所2024-08-20起停止日度北向披露，改为季度披露', [None], today),
         radar_item('市场情绪', emotion_score, emotion_formula, emotion_inputs, today),
     ]
 
@@ -1169,6 +1305,15 @@ def main():
     breadth = fetch_market_breadth()
     report_date = next((item.get('sourceDate') for item in index_spot.values() if item.get('sourceDate')), today_str())
     etf_data = load_policy_etf_daily(report_date)
+    # 路径A：Tushare 补充 ETF 份额净变动（若可用则覆盖 policy 基线）
+    pro = get_tushare_pro()
+    if pro is not None:
+        try:
+            tushare_etf = fetch_etf_flow_tushare(pro)
+            if tushare_etf:
+                etf_data = tushare_etf
+        except Exception as exc:
+            print(f'  ! Tushare ETF 份额失败: {exc}')
 
     print('\n组装数据...')
     data = build_data(
