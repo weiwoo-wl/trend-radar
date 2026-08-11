@@ -1,0 +1,41 @@
+name: 每日数据更新
+
+on:
+  # 每个交易日16:30 CST（08:30 UTC）自动运行
+  schedule:
+    - cron: '30 8 * * 1-5'
+  # 支持手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: |
+          pip install -r scripts/requirements.txt
+
+      - name: 抓取数据并更新 data.js
+        run: |
+          python scripts/fetch_data.py
+          python scripts/fetch_policy_funds.py
+          python scripts/fetch_earnings.py || echo "::warning::滚动盈利数据更新失败，保留上一批有效数据"
+
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add js/data.js js/policy-funds-data.js js/earnings-data.js
+          git diff --staged --quiet || git commit -m "data: auto-update $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push
