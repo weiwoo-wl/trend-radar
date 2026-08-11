@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-11 09:59:36
+ * 自动更新时间：2026-08-11 10:57:55
  * 数据日期：2026-08-11
  * 历史数据：2个交易日
  *
@@ -14,7 +14,7 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-11",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-11T09:59:36",
+    "fetchedAt": "2026-08-11T10:57:55",
     "scoringMode": "strict",
     "completeness": 12
   },
@@ -450,43 +450,15 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "中国10年国债",
-        "yield": 1.71,
-        "change": 0.0,
+        "yield": 1.72,
+        "change": 0.01,
         "prevChange": null,
         "implication": null
       },
       {
         "name": "中国30年国债",
-        "yield": 2.16,
-        "change": -0.02,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国2年国债",
-        "yield": 4.25,
-        "change": 0.06,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国10年国债",
-        "yield": 4.72,
-        "change": 0.07,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国30年国债",
-        "yield": 5.25,
-        "change": 0.06,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "中美利差(10年)",
-        "yield": -3.01,
-        "change": null,
+        "yield": 2.17,
+        "change": 0.01,
         "prevChange": null,
         "implication": null
       }
@@ -494,21 +466,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": -0.36,
+        "changePct": -0.28,
         "prevChange": null,
-        "implication": "约4432.3美元/盎司"
+        "implication": "约4436.2美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.55,
+        "changePct": 0.63,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 2.46,
+        "changePct": 1.34,
         "prevChange": null,
-        "implication": "约84.3美元/桶"
+        "implication": "约83.4美元/桶"
       }
     ],
     "rating": [],
