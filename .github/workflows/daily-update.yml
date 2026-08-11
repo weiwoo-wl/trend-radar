@@ -1,9 +1,10 @@
 name: 每日数据更新
 
 on:
-  # 每个交易日16:30 CST（08:30 UTC）自动运行
+  # 每个交易日16:30首次更新，20:30补取晚间发布的融资融券等数据
   schedule:
     - cron: '30 8 * * 1-5'
+    - cron: '30 12 * * 1-5'
   # 支持手动触发
   workflow_dispatch:
 
@@ -28,8 +29,8 @@ jobs:
 
       - name: 抓取数据并更新 data.js
         run: |
-          python scripts/fetch_data.py
-          python scripts/fetch_policy_funds.py
+          python scripts/fetch_policy_funds.py || echo "::warning::政策性资金数据更新失败，保留上一批有效数据"
+          python scripts/fetch_data.py || echo "::warning::市场数据更新失败，保留上一批有效数据"
           python scripts/fetch_earnings.py || echo "::warning::滚动盈利数据更新失败，保留上一批有效数据"
 
       - name: 提交更新

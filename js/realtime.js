@@ -204,7 +204,9 @@
       source: '东方财富行情平台'
     };
     DASHBOARD_DATA.daily.fundFlow = _rtIndustrySnapshot;
-    if (typeof _originalDaily !== 'undefined' && _originalDaily) _originalDaily = JSON.parse(JSON.stringify(DASHBOARD_DATA.daily));
+    if (typeof _originalSnapshot !== 'undefined' && _originalSnapshot) {
+      _originalSnapshot.daily = JSON.parse(JSON.stringify(DASHBOARD_DATA.daily));
+    }
 
     _rtLastDataTimestamp = timestamp || _rtLastDataTimestamp;
     _rtLastUpdate = new Date();
