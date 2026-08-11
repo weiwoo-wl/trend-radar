@@ -160,14 +160,25 @@ def radar_item(name, value, formula, inputs, source_date):
     }
 
 
+# Errors that will never succeed on retry (API/version mismatch, bad args).
+# Retrying these only wastes time and delays the fallback path.
+PERMANENT_ERRORS = (AttributeError, ImportError, NameError, TypeError,
+                    KeyError, ValueError, NotImplementedError)
+
 def with_retry(func, *args, attempts=4, base_delay=2, label='', **kwargs):
     """Wrap an akshare/network call with exponential backoff retries.
     Returns the result, or None if all attempts fail (so callers can handle
-    missing data honestly instead of crashing on a transient network blip)."""
+    missing data honestly instead of crashing on a transient network blip).
+    Permanent errors (e.g. a removed akshare function) are NOT retried."""
     last_error = None
     for attempt in range(attempts):
         try:
             return func(*args, **kwargs)
+        except PERMANENT_ERRORS as exc:
+            last_error = exc
+            if label:
+                print(f'  ! {label} 永久性错误(跳过重试): {exc}')
+            return None
         except Exception as exc:
             last_error = exc
             if attempt + 1 < attempts:
@@ -300,7 +311,7 @@ def fetch_index_spot():
     return {}
 
 
-def fetch_index_history_rows(name, days=10):
+def fetch_index_history_rows_eastmoney(name, days=10):
     """Fetch dated closes and turnover from Eastmoney's direct kline API."""
     secid = EASTMONEY_INDEX_SECIDS.get(name)
     if not secid:
@@ -323,6 +334,46 @@ def fetch_index_history_rows(name, days=10):
             continue
         rows.append({'date': fields[0], 'close': close, 'turnover': turnover / 1e8})
     return rows[-days:]
+
+
+def fetch_index_history_rows_tencent(name, days=10):
+    """Tencent kline fallback for index history (works from CI when Eastmoney is blocked)."""
+    code = TENCENT_INDEX_SYMBOLS.get(name)
+    if not code:
+        return []
+    query = urlencode({'param': f'{code},day,,,{days},qfq'})
+    try:
+        payload = fetch_json('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?' + query,
+                             referer='https://gu.qq.com/')
+    except Exception as exc:
+        print(f'  ! 腾讯K线获取失败({name}): {exc}')
+        return []
+    node = (payload.get('data') or {}).get(code) or {}
+    series = node.get('qfqday') or node.get('day') or []
+    rows = []
+    for item in series:
+        if not isinstance(item, (list, tuple)) or len(item) < 7:
+            continue
+        date = str(item[0])[:10]
+        close = safe_float(item[2])
+        amount = safe_float(item[6])
+        if close is None or close <= 0 or amount is None or amount < 0:
+            continue
+        rows.append({'date': date, 'close': close, 'turnover': amount / 1e8})
+    return rows[-days:]
+
+
+def fetch_index_history_rows(name, days=10):
+    """Fetch dated closes and turnover; Eastmoney first, Tencent kline as fallback."""
+    try:
+        rows = fetch_index_history_rows_eastmoney(name, days)
+    except Exception as exc:
+        print(f'  ! 东方财富K线失败({name}): {exc}')
+        rows = []
+    if len(rows) >= 2:
+        return rows
+    print(f'  ! 切换腾讯K线({name})...')
+    return fetch_index_history_rows_tencent(name, days)
 
 
 def fetch_index_history(name, code, days=10):
@@ -515,6 +566,8 @@ def fetch_northbound():
         df = with_retry(ak.stock_hsgt_north_net_flow_in_em, symbol='北上')
         if df is None or len(df) == 0:
             df = with_retry(ak.stock_hsgt_hist_em, symbol='沪股通')
+        if df is None or len(df) == 0:
+            return {'netBuy': None, 'turnover': None, 'turnoverPct': None, 'topStocks': None, 'dataLevel': 'A'}
         latest = df.iloc[-1]
         net_buy = safe_float(latest.get('当日成交净买额') or latest.get('净买额') or latest.get('value'))
         if net_buy:
@@ -588,17 +641,21 @@ def fetch_commodities():
     return commodities
 
 
-def fetch_market_breadth():
-    """获取市场广度数据"""
-    print('[8/8] 抓取市场广度...')
-    if TEST_MODE:
-        return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
+def fetch_full_snapshot_sina():
+    """Sina full A-share snapshot: fallback for market breadth when Eastmoney is blocked."""
     try:
-        df = with_retry(ak.stock_zh_a_spot_em, label='市场广度')
-        if df is None or len(df) == 0:
-            return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
-            return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
-        changes = df['涨跌幅']
+        df = ak.stock_zh_a_spot()
+    except Exception as exc:
+        print(f'  ! 新浪全量快照失败: {exc}')
+        return None
+    if df is None or len(df) == 0:
+        return None
+    chg_col = '涨跌幅' if '涨跌幅' in df.columns else None
+    if chg_col is None:
+        print('  ! 新浪快照缺少涨跌幅列')
+        return None
+    try:
+        changes = df[chg_col]
         up_count = int((changes > 0).sum())
         down_count = int((changes < 0).sum())
         flat_count = int((changes == 0).sum())
@@ -608,11 +665,42 @@ def fetch_market_breadth():
         up_pct = round(up_count / total * 100, 1) if total > 0 else 0
         down_pct = round(down_count / total * 100, 1) if total > 0 else 0
         effect = '偏强' if up_count > down_count else '偏弱' if down_count > up_count else '均衡'
-        print(f'  + 涨{up_count}/跌{down_count}/涨停{limit_up}/跌停{limit_down}')
-        return {'upCount': up_count, 'downCount': down_count, 'flatCount': flat_count, 'limitUp': limit_up, 'limitDown': limit_down, 'upPct': up_pct, 'downPct': down_pct, 'moneyEffect': effect}
-    except Exception as e:
-        print(f'  ! 市场广度抓取失败: {e}')
+        return {'upCount': up_count, 'downCount': down_count, 'flatCount': flat_count,
+                'limitUp': limit_up, 'limitDown': limit_down, 'upPct': up_pct,
+                'downPct': down_pct, 'moneyEffect': effect}
+    except Exception as exc:
+        print(f'  ! 新浪快照解析失败: {exc}')
+        return None
+
+
+def fetch_market_breadth():
+    """获取市场广度数据（东方财富优先，新浪全量快照备用）"""
+    print('[8/8] 抓取市场广度...')
+    if TEST_MODE:
         return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
+    df = with_retry(ak.stock_zh_a_spot_em, label='市场广度')
+    if df is not None and len(df) > 0:
+        try:
+            changes = df['涨跌幅']
+            up_count = int((changes > 0).sum())
+            down_count = int((changes < 0).sum())
+            flat_count = int((changes == 0).sum())
+            limit_up = int((changes >= 9.9).sum())
+            limit_down = int((changes <= -9.9).sum())
+            total = up_count + down_count + flat_count
+            up_pct = round(up_count / total * 100, 1) if total > 0 else 0
+            down_pct = round(down_count / total * 100, 1) if total > 0 else 0
+            effect = '偏强' if up_count > down_count else '偏弱' if down_count > up_count else '均衡'
+            print(f'  + 涨{up_count}/跌{down_count}/涨停{limit_up}/跌停{limit_down} [东方财富]')
+            return {'upCount': up_count, 'downCount': down_count, 'flatCount': flat_count, 'limitUp': limit_up, 'limitDown': limit_down, 'upPct': up_pct, 'downPct': down_pct, 'moneyEffect': effect}
+        except Exception as e:
+            print(f'  ! 东方财富广度解析失败: {e}')
+    print('  ! 东方财富全市场快照失败，切换新浪备用源...')
+    sina = fetch_full_snapshot_sina()
+    if sina:
+        print(f'  + 涨{sina["upCount"]}/跌{sina["downCount"]}/涨停{sina["limitUp"]}/跌停{sina["limitDown"]} [新浪]')
+        return sina
+    return {'upCount': None, 'downCount': None, 'flatCount': None, 'limitUp': None, 'limitDown': None, 'upPct': None, 'downPct': None, 'moneyEffect': None}
 
 
 def load_policy_etf_daily(report_date):
