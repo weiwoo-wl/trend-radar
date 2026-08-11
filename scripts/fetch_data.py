@@ -341,26 +341,47 @@ def fetch_index_history_rows_tencent(name, days=10):
     code = TENCENT_INDEX_SYMBOLS.get(name)
     if not code:
         return []
+    rows = []
     query = urlencode({'param': f'{code},day,,,{days},qfq'})
     try:
         payload = fetch_json('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?' + query,
                              referer='https://gu.qq.com/')
+        node = (payload.get('data') or {}).get(code) or {}
+        series = node.get('qfqday') or node.get('day') or []
+        for item in series:
+            if isinstance(item, str):
+                item = item.split(',')
+            if not isinstance(item, (list, tuple)) or len(item) < 7:
+                continue
+            date = str(item[0])[:10]
+            close = safe_float(item[2])
+            amount = safe_float(item[6])
+            if close is None or close <= 0 or amount is None or amount < 0:
+                continue
+            rows.append({'date': date, 'close': close, 'turnover': amount / 1e8})
     except Exception as exc:
-        print(f'  ! 腾讯K线获取失败({name}): {exc}')
-        return []
-    node = (payload.get('data') or {}).get(code) or {}
-    series = node.get('qfqday') or node.get('day') or []
-    rows = []
-    for item in series:
-        if not isinstance(item, (list, tuple)) or len(item) < 7:
-            continue
-        date = str(item[0])[:10]
-        close = safe_float(item[2])
-        amount = safe_float(item[6])
-        if close is None or close <= 0 or amount is None or amount < 0:
-            continue
-        rows.append({'date': date, 'close': close, 'turnover': amount / 1e8})
-    return rows[-days:]
+        print(f'  ! 腾讯K线JSON失败({name}): {exc}')
+    if len(rows) >= 2:
+        return rows[-days:]
+    # secondary: akshare Tencent daily wrapper (cleaner DataFrame)
+    try:
+        df = ak.stock_zh_index_daily_tx(symbol=code)
+        if df is not None and len(df) > 0:
+            df = df.tail(days)
+            out = []
+            for _, r in df.iterrows():
+                close = safe_float(r.get('close'))
+                amount = safe_float(r.get('amount'))
+                if close is None or close <= 0:
+                    continue
+                out.append({'date': str(r.get('date'))[:10], 'close': close,
+                            'turnover': amount / 1e8 if amount is not None else None})
+            if len(out) >= 2:
+                print(f'  + 腾讯日线({name}) {len(out)}行')
+                return out
+    except Exception as exc:
+        print(f'  ! 腾讯日线包装失败({name}): {exc}')
+    return []
 
 
 def fetch_index_history_rows(name, days=10):
