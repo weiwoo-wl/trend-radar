@@ -547,6 +547,8 @@ def fetch_margin():
         sz_finance = None
         sh_date = None
         sz_date = None
+        sh_change = None
+        sz_change = None
         try:
             df_sse = with_retry(ak.stock_margin_sse, start_date=start_date, end_date=end_date)
             if df_sse is not None and len(df_sse) > 0:
@@ -556,6 +558,11 @@ def fetch_margin():
                     sh_finance = round(sh_finance / 1e8, 2)
                 raw_date = latest_sse.get('信用交易日期') or latest_sse.get('日期')
                 sh_date = normalize_date(raw_date)
+                # 融资余额日变化：取区间末两个交易日之差
+                if len(df_sse) >= 2:
+                    prev_sh = safe_float(df_sse.iloc[-2].get('融资余额'))
+                    if prev_sh:
+                        sh_change = round(sh_finance - prev_sh / 1e8, 2)
         except Exception as e:
             print(f'  ! 上交所融资融券失败: {e}')
         try:
@@ -567,12 +574,15 @@ def fetch_margin():
                     sz_finance = round(sz_finance / 1e8, 2)
                 raw_date = latest_szse.get('信用交易日期') or latest_szse.get('日期')
                 sz_date = normalize_date(raw_date) if raw_date is not None else today_str()
+                # 深交所单日接口无法计算日变化，保留 None（总价变化用上交所口径近似）
         except Exception as e:
             print(f'  ! 深交所融资融券失败: {e}')
         total_finance = round(sh_finance + sz_finance, 2) if sh_finance is not None and sz_finance is not None else None
+        # 日变化：两所都有则用合计，否则用上交所口径（深交所无日变化数据）
+        total_change = round(sh_change + sz_change, 2) if sh_change is not None and sz_change is not None else (sh_change if sh_change is not None else None)
         data_date = min(sh_date, sz_date) if total_finance is not None and sh_date and sz_date else None
-        print(f'  + 融资余额: {total_finance}亿')
-        return {'financeBalance': total_finance, 'securitiesBalance': None, 'totalBalance': total_finance, 'balanceChange': None, 'shBalance': sh_finance, 'szBalance': sz_finance, 'marginTradePct': None, 'dataDate': data_date, 'dataLevel': 'B'}
+        print(f'  + 融资余额: {total_finance}亿 (日变化 {total_change}亿)')
+        return {'financeBalance': total_finance, 'securitiesBalance': None, 'totalBalance': total_finance, 'balanceChange': total_change, 'shBalance': sh_finance, 'szBalance': sz_finance, 'marginTradePct': None, 'dataDate': data_date, 'dataLevel': 'B'}
     except Exception as e:
         print(f'  ! 融资融券抓取失败: {e}')
         return {'financeBalance': None, 'securitiesBalance': None, 'totalBalance': None, 'balanceChange': None, 'shBalance': None, 'szBalance': None, 'marginTradePct': None, 'dataDate': None, 'dataLevel': 'B'}
@@ -584,11 +594,11 @@ def fetch_northbound():
     if TEST_MODE:
         return {'netBuy': None, 'turnover': None, 'turnoverPct': None, 'topStocks': None, 'dataLevel': 'A'}
     try:
-        df = with_retry(ak.stock_hsgt_north_net_flow_in_em, symbol='北上')
-        if df is None or len(df) == 0:
-            df = with_retry(ak.stock_hsgt_hist_em, symbol='沪股通')
-        if df is None or len(df) == 0:
-            return {'netBuy': None, 'turnover': None, 'turnoverPct': None, 'topStocks': None, 'dataLevel': 'A'}
+        # 港交所自2024-08起停止披露北向实时净买入额，AKShare相关接口已废弃；
+        # 暂无可验证的真实替代数据源，如实标注停更，不编造、不无效重试。
+        print('  ! 北向资金：港交所2024-08起停止披露，暂无真实数据源，标注停更')
+        return {'netBuy': None, 'turnover': None, 'turnoverPct': None, 'topStocks': None,
+                'dataLevel': 'X', 'statusNote': '停更：港交所2024-08起不再披露北向实时净买入'}
         latest = df.iloc[-1]
         net_buy = safe_float(latest.get('当日成交净买额') or latest.get('净买额') or latest.get('value'))
         if net_buy:
@@ -834,6 +844,20 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
     margin_change = margin.get('balanceChange')
     margin_score = clamp(50 + margin_change / 10) if margin_change is not None else None
 
+    # 市场情绪：用已真实获取的市场广度派生（上涨家数占比 + 涨跌停板温度修正），不编造
+    up_pct = breadth.get('upPct')
+    limit_up = breadth.get('limitUp') or 0
+    limit_down = breadth.get('limitDown') or 0
+    if up_pct is not None:
+        lb = ((limit_up - limit_down) / (limit_up + limit_down) * 15) if (limit_up + limit_down) > 0 else 0.0
+        emotion_score = clamp(up_pct + lb)
+        emotion_inputs = [up_pct, round(lb, 1)]
+        emotion_formula = '上涨家数占比 + 涨跌停板温度修正(±15)'
+    else:
+        emotion_score = None
+        emotion_inputs = [None]
+        emotion_formula = '缺少市场广度数据无法计算'
+
     daily_radar = [
         radar_item('股指表现', index_score, '50 + 四大核心指数平均涨跌幅×10', core_changes if len(core_changes) == 4 else [None], today),
         radar_item('行业表现', industry_score, '50 + 申万行业主力净流入(亿元)÷20', [industry_net], today),
@@ -841,8 +865,8 @@ def build_data(index_spot, fund_flow, margin, northbound, bonds, commodities, br
         radar_item('市场广度', breadth_score, '上涨家数÷有效股票数×100', [breadth.get('upCount'), breadth.get('downCount')], today),
         radar_item('杠杆资金', margin_score, '50 + 融资余额日变化(亿元)÷10', [margin_change], margin.get('dataDate')),
         radar_item('ETF资金', None, '待接入可验证ETF份额数据', [None], today),
-        radar_item('外资资金', None, '北向资金口径稳定后启用', [None], today),
-        radar_item('市场情绪', None, '待建立可验证情绪指标', [None], today),
+        radar_item('外资资金', None, '停更：港交所2024-08起不再披露北向实时净买入', [None], today),
+        radar_item('市场情绪', emotion_score, emotion_formula, emotion_inputs, today),
     ]
 
     valid_scores = [r['value'] for r in daily_radar if r['value'] is not None]
