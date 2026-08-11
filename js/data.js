@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-11 11:43:20
+ * 自动更新时间：2026-08-11 12:42:16
  * 数据日期：2026-08-11
  * 历史数据：2个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-11",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-11T11:43:20",
+    "fetchedAt": "2026-08-11T12:42:16",
     "scoringMode": "strict",
-    "completeness": 38
+    "completeness": 50
   },
   "daily": {
     "radar": [
@@ -69,17 +69,16 @@ const DASHBOARD_DATA = {
         "name": "外资资金",
         "value": null,
         "status": "missing",
-        "formula": "北向资金口径稳定后启用",
+        "formula": "停更：港交所2024-08起不再披露北向实时净买入",
         "sourceDate": "2026-08-11",
         "reason": "必需数据缺失"
       },
       {
         "name": "市场情绪",
-        "value": null,
-        "status": "missing",
-        "formula": "待建立可验证情绪指标",
-        "sourceDate": "2026-08-11",
-        "reason": "必需数据缺失"
+        "value": 42.5,
+        "status": "yellow",
+        "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
+        "sourceDate": "2026-08-11"
       }
     ],
     "indices": [
@@ -227,7 +226,7 @@ const DASHBOARD_DATA = {
       "securitiesBalance": null,
       "totalBalance": null,
       "balanceChange": null,
-      "shBalance": 13232.58,
+      "shBalance": null,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -238,7 +237,8 @@ const DASHBOARD_DATA = {
       "turnover": null,
       "turnoverPct": null,
       "topStocks": null,
-      "dataLevel": "A"
+      "dataLevel": "X",
+      "statusNote": "停更：港交所2024-08起不再披露北向实时净买入"
     },
     "etf": [],
     "fundFlow": {
@@ -256,10 +256,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 38%（3/8）",
+      "completeness": "有效评分完整度 50%（4/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "有效数据不足，暂不形成判断",
-      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金、市场情绪"
+      "rallyQuality": "中性；有效评分 4/8，平均 54.1 分",
+      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金"
     }
   },
   "weekly": {
@@ -482,21 +482,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": -0.0,
+        "changePct": 0.12,
         "prevChange": null,
-        "implication": "约4448.3美元/盎司"
+        "implication": "约4453.7美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.63,
+        "changePct": 0.26,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 0.05,
+        "changePct": 0.16,
         "prevChange": null,
-        "implication": "约82.3美元/桶"
+        "implication": "约82.4美元/桶"
       }
     ],
     "rating": [],
