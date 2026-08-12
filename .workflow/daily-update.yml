@@ -17,11 +17,13 @@ stages:
   - stage:
       name: fetch-and-push
       displayName: 抓取数据并推送回 GitHub
+      strategy: naturally
+      trigger: auto
       steps:
         - step: build@python
           name: run-fetch
           displayName: 运行抓取脚本（国内IP，东方财富不被屏蔽）
-          version: '3.11'
+          pythonVersion: '3.11'
           commands:
             - python3 -m pip install --upgrade pip
             - pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
