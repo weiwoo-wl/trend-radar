@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-11 12:42:16
+ * 自动更新时间：2026-08-11 14:08:58
  * 数据日期：2026-08-11
  * 历史数据：2个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-11",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-11T12:42:16",
+    "fetchedAt": "2026-08-11T14:08:58",
     "scoringMode": "strict",
-    "completeness": 50
+    "completeness": 62
   },
   "daily": {
     "radar": [
@@ -51,25 +51,24 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "杠杆资金",
-        "value": null,
-        "status": "missing",
+        "value": 43.9,
+        "status": "yellow",
         "formula": "50 + 融资余额日变化(亿元)÷10",
-        "sourceDate": null,
-        "reason": "必需数据缺失"
+        "sourceDate": null
       },
       {
         "name": "ETF资金",
         "value": null,
         "status": "missing",
-        "formula": "待接入可验证ETF份额数据",
-        "sourceDate": "2026-08-11",
+        "formula": "50 + 主要宽基ETF净申购份额(亿份)",
+        "sourceDate": null,
         "reason": "必需数据缺失"
       },
       {
         "name": "外资资金",
         "value": null,
         "status": "missing",
-        "formula": "停更：港交所2024-08起不再披露北向实时净买入",
+        "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
         "sourceDate": "2026-08-11",
         "reason": "必需数据缺失"
       },
@@ -225,8 +224,8 @@ const DASHBOARD_DATA = {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": null,
-      "shBalance": null,
+      "balanceChange": -61.49,
+      "shBalance": 13232.58,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -256,10 +255,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 50%（4/8）",
+      "completeness": "有效评分完整度 62%（5/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "中性；有效评分 4/8，平均 54.1 分",
-      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金"
+      "rallyQuality": "中性；有效评分 5/8，平均 52.1 分",
+      "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
     }
   },
   "weekly": {
@@ -488,15 +487,15 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "LME铜",
-        "changePct": 0.26,
+        "changePct": 0.31,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 0.16,
+        "changePct": -1.17,
         "prevChange": null,
-        "implication": "约82.4美元/桶"
+        "implication": "约81.3美元/桶"
       }
     ],
     "rating": [],
