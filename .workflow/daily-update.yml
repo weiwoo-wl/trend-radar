@@ -20,23 +20,21 @@ stages:
       strategy: naturally
       trigger: auto
       steps:
-        - step: build@python
-          name: run-fetch
-          displayName: 运行抓取脚本（国内IP，东方财富不被屏蔽）
-          pythonVersion: '3.11'
-          commands:
-            - python3 -m pip install --upgrade pip
-            - pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-            - pip3 install -r scripts/requirements.txt
-            # 三个抓取脚本，任意一个失败都保留上一批有效数据（不阻断）
-            - python3 scripts/fetch_policy_funds.py || echo "::warning::政策性资金更新失败，保留上一批"
-            - python3 scripts/fetch_data.py || echo "::warning::市场数据更新失败，保留上一批"
-            - python3 scripts/fetch_earnings.py || echo "::warning::滚动盈利更新失败，保留上一批"
-            # ---- 推送生成的 data.js 回 GitHub（chinghuo.com 的 GitHub Pages 自动重新部署）----
-            - git config user.email "gitee-go-bot@gitee.local"
-            - git config user.name "gitee-go-bot"
-            - git remote remove github 2>/dev/null; git remote add github https://$GITHUB_TOKEN@github.com/weiwoo-wl/trend-radar.git
-            - git checkout main 2>/dev/null || true
-            - git add js/data.js js/policy-funds-data.js js/earnings-data.js
-            - git diff --staged --quiet || git commit -m "data: auto-update $(date +%Y-%m-%d) via Gitee Go"
-            - git push github HEAD:main
+        step: build@python
+        name: run-fetch
+        displayName: 运行抓取脚本
+        pythonVersion: '3.9'
+        commands:
+          - python3 -m pip install --upgrade pip
+          - pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+          - pip3 install -r scripts/requirements.txt
+          - python3 scripts/fetch_policy_funds.py || echo "::warning::policy funds failed"
+          - python3 scripts/fetch_data.py || echo "::warning::market data failed"
+          - python3 scripts/fetch_earnings.py || echo "::warning::earnings failed"
+          - git config user.email "gitee-go-bot@gitee.local"
+          - git config user.name "gitee-go-bot"
+          - git remote remove github 2>/dev/null; git remote add github https://$GITHUB_TOKEN@github.com/weiwoo-wl/trend-radar.git
+          - git checkout main 2>/dev/null || true
+          - git add js/data.js js/policy-funds-data.js js/earnings-data.js
+          - git diff --staged --quiet || git commit -m "data: auto-update $(date +%Y-%m-%d) via Gitee Go"
+          - git push github HEAD:main
