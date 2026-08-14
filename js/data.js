@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-14 09:50:30
+ * 自动更新时间：2026-08-14 14:08:53
  * 数据日期：2026-08-14
  * 历史数据：5个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-14",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-14T09:50:30",
+    "fetchedAt": "2026-08-14T14:08:53",
     "scoringMode": "strict",
-    "completeness": 62
+    "completeness": 50
   },
   "daily": {
     "radar": [
@@ -51,10 +51,11 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "杠杆资金",
-        "value": 44.0,
-        "status": "yellow",
+        "value": null,
+        "status": "missing",
         "formula": "50 + 融资余额日变化(亿元)÷10",
-        "sourceDate": null
+        "sourceDate": null,
+        "reason": "必需数据缺失"
       },
       {
         "name": "ETF资金",
@@ -224,8 +225,8 @@ const DASHBOARD_DATA = {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": -59.82,
-      "shBalance": 13294.07,
+      "balanceChange": null,
+      "shBalance": null,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -255,10 +256,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 62%（5/8）",
+      "completeness": "有效评分完整度 50%（4/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "中性；有效评分 5/8，平均 59.2 分",
-      "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
+      "rallyQuality": "中性；有效评分 4/8，平均 63.0 分",
+      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金"
     }
   },
   "weekly": {
@@ -458,7 +459,7 @@ const DASHBOARD_DATA = {
     "ratesBonds": [
       {
         "name": "中国2年国债",
-        "yield": 1.24,
+        "yield": 1.23,
         "change": -0.01,
         "prevChange": null,
         "implication": null
@@ -466,42 +467,14 @@ const DASHBOARD_DATA = {
       {
         "name": "中国10年国债",
         "yield": 1.7,
-        "change": -0.01,
+        "change": 0.0,
         "prevChange": null,
         "implication": null
       },
       {
         "name": "中国30年国债",
         "yield": 2.16,
-        "change": -0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国2年国债",
-        "yield": 4.15,
-        "change": -0.05,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国10年国债",
-        "yield": 4.63,
-        "change": -0.05,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国30年国债",
-        "yield": 5.21,
-        "change": -0.03,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "中美利差(10年)",
-        "yield": -2.93,
-        "change": null,
+        "change": 0.0,
         "prevChange": null,
         "implication": null
       }
@@ -509,21 +482,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.02,
+        "changePct": 0.85,
         "prevChange": null,
-        "implication": "约4407.5美元/盎司"
+        "implication": "约4444.2美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": -0.02,
+        "changePct": 0.17,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 1.49,
+        "changePct": -0.32,
         "prevChange": null,
-        "implication": "约82.4美元/桶"
+        "implication": "约80.9美元/桶"
       }
     ],
     "rating": [],
