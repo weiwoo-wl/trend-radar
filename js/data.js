@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-19 09:18:45
+ * 自动更新时间：2026-08-19 13:42:26
  * 数据日期：2026-08-19
  * 历史数据：8个交易日
  *
@@ -14,7 +14,7 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-19",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-19T09:18:45",
+    "fetchedAt": "2026-08-19T13:42:26",
     "scoringMode": "strict",
     "completeness": 62
   },
@@ -458,50 +458,22 @@ const DASHBOARD_DATA = {
     "ratesBonds": [
       {
         "name": "中国2年国债",
-        "yield": 1.23,
-        "change": 0.0,
+        "yield": 1.22,
+        "change": -0.01,
         "prevChange": null,
         "implication": null
       },
       {
         "name": "中国10年国债",
-        "yield": 1.69,
-        "change": 0.0,
+        "yield": 1.68,
+        "change": -0.01,
         "prevChange": null,
         "implication": null
       },
       {
         "name": "中国30年国债",
-        "yield": 2.15,
+        "yield": 2.14,
         "change": -0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国2年国债",
-        "yield": 4.19,
-        "change": 0.0,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国10年国债",
-        "yield": 4.71,
-        "change": -0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国30年国债",
-        "yield": 5.28,
-        "change": -0.03,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "中美利差(10年)",
-        "yield": -3.02,
-        "change": null,
         "prevChange": null,
         "implication": null
       }
@@ -509,21 +481,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.46,
+        "changePct": 2.9,
         "prevChange": null,
-        "implication": "约4409.4美元/盎司"
+        "implication": "约4516.6美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": -0.68,
+        "changePct": 0.27,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 0.7,
+        "changePct": 0.04,
         "prevChange": null,
-        "implication": "约85.0美元/桶"
+        "implication": "约84.4美元/桶"
       }
     ],
     "rating": [],
