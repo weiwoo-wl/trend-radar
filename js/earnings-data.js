@@ -3,7 +3,7 @@ const ROLLING_EARNINGS_DATA = {
   "meta": {
     "version": "v1-rules",
     "status": "valid",
-    "updatedAt": "2026-08-20T09:20:31",
+    "updatedAt": "2026-08-20T13:45:10",
     "macroPeriod": "2026年6月",
     "companyPeriod": "20260630",
     "recordCount": 18,
