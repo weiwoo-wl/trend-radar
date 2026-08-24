@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-24 09:25:24
+ * 自动更新时间：2026-08-24 13:46:38
  * 数据日期：2026-08-24
  * 历史数据：11个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-24",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-24T09:25:24",
+    "fetchedAt": "2026-08-24T13:46:38",
     "scoringMode": "strict",
-    "completeness": 50
+    "completeness": 38
   },
   "daily": {
     "radar": [
@@ -44,18 +44,18 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "市场广度",
-        "value": 26.3,
-        "status": "red",
+        "value": null,
+        "status": "missing",
         "formula": "上涨家数÷有效股票数×100",
-        "sourceDate": "2026-08-24"
+        "sourceDate": "2026-08-24",
+        "reason": "必需数据缺失"
       },
       {
         "name": "杠杆资金",
-        "value": null,
-        "status": "missing",
+        "value": 40.1,
+        "status": "yellow",
         "formula": "50 + 融资余额日变化(亿元)÷10",
-        "sourceDate": null,
-        "reason": "必需数据缺失"
+        "sourceDate": null
       },
       {
         "name": "ETF资金",
@@ -75,10 +75,11 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "市场情绪",
-        "value": 29.9,
-        "status": "red",
-        "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
-        "sourceDate": "2026-08-24"
+        "value": null,
+        "status": "missing",
+        "formula": "缺少市场广度数据无法计算",
+        "sourceDate": "2026-08-24",
+        "reason": "必需数据缺失"
       }
     ],
     "indices": [
@@ -212,21 +213,21 @@ const DASHBOARD_DATA = {
       "status": "valid"
     },
     "breadth": {
-      "upCount": 1460,
-      "downCount": 3964,
-      "flatCount": 124,
-      "limitUp": 60,
-      "limitDown": 37,
-      "upPct": 26.3,
-      "downPct": 71.4,
-      "moneyEffect": "偏弱"
+      "upCount": null,
+      "downCount": null,
+      "flatCount": null,
+      "limitUp": null,
+      "limitDown": null,
+      "upPct": null,
+      "downPct": null,
+      "moneyEffect": null
     },
     "margin": {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": null,
-      "shBalance": null,
+      "balanceChange": -98.52,
+      "shBalance": 13549.98,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -256,10 +257,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 50%（4/8）",
+      "completeness": "有效评分完整度 38%（3/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "中性；有效评分 4/8，平均 45.9 分",
-      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金"
+      "rallyQuality": "有效数据不足，暂不形成判断",
+      "riskAlert": "缺失数据：行业表现、市场广度、ETF资金、外资资金、市场情绪"
     }
   },
   "weekly": {
@@ -459,8 +460,8 @@ const DASHBOARD_DATA = {
     "ratesBonds": [
       {
         "name": "中国2年国债",
-        "yield": 1.24,
-        "change": 0.01,
+        "yield": 1.23,
+        "change": -0.01,
         "prevChange": null,
         "implication": null
       },
@@ -473,36 +474,8 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "中国30年国债",
-        "yield": 2.13,
-        "change": 0.0,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国2年国债",
-        "yield": 4.24,
-        "change": 0.05,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国10年国债",
-        "yield": 4.74,
-        "change": 0.05,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国30年国债",
-        "yield": 5.27,
-        "change": 0.04,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "中美利差(10年)",
-        "yield": -3.06,
-        "change": null,
+        "yield": 2.12,
+        "change": -0.01,
         "prevChange": null,
         "implication": null
       }
@@ -510,21 +483,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.67,
+        "changePct": 1.49,
         "prevChange": null,
-        "implication": "约4692.6美元/盎司"
+        "implication": "约4731.1美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.32,
+        "changePct": 0.94,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": -2.01,
+        "changePct": -1.03,
         "prevChange": null,
-        "implication": "约84.9美元/桶"
+        "implication": "约85.8美元/桶"
       }
     ],
     "rating": [],
