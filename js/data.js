@@ -2,37 +2,37 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-24 13:46:38
- * 数据日期：2026-08-24
- * 历史数据：11个交易日
+ * 自动更新时间：2026-08-25 09:18:39
+ * 数据日期：2026-08-25
+ * 历史数据：12个交易日
  *
  * 由 scripts/fetch_data.py 自动生成，请勿手动编辑
  */
 
 const DASHBOARD_DATA = {
   "meta": {
-    "reportDate": "2026-08-24",
+    "reportDate": "2026-08-25",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-24T13:46:38",
+    "fetchedAt": "2026-08-25T09:18:39",
     "scoringMode": "strict",
-    "completeness": 38
+    "completeness": 62
   },
   "daily": {
     "radar": [
       {
         "name": "股指表现",
-        "value": 27.4,
-        "status": "red",
+        "value": 47.1,
+        "status": "yellow",
         "formula": "50 + 四大核心指数平均涨跌幅×10",
-        "sourceDate": "2026-08-24"
+        "sourceDate": "2026-08-25"
       },
       {
         "name": "行业表现",
         "value": null,
         "status": "missing",
         "formula": "50 + 申万行业主力净流入(亿元)÷20",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "reason": "必需数据缺失"
       },
       {
@@ -40,19 +40,18 @@ const DASHBOARD_DATA = {
         "value": 100,
         "status": "green",
         "formula": "当日成交额÷5日均额×50",
-        "sourceDate": "2026-08-24"
+        "sourceDate": "2026-08-25"
       },
       {
         "name": "市场广度",
-        "value": null,
-        "status": "missing",
+        "value": 76.3,
+        "status": "green",
         "formula": "上涨家数÷有效股票数×100",
-        "sourceDate": "2026-08-24",
-        "reason": "必需数据缺失"
+        "sourceDate": "2026-08-25"
       },
       {
         "name": "杠杆资金",
-        "value": 40.1,
+        "value": 47.6,
         "status": "yellow",
         "formula": "50 + 融资余额日变化(亿元)÷10",
         "sourceDate": null
@@ -70,123 +69,122 @@ const DASHBOARD_DATA = {
         "value": null,
         "status": "missing",
         "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "reason": "必需数据缺失"
       },
       {
         "name": "市场情绪",
-        "value": null,
-        "status": "missing",
-        "formula": "缺少市场广度数据无法计算",
-        "sourceDate": "2026-08-24",
-        "reason": "必需数据缺失"
+        "value": 89.2,
+        "status": "green",
+        "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
+        "sourceDate": "2026-08-25"
       }
     ],
     "indices": [
       {
         "name": "上证指数",
-        "close": 3882.01,
-        "change": -23.19,
-        "changePct": -0.59,
-        "volume": 9520.0,
+        "close": 3889.44,
+        "change": 7.43,
+        "changePct": 0.19,
+        "volume": 8589.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 5.0,
         "avg10": 5.0
       },
       {
         "name": "深证成指",
-        "close": 13794.29,
-        "change": -299.88,
-        "changePct": -2.13,
-        "volume": 10554.0,
+        "close": 13745.87,
+        "change": -48.42,
+        "changePct": -0.35,
+        "volume": 9730.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 6.0,
         "avg10": 6.0
       },
       {
         "name": "创业板指",
-        "close": 3431.89,
-        "change": -113.69,
-        "changePct": -3.21,
-        "volume": 5058.0,
+        "close": 3397.52,
+        "change": -34.37,
+        "changePct": -1.0,
+        "volume": 4640.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "科创综指",
-        "close": 1896.16,
-        "change": -60.69,
-        "changePct": -3.1,
-        "volume": 3070.0,
+        "close": 1896.08,
+        "change": -0.08,
+        "changePct": -0.0,
+        "volume": 2632.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
-        "avg5": 1.0,
+        "avg5": 0.0,
         "avg10": 1.0
       },
       {
         "name": "沪深300",
-        "close": 4563.13,
-        "change": -55.77,
-        "changePct": -1.21,
-        "volume": 5904.0,
+        "close": 4552.03,
+        "change": -11.1,
+        "changePct": -0.24,
+        "volume": 4804.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "中证500",
-        "close": 7717.09,
-        "change": -137.24,
-        "changePct": -1.75,
-        "volume": 3676.0,
+        "close": 7710.94,
+        "change": -6.15,
+        "changePct": -0.08,
+        "volume": 3263.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "中证1000",
-        "close": 7491.49,
-        "change": -110.31,
-        "changePct": -1.45,
-        "volume": 4336.0,
+        "close": 7527.5,
+        "change": 36.01,
+        "changePct": 0.48,
+        "volume": 4018.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "科创50",
-        "close": 1602.34,
-        "change": -51.22,
-        "changePct": -3.1,
-        "volume": 938.0,
+        "close": 1604.59,
+        "change": 2.25,
+        "changePct": 0.14,
+        "volume": 753.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 0.0,
         "avg10": 0.0
       },
       {
         "name": "北证50",
-        "close": 1053.62,
-        "change": -21.76,
-        "changePct": -2.02,
-        "volume": 140.0,
+        "close": 1063.2,
+        "change": 9.58,
+        "changePct": 0.91,
+        "volume": 127.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-24",
+        "sourceDate": "2026-08-25",
         "status": "valid",
         "avg5": 0.0,
         "avg10": 0.0
@@ -197,37 +195,37 @@ const DASHBOARD_DATA = {
       "losers": []
     },
     "turnover": {
-      "sh": 9520.0,
-      "sz": 10554.0,
-      "bj": 140.0,
-      "total": 20214.0,
+      "sh": 8589.0,
+      "sz": 9730.0,
+      "bj": 127.0,
+      "total": 18446.0,
       "prevDay": null,
       "change": null,
       "changePct": null,
       "avg5": 11.0,
-      "vs5d": 20203.0,
+      "vs5d": 18435.0,
       "avg10": 11.0,
-      "vs10d": 20203.0,
+      "vs10d": 18435.0,
       "source": "腾讯行情",
-      "sourceDate": "2026-08-24",
+      "sourceDate": "2026-08-25",
       "status": "valid"
     },
     "breadth": {
-      "upCount": null,
-      "downCount": null,
-      "flatCount": null,
-      "limitUp": null,
-      "limitDown": null,
-      "upPct": null,
-      "downPct": null,
-      "moneyEffect": null
+      "upCount": 4233,
+      "downCount": 1246,
+      "flatCount": 70,
+      "limitUp": 94,
+      "limitDown": 7,
+      "upPct": 76.3,
+      "downPct": 22.5,
+      "moneyEffect": "偏强"
     },
     "margin": {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": -98.52,
-      "shBalance": 13549.98,
+      "balanceChange": -24.17,
+      "shBalance": 13648.5,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -257,10 +255,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 38%（3/8）",
+      "completeness": "有效评分完整度 62%（5/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "有效数据不足，暂不形成判断",
-      "riskAlert": "缺失数据：行业表现、市场广度、ETF资金、外资资金、市场情绪"
+      "rallyQuality": "偏强；有效评分 5/8，平均 72.0 分",
+      "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
     }
   },
   "weekly": {
@@ -268,62 +266,62 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": -2.71,
+        "weekChange": -0.13,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "深证成指",
-        "weekChange": -5.66,
+        "weekChange": -1.04,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "创业板指",
-        "weekChange": -7.39,
+        "weekChange": -2.19,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "科创综指",
-        "weekChange": -9.91,
+        "weekChange": -2.97,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "沪深300",
-        "weekChange": -3.44,
+        "weekChange": -0.8,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "中证500",
-        "weekChange": -5.63,
+        "weekChange": -0.93,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "中证1000",
-        "weekChange": -5.72,
+        "weekChange": 0.13,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": -10.53,
+        "weekChange": -3.77,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "北证50",
-        "weekChange": -7.41,
+        "weekChange": -1.75,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       }
     ],
     "industries": [],
     "turnover": {
-      "avgDaily": 20214.0,
+      "avgDaily": 18446.0,
       "prevAvg": null,
       "change": null,
       "totalWeekly": null,
@@ -350,57 +348,57 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": -2.71,
+        "weekChange": -0.13,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "深证成指",
-        "weekChange": -5.66,
+        "weekChange": -1.04,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "创业板指",
-        "weekChange": -7.39,
+        "weekChange": -2.19,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "科创综指",
-        "weekChange": -9.91,
+        "weekChange": -2.97,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "沪深300",
-        "weekChange": -3.44,
+        "weekChange": -0.8,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "中证500",
-        "weekChange": -5.63,
+        "weekChange": -0.93,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "中证1000",
-        "weekChange": -5.72,
+        "weekChange": 0.13,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": -10.53,
+        "weekChange": -3.77,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       },
       {
         "name": "北证50",
-        "weekChange": -7.41,
+        "weekChange": -1.75,
         "prevWeek": null,
-        "trend": "强势调整"
+        "trend": "调整"
       }
     ],
     "styleComparison": {
@@ -478,26 +476,54 @@ const DASHBOARD_DATA = {
         "change": -0.01,
         "prevChange": null,
         "implication": null
+      },
+      {
+        "name": "美国2年国债",
+        "yield": 4.24,
+        "change": 0.0,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国10年国债",
+        "yield": 4.7,
+        "change": -0.04,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国30年国债",
+        "yield": 5.23,
+        "change": -0.04,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "中美利差(10年)",
+        "yield": -3.02,
+        "change": null,
+        "prevChange": null,
+        "implication": null
       }
     ],
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 1.49,
+        "changePct": -0.53,
         "prevChange": null,
-        "implication": "约4731.1美元/盎司"
+        "implication": "约4684.8美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.94,
+        "changePct": -0.16,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": -1.03,
+        "changePct": -2.31,
         "prevChange": null,
-        "implication": "约85.8美元/桶"
+        "implication": "约83.0美元/桶"
       }
     ],
     "rating": [],
@@ -525,6 +551,767 @@ const DASHBOARD_DATA = {
 
 // 历史数据（供日期选择器使用，每个元素含 date 和 daily）
 const DASHBOARD_HISTORY = [
+  {
+    "date": "2026-08-24",
+    "daily": {
+      "radar": [
+        {
+          "name": "股指表现",
+          "value": 27.4,
+          "status": "red",
+          "formula": "50 + 四大核心指数平均涨跌幅×10",
+          "sourceDate": "2026-08-24"
+        },
+        {
+          "name": "行业表现",
+          "value": null,
+          "status": "missing",
+          "formula": "50 + 申万行业主力净流入(亿元)÷20",
+          "sourceDate": "2026-08-24",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "成交活跃度",
+          "value": 100,
+          "status": "green",
+          "formula": "当日成交额÷5日均额×50",
+          "sourceDate": "2026-08-24"
+        },
+        {
+          "name": "市场广度",
+          "value": null,
+          "status": "missing",
+          "formula": "上涨家数÷有效股票数×100",
+          "sourceDate": "2026-08-24",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "杠杆资金",
+          "value": 40.1,
+          "status": "yellow",
+          "formula": "50 + 融资余额日变化(亿元)÷10",
+          "sourceDate": null
+        },
+        {
+          "name": "ETF资金",
+          "value": null,
+          "status": "missing",
+          "formula": "50 + 主要宽基ETF净申购份额(亿份)",
+          "sourceDate": null,
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "外资资金",
+          "value": null,
+          "status": "missing",
+          "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
+          "sourceDate": "2026-08-24",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "市场情绪",
+          "value": null,
+          "status": "missing",
+          "formula": "缺少市场广度数据无法计算",
+          "sourceDate": "2026-08-24",
+          "reason": "必需数据缺失"
+        }
+      ],
+      "indices": [
+        {
+          "name": "上证指数",
+          "close": 3882.01,
+          "change": -23.19,
+          "changePct": -0.59,
+          "volume": 9520,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 5,
+          "avg10": 5
+        },
+        {
+          "name": "深证成指",
+          "close": 13794.29,
+          "change": -299.88,
+          "changePct": -2.13,
+          "volume": 10554,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 6,
+          "avg10": 6
+        },
+        {
+          "name": "创业板指",
+          "close": 3431.89,
+          "change": -113.69,
+          "changePct": -3.21,
+          "volume": 5058,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "科创综指",
+          "close": 1896.16,
+          "change": -60.69,
+          "changePct": -3.1,
+          "volume": 3070,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 1,
+          "avg10": 1
+        },
+        {
+          "name": "沪深300",
+          "close": 4563.13,
+          "change": -55.77,
+          "changePct": -1.21,
+          "volume": 5904,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "中证500",
+          "close": 7717.09,
+          "change": -137.24,
+          "changePct": -1.75,
+          "volume": 3676,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "中证1000",
+          "close": 7491.49,
+          "change": -110.31,
+          "changePct": -1.45,
+          "volume": 4336,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "科创50",
+          "close": 1602.34,
+          "change": -51.22,
+          "changePct": -3.1,
+          "volume": 938,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 0,
+          "avg10": 0
+        },
+        {
+          "name": "北证50",
+          "close": 1053.62,
+          "change": -21.76,
+          "changePct": -2.02,
+          "volume": 140,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid",
+          "avg5": 0,
+          "avg10": 0
+        }
+      ],
+      "industryPerformance": {
+        "gainers": [],
+        "losers": []
+      },
+      "turnover": {
+        "sh": 9520,
+        "sz": 10554,
+        "bj": 140,
+        "total": 20214,
+        "prevDay": null,
+        "change": null,
+        "changePct": null,
+        "avg5": 11,
+        "vs5d": 20203,
+        "avg10": 11,
+        "vs10d": 20203,
+        "source": "腾讯行情",
+        "sourceDate": "2026-08-24",
+        "status": "valid"
+      },
+      "breadth": {
+        "upCount": null,
+        "downCount": null,
+        "flatCount": null,
+        "limitUp": null,
+        "limitDown": null,
+        "upPct": null,
+        "downPct": null,
+        "moneyEffect": null
+      },
+      "margin": {
+        "financeBalance": null,
+        "securitiesBalance": null,
+        "totalBalance": null,
+        "balanceChange": -98.52,
+        "shBalance": 13549.98,
+        "szBalance": null,
+        "marginTradePct": null,
+        "dataDate": null,
+        "dataLevel": "B"
+      },
+      "northbound": {
+        "netBuy": null,
+        "turnover": null,
+        "turnoverPct": null,
+        "topStocks": null,
+        "dataLevel": "X",
+        "statusNote": "停更：港交所2024-08起不再披露北向实时净买入"
+      },
+      "etf": [],
+      "fundFlow": {
+        "updateTime": "15:00",
+        "netInflow": null,
+        "gemNetInflow": null,
+        "starNetInflow": null,
+        "csi300NetInflow": null,
+        "tailNetInflow": null,
+        "inflowCount": null,
+        "outflowCount": null,
+        "sectors": [],
+        "source": null,
+        "sourceDate": null,
+        "status": "missing"
+      },
+      "judgment": {
+        "completeness": "有效评分完整度 38%（3/8）",
+        "fundSource": "主力资金数据暂缺",
+        "rallyQuality": "有效数据不足，暂不形成判断",
+        "riskAlert": "缺失数据：行业表现、市场广度、ETF资金、外资资金、市场情绪"
+      }
+    },
+    "snapshot": {
+      "meta": {
+        "reportDate": "2026-08-24",
+        "dataVersion": "v1.2-verified",
+        "marketSession": "收盘",
+        "fetchedAt": "2026-08-24T13:46:38",
+        "scoringMode": "strict",
+        "completeness": 38
+      },
+      "daily": {
+        "radar": [
+          {
+            "name": "股指表现",
+            "value": 27.4,
+            "status": "red",
+            "formula": "50 + 四大核心指数平均涨跌幅×10",
+            "sourceDate": "2026-08-24"
+          },
+          {
+            "name": "行业表现",
+            "value": null,
+            "status": "missing",
+            "formula": "50 + 申万行业主力净流入(亿元)÷20",
+            "sourceDate": "2026-08-24",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "成交活跃度",
+            "value": 100,
+            "status": "green",
+            "formula": "当日成交额÷5日均额×50",
+            "sourceDate": "2026-08-24"
+          },
+          {
+            "name": "市场广度",
+            "value": null,
+            "status": "missing",
+            "formula": "上涨家数÷有效股票数×100",
+            "sourceDate": "2026-08-24",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "杠杆资金",
+            "value": 40.1,
+            "status": "yellow",
+            "formula": "50 + 融资余额日变化(亿元)÷10",
+            "sourceDate": null
+          },
+          {
+            "name": "ETF资金",
+            "value": null,
+            "status": "missing",
+            "formula": "50 + 主要宽基ETF净申购份额(亿份)",
+            "sourceDate": null,
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "外资资金",
+            "value": null,
+            "status": "missing",
+            "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
+            "sourceDate": "2026-08-24",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "市场情绪",
+            "value": null,
+            "status": "missing",
+            "formula": "缺少市场广度数据无法计算",
+            "sourceDate": "2026-08-24",
+            "reason": "必需数据缺失"
+          }
+        ],
+        "indices": [
+          {
+            "name": "上证指数",
+            "close": 3882.01,
+            "change": -23.19,
+            "changePct": -0.59,
+            "volume": 9520,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 5,
+            "avg10": 5
+          },
+          {
+            "name": "深证成指",
+            "close": 13794.29,
+            "change": -299.88,
+            "changePct": -2.13,
+            "volume": 10554,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 6,
+            "avg10": 6
+          },
+          {
+            "name": "创业板指",
+            "close": 3431.89,
+            "change": -113.69,
+            "changePct": -3.21,
+            "volume": 5058,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "科创综指",
+            "close": 1896.16,
+            "change": -60.69,
+            "changePct": -3.1,
+            "volume": 3070,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 1,
+            "avg10": 1
+          },
+          {
+            "name": "沪深300",
+            "close": 4563.13,
+            "change": -55.77,
+            "changePct": -1.21,
+            "volume": 5904,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "中证500",
+            "close": 7717.09,
+            "change": -137.24,
+            "changePct": -1.75,
+            "volume": 3676,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "中证1000",
+            "close": 7491.49,
+            "change": -110.31,
+            "changePct": -1.45,
+            "volume": 4336,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "科创50",
+            "close": 1602.34,
+            "change": -51.22,
+            "changePct": -3.1,
+            "volume": 938,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 0,
+            "avg10": 0
+          },
+          {
+            "name": "北证50",
+            "close": 1053.62,
+            "change": -21.76,
+            "changePct": -2.02,
+            "volume": 140,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-24",
+            "status": "valid",
+            "avg5": 0,
+            "avg10": 0
+          }
+        ],
+        "industryPerformance": {
+          "gainers": [],
+          "losers": []
+        },
+        "turnover": {
+          "sh": 9520,
+          "sz": 10554,
+          "bj": 140,
+          "total": 20214,
+          "prevDay": null,
+          "change": null,
+          "changePct": null,
+          "avg5": 11,
+          "vs5d": 20203,
+          "avg10": 11,
+          "vs10d": 20203,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-24",
+          "status": "valid"
+        },
+        "breadth": {
+          "upCount": null,
+          "downCount": null,
+          "flatCount": null,
+          "limitUp": null,
+          "limitDown": null,
+          "upPct": null,
+          "downPct": null,
+          "moneyEffect": null
+        },
+        "margin": {
+          "financeBalance": null,
+          "securitiesBalance": null,
+          "totalBalance": null,
+          "balanceChange": -98.52,
+          "shBalance": 13549.98,
+          "szBalance": null,
+          "marginTradePct": null,
+          "dataDate": null,
+          "dataLevel": "B"
+        },
+        "northbound": {
+          "netBuy": null,
+          "turnover": null,
+          "turnoverPct": null,
+          "topStocks": null,
+          "dataLevel": "X",
+          "statusNote": "停更：港交所2024-08起不再披露北向实时净买入"
+        },
+        "etf": [],
+        "fundFlow": {
+          "updateTime": "15:00",
+          "netInflow": null,
+          "gemNetInflow": null,
+          "starNetInflow": null,
+          "csi300NetInflow": null,
+          "tailNetInflow": null,
+          "inflowCount": null,
+          "outflowCount": null,
+          "sectors": [],
+          "source": null,
+          "sourceDate": null,
+          "status": "missing"
+        },
+        "judgment": {
+          "completeness": "有效评分完整度 38%（3/8）",
+          "fundSource": "主力资金数据暂缺",
+          "rallyQuality": "有效数据不足，暂不形成判断",
+          "riskAlert": "缺失数据：行业表现、市场广度、ETF资金、外资资金、市场情绪"
+        }
+      },
+      "weekly": {
+        "radar": [],
+        "indices": [
+          {
+            "name": "上证指数",
+            "weekChange": -2.71,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "深证成指",
+            "weekChange": -5.66,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "创业板指",
+            "weekChange": -7.39,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "科创综指",
+            "weekChange": -9.91,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "沪深300",
+            "weekChange": -3.44,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "中证500",
+            "weekChange": -5.63,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "中证1000",
+            "weekChange": -5.72,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "科创50",
+            "weekChange": -10.53,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "北证50",
+            "weekChange": -7.41,
+            "prevWeek": null,
+            "trend": "强势调整"
+          }
+        ],
+        "industries": [],
+        "turnover": {
+          "avgDaily": 20214,
+          "prevAvg": null,
+          "change": null,
+          "totalWeekly": null,
+          "peakDay": null,
+          "peakVolume": null
+        },
+        "breadth": {
+          "avgUp": null,
+          "avgDown": null,
+          "avgLimitUp": null,
+          "avgLimitDown": null
+        },
+        "margin": [],
+        "etfFlows": [],
+        "fundStrength": [],
+        "observation": {
+          "coreChange": "-",
+          "nextWeek": "-",
+          "maxRisk": "-"
+        }
+      },
+      "monthly": {
+        "radar": [],
+        "indices": [
+          {
+            "name": "上证指数",
+            "weekChange": -2.71,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "深证成指",
+            "weekChange": -5.66,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "创业板指",
+            "weekChange": -7.39,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "科创综指",
+            "weekChange": -9.91,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "沪深300",
+            "weekChange": -3.44,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "中证500",
+            "weekChange": -5.63,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "中证1000",
+            "weekChange": -5.72,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "科创50",
+            "weekChange": -10.53,
+            "prevWeek": null,
+            "trend": "强势调整"
+          },
+          {
+            "name": "北证50",
+            "weekChange": -7.41,
+            "prevWeek": null,
+            "trend": "强势调整"
+          }
+        ],
+        "styleComparison": {
+          "growthVsValue": {
+            "growth": null,
+            "value": null,
+            "gap": null,
+            "direction": null
+          },
+          "largeVsSmall": {
+            "large": null,
+            "small": null,
+            "gap": null,
+            "direction": null
+          },
+          "aVsOverseas": {
+            "aShare": null,
+            "usMarket": null,
+            "hkMarket": null,
+            "direction": null
+          }
+        },
+        "industries": [],
+        "turnover": {
+          "avgDaily": null,
+          "prevMonth": null,
+          "change": null,
+          "total": null,
+          "halfYearAvg": null,
+          "vsHalfYear": null
+        },
+        "leverage": [],
+        "etfFlows": [],
+        "bondsCommodities": [],
+        "rating": [],
+        "observation": {
+          "marketStage": "-",
+          "opportunity": "-",
+          "risk": "-",
+          "validation": "-"
+        }
+      },
+      "fundamentals": {
+        "radar": [],
+        "economicGrowth": [],
+        "earnings": [],
+        "earningsDriver": {
+          "source": "-",
+          "focus": "-"
+        },
+        "liquidity": [],
+        "liquidityJudgment": {
+          "isLoose": "-",
+          "enterEquity": "-",
+          "tighteningRisk": "-"
+        },
+        "ratesBonds": [
+          {
+            "name": "中国2年国债",
+            "yield": 1.23,
+            "change": -0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "中国10年国债",
+            "yield": 1.68,
+            "change": 0,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "中国30年国债",
+            "yield": 2.12,
+            "change": -0.01,
+            "prevChange": null,
+            "implication": null
+          }
+        ],
+        "commodities": [
+          {
+            "name": "COMEX黄金",
+            "changePct": 1.49,
+            "prevChange": null,
+            "implication": "约4731.1美元/盎司"
+          },
+          {
+            "name": "LME铜",
+            "changePct": 0.94,
+            "prevChange": null,
+            "implication": "-"
+          },
+          {
+            "name": "WTI原油",
+            "changePct": -1.03,
+            "prevChange": null,
+            "implication": "约85.8美元/桶"
+          }
+        ],
+        "rating": [],
+        "observation": {
+          "confirmSignals": "-",
+          "overturnSignals": "-",
+          "valuationRisk": "-",
+          "keyMetric": "-",
+          "opportunity": "-",
+          "risk": "-",
+          "nextStage": "-"
+        }
+      },
+      "meso": {
+        "radar": [],
+        "prosperity": [],
+        "valuation": [],
+        "valuationDriver": "-",
+        "crowding": [],
+        "fundSwitching": {},
+        "rating": [],
+        "observation": {}
+      }
+    }
+  },
   {
     "date": "2026-08-21",
     "daily": {
