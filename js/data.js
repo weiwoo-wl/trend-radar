@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-27 19:21:31
+ * 自动更新时间：2026-08-27 22:42:43
  * 数据日期：2026-08-27
  * 历史数据：14个交易日
  *
@@ -14,7 +14,7 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-27",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-27T19:21:31",
+    "fetchedAt": "2026-08-27T22:42:43",
     "scoringMode": "strict",
     "completeness": 62
   },
@@ -248,7 +248,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 3340.7,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -260,7 +260,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 2100629.91,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -272,7 +272,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 293863.14,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -284,7 +284,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 1762805.02,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -296,7 +296,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 10259.72,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -308,7 +308,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 11060762.4,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -320,7 +320,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 5222646.39,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -332,7 +332,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 4310976.06,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -344,7 +344,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 479582.05,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -356,7 +356,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 5296.27,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -368,7 +368,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 44982.89,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -380,7 +380,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 24562.84,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -392,7 +392,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 2131032.36,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -404,7 +404,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 3466.48,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -416,7 +416,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 843339.96,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -428,7 +428,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 7016.89,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -440,7 +440,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 254034.76,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -452,7 +452,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 13996.3,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -464,7 +464,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 14647.41,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -476,7 +476,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 95932.98,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -488,7 +488,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 135919.1,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -500,7 +500,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 15857.87,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -512,7 +512,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 7017.99,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -524,7 +524,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 3625.01,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -536,7 +536,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 2209.7,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -548,7 +548,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 303217.02,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -560,7 +560,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 491579.87,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -572,7 +572,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 13968.33,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -584,7 +584,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 58831.9,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -596,7 +596,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 8948165.47,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -608,7 +608,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 184523.77,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -620,7 +620,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 4270874.39,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -632,7 +632,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 80646.19,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -644,7 +644,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 299336.62,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -656,7 +656,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 13422.02,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -668,7 +668,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 134364.18,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       },
@@ -680,7 +680,7 @@ const DASHBOARD_DATA = {
         "shareChange": null,
         "volume": 233285.81,
         "direction": "基线积累中",
-        "status": "baseline_pending",
+        "status": "listing_pending",
         "source": "上海证券交易所",
         "sourceDate": "2026-08-27"
       }
@@ -921,26 +921,54 @@ const DASHBOARD_DATA = {
         "change": 0.01,
         "prevChange": null,
         "implication": null
+      },
+      {
+        "name": "美国2年国债",
+        "yield": 4.2,
+        "change": 0.01,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国10年国债",
+        "yield": 4.67,
+        "change": 0.01,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国30年国债",
+        "yield": 5.19,
+        "change": 0.01,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "中美利差(10年)",
+        "yield": -2.97,
+        "change": null,
+        "prevChange": null,
+        "implication": null
       }
     ],
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.5,
+        "changePct": 0.14,
         "prevChange": null,
-        "implication": "约4671.0美元/盎司"
+        "implication": "约4654.5美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": -0.15,
+        "changePct": 0.04,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 2.42,
+        "changePct": 0.08,
         "prevChange": null,
-        "implication": "约83.9美元/桶"
+        "implication": "约83.6美元/桶"
       }
     ],
     "rating": [],

@@ -6,7 +6,7 @@ const POLICY_FUNDS_DATA = {
     "version": "v1-mad60",
     "status": "insufficient_coverage",
     "reportDate": "2026-08-27",
-    "updatedAt": "2026-08-27T19:12:22",
+    "updatedAt": "2026-08-27T22:29:17",
     "coverage": 0.0,
     "configVersion": "2026-08-09-v1",
     "disclaimer": "异常宽基ETF流量用于观察潜在政策性资金趋势，不代表国家队实际持仓或账户余额。"
@@ -139,7 +139,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510050",
@@ -151,7 +151,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510100",
@@ -163,7 +163,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510180",
@@ -175,7 +175,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510190",
@@ -187,7 +187,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510300",
@@ -199,7 +199,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510310",
@@ -211,7 +211,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510500",
@@ -223,7 +223,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510580",
@@ -235,7 +235,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510600",
@@ -247,7 +247,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510710",
@@ -259,7 +259,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "510800",
@@ -271,7 +271,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "512100",
@@ -283,7 +283,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "512150",
@@ -295,7 +295,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "512500",
@@ -307,7 +307,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "515590",
@@ -319,7 +319,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "515660",
@@ -331,7 +331,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "516300",
@@ -343,7 +343,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "517100",
@@ -355,7 +355,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "517300",
@@ -367,7 +367,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "530000",
@@ -379,7 +379,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "530050",
@@ -391,7 +391,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "530180",
@@ -403,7 +403,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "530280",
@@ -415,7 +415,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "530800",
@@ -427,7 +427,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "560510",
@@ -439,7 +439,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "560530",
@@ -451,7 +451,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "560660",
@@ -463,7 +463,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "562070",
@@ -475,7 +475,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588000",
@@ -487,7 +487,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588020",
@@ -499,7 +499,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588080",
@@ -511,7 +511,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588180",
@@ -523,7 +523,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588380",
@@ -535,7 +535,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588450",
@@ -547,7 +547,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "588870",
@@ -559,7 +559,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         },
         {
           "code": "589360",
@@ -571,7 +571,7 @@ const POLICY_FUNDS_DATA = {
           "netFlow": null,
           "source": "上海证券交易所",
           "sourceDate": "2026-08-27",
-          "status": "baseline_pending"
+          "status": "listing_pending"
         }
       ],
       "cumulativeAnomalyFlow": null
