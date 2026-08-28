@@ -2,7 +2,7 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-28 20:32:08
+ * 自动更新时间：2026-08-28 23:00:16
  * 数据日期：2026-08-28
  * 历史数据：15个交易日
  *
@@ -14,9 +14,9 @@ const DASHBOARD_DATA = {
     "reportDate": "2026-08-28",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-28T20:32:08",
+    "fetchedAt": "2026-08-28T23:00:16",
     "scoringMode": "strict",
-    "completeness": 62
+    "completeness": 50
   },
   "daily": {
     "radar": [
@@ -51,10 +51,11 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "杠杆资金",
-        "value": 63.6,
-        "status": "yellow",
+        "value": null,
+        "status": "missing",
         "formula": "50 + 融资余额日变化(亿元)÷10",
-        "sourceDate": null
+        "sourceDate": null,
+        "reason": "必需数据缺失"
       },
       {
         "name": "ETF资金",
@@ -114,8 +115,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 5031.0,
-        "avg10": 5415.0
+        "avg5": 2.0,
+        "avg10": 2.0
       },
       {
         "name": "科创综指",
@@ -126,8 +127,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 2896.0,
-        "avg10": 3342.0
+        "avg5": 0.0,
+        "avg10": 0.0
       },
       {
         "name": "沪深300",
@@ -138,8 +139,8 @@ const DASHBOARD_DATA = {
         "source": "腾讯行情",
         "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 5394.0,
-        "avg10": 5739.0
+        "avg5": 2.0,
+        "avg10": 2.0
       },
       {
         "name": "中证500",
@@ -224,8 +225,8 @@ const DASHBOARD_DATA = {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": 136.11,
-      "shBalance": 13672.67,
+      "balanceChange": null,
+      "shBalance": null,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -700,10 +701,10 @@ const DASHBOARD_DATA = {
       "status": "missing"
     },
     "judgment": {
-      "completeness": "有效评分完整度 62%（5/8）",
+      "completeness": "有效评分完整度 50%（4/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "中性；有效评分 5/8，平均 64.7 分",
-      "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
+      "rallyQuality": "偏强；有效评分 4/8，平均 65.0 分",
+      "riskAlert": "缺失数据：行业表现、杠杆资金、ETF资金、外资资金"
     }
   },
   "weekly": {
@@ -921,26 +922,54 @@ const DASHBOARD_DATA = {
         "change": 0.01,
         "prevChange": null,
         "implication": null
+      },
+      {
+        "name": "美国2年国债",
+        "yield": 4.34,
+        "change": 0.14,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国10年国债",
+        "yield": 4.73,
+        "change": 0.06,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "美国30年国债",
+        "yield": 5.22,
+        "change": 0.03,
+        "prevChange": null,
+        "implication": null
+      },
+      {
+        "name": "中美利差(10年)",
+        "yield": -3.04,
+        "change": null,
+        "prevChange": null,
+        "implication": null
       }
     ],
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": -3.09,
+        "changePct": -3.24,
         "prevChange": null,
-        "implication": "约4510.5美元/盎司"
+        "implication": "约4503.8美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": -0.82,
+        "changePct": -0.78,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": -0.11,
+        "changePct": -0.14,
         "prevChange": null,
-        "implication": "约83.5美元/桶"
+        "implication": "约83.4美元/桶"
       }
     ],
     "rating": [],
