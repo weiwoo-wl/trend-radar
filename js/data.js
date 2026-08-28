@@ -2,19 +2,19 @@
  * 趋势雷达数据模型 - 自动更新数据层
  * 数据来源：AKShare（东方财富/上交所/深交所/中债登等公开数据）
  * 更新模式：自动抓取
- * 自动更新时间：2026-08-27 22:42:43
- * 数据日期：2026-08-27
- * 历史数据：14个交易日
+ * 自动更新时间：2026-08-28 20:32:08
+ * 数据日期：2026-08-28
+ * 历史数据：15个交易日
  *
  * 由 scripts/fetch_data.py 自动生成，请勿手动编辑
  */
 
 const DASHBOARD_DATA = {
   "meta": {
-    "reportDate": "2026-08-27",
+    "reportDate": "2026-08-28",
     "dataVersion": "v1.2-verified",
     "marketSession": "收盘",
-    "fetchedAt": "2026-08-27T22:42:43",
+    "fetchedAt": "2026-08-28T20:32:08",
     "scoringMode": "strict",
     "completeness": 62
   },
@@ -22,17 +22,17 @@ const DASHBOARD_DATA = {
     "radar": [
       {
         "name": "股指表现",
-        "value": 69.8,
-        "status": "green",
+        "value": 40.6,
+        "status": "yellow",
         "formula": "50 + 四大核心指数平均涨跌幅×10",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "行业表现",
         "value": null,
         "status": "missing",
         "formula": "50 + 申万行业主力净流入(亿元)÷20",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "reason": "必需数据缺失"
       },
       {
@@ -40,18 +40,18 @@ const DASHBOARD_DATA = {
         "value": 100,
         "status": "green",
         "formula": "当日成交额÷5日均额×50",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "市场广度",
-        "value": 61.1,
+        "value": 54.3,
         "status": "yellow",
         "formula": "上涨家数÷有效股票数×100",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "杠杆资金",
-        "value": 47.6,
+        "value": 63.6,
         "status": "yellow",
         "formula": "50 + 融资余额日变化(亿元)÷10",
         "sourceDate": null
@@ -61,7 +61,7 @@ const DASHBOARD_DATA = {
         "value": null,
         "status": "missing",
         "formula": "50 + 主要宽基ETF净申购份额(亿份)",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "reason": "必需数据缺失"
       },
       {
@@ -69,122 +69,122 @@ const DASHBOARD_DATA = {
         "value": null,
         "status": "missing",
         "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "reason": "必需数据缺失"
       },
       {
         "name": "市场情绪",
-        "value": 75.2,
+        "value": 65.2,
         "status": "green",
         "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       }
     ],
     "indices": [
       {
         "name": "上证指数",
-        "close": 3956.57,
-        "change": 44.05,
-        "changePct": 1.13,
-        "volume": 10102.0,
+        "close": 3952.18,
+        "change": -4.39,
+        "changePct": -0.11,
+        "volume": 9704.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 5.0,
         "avg10": 5.0
       },
       {
         "name": "深证成指",
-        "close": 14048.88,
-        "change": 207.55,
-        "changePct": 1.5,
-        "volume": 11157.0,
+        "close": 13953.07,
+        "change": -95.81,
+        "changePct": -0.68,
+        "volume": 11313.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 6.0,
         "avg10": 6.0
       },
       {
         "name": "创业板指",
-        "close": 3473.35,
-        "change": 58.47,
-        "changePct": 1.71,
-        "volume": 5423.0,
+        "close": 3424.4,
+        "change": -48.95,
+        "changePct": -1.41,
+        "volume": 5443.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 2.0,
-        "avg10": 2.0
+        "avg5": 5031.0,
+        "avg10": 5415.0
       },
       {
         "name": "科创综指",
-        "close": 1973.98,
-        "change": 68.58,
-        "changePct": 3.6,
-        "volume": 3260.0,
+        "close": 1942.91,
+        "change": -31.07,
+        "changePct": -1.57,
+        "volume": 2975.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 0.0,
-        "avg10": 0.0
+        "avg5": 2896.0,
+        "avg10": 3342.0
       },
       {
         "name": "沪深300",
-        "close": 4630.28,
-        "change": 39.49,
-        "changePct": 0.86,
-        "volume": 5871.0,
+        "close": 4609.18,
+        "change": -21.1,
+        "changePct": -0.46,
+        "volume": 5498.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
-        "avg5": 2.0,
-        "avg10": 2.0
+        "avg5": 5394.0,
+        "avg10": 5739.0
       },
       {
         "name": "中证500",
-        "close": 7946.33,
-        "change": 175.8,
-        "changePct": 2.26,
-        "volume": 3875.0,
+        "close": 7895.45,
+        "change": -50.88,
+        "changePct": -0.64,
+        "volume": 3763.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "中证1000",
-        "close": 7732.95,
-        "change": 188.28,
-        "changePct": 2.5,
-        "volume": 4601.0,
+        "close": 7705.03,
+        "change": -27.92,
+        "changePct": -0.36,
+        "volume": 4658.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 2.0,
         "avg10": 2.0
       },
       {
         "name": "科创50",
-        "close": 1693.48,
-        "change": 61.46,
-        "changePct": 3.77,
-        "volume": 1018.0,
+        "close": 1662.15,
+        "change": -31.33,
+        "changePct": -1.85,
+        "volume": 851.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 0.0,
         "avg10": 0.0
       },
       {
         "name": "北证50",
-        "close": 1074.96,
-        "change": 6.99,
-        "changePct": 0.65,
-        "volume": 153.0,
+        "close": 1063.8,
+        "change": -11.16,
+        "changePct": -1.04,
+        "volume": 163.0,
         "source": "腾讯行情",
-        "sourceDate": "2026-08-27",
+        "sourceDate": "2026-08-28",
         "status": "valid",
         "avg5": 0.0,
         "avg10": 0.0
@@ -195,37 +195,37 @@ const DASHBOARD_DATA = {
       "losers": []
     },
     "turnover": {
-      "sh": 10102.0,
-      "sz": 11157.0,
-      "bj": 153.0,
-      "total": 21412.0,
+      "sh": 9704.0,
+      "sz": 11313.0,
+      "bj": 163.0,
+      "total": 21180.0,
       "prevDay": null,
       "change": null,
       "changePct": null,
       "avg5": 11.0,
-      "vs5d": 21401.0,
+      "vs5d": 21169.0,
       "avg10": 11.0,
-      "vs10d": 21401.0,
+      "vs10d": 21169.0,
       "source": "腾讯行情",
-      "sourceDate": "2026-08-27",
+      "sourceDate": "2026-08-28",
       "status": "valid"
     },
     "breadth": {
-      "upCount": 3393,
-      "downCount": 1944,
-      "flatCount": 212,
-      "limitUp": 126,
-      "limitDown": 4,
-      "upPct": 61.1,
-      "downPct": 35.0,
+      "upCount": 3013,
+      "downCount": 2389,
+      "flatCount": 148,
+      "limitUp": 94,
+      "limitDown": 15,
+      "upPct": 54.3,
+      "downPct": 43.0,
       "moneyEffect": "偏强"
     },
     "margin": {
       "financeBalance": null,
       "securitiesBalance": null,
       "totalBalance": null,
-      "balanceChange": -24.17,
-      "shBalance": 13648.5,
+      "balanceChange": 136.11,
+      "shBalance": 13672.67,
       "szBalance": null,
       "marginTradePct": null,
       "dataDate": null,
@@ -246,11 +246,11 @@ const DASHBOARD_DATA = {
         "category": "上证180",
         "changePct": null,
         "shareChange": null,
-        "volume": 3340.7,
+        "volume": 3332.16,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "50ETF",
@@ -258,11 +258,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 2100629.91,
+        "volume": 2073137.23,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "SZ50ETF",
@@ -270,11 +270,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 293863.14,
+        "volume": 288261.19,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "180ETF",
@@ -282,11 +282,11 @@ const DASHBOARD_DATA = {
         "category": "上证180",
         "changePct": null,
         "shareChange": null,
-        "volume": 1762805.02,
+        "volume": 1761522.61,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "上证50基",
@@ -294,11 +294,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 10259.72,
+        "volume": 10210.05,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "300ETF",
@@ -306,11 +306,11 @@ const DASHBOARD_DATA = {
         "category": "沪深300",
         "changePct": null,
         "shareChange": null,
-        "volume": 11060762.4,
+        "volume": 10899818.32,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "HS300ETF",
@@ -318,11 +318,11 @@ const DASHBOARD_DATA = {
         "category": "沪深300",
         "changePct": null,
         "shareChange": null,
-        "volume": 5222646.39,
+        "volume": 5192941.57,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "500ETF",
@@ -330,11 +330,11 @@ const DASHBOARD_DATA = {
         "category": "中证500",
         "changePct": null,
         "shareChange": null,
-        "volume": 4310976.06,
+        "volume": 4226261.78,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "ZZ500ETF",
@@ -342,11 +342,11 @@ const DASHBOARD_DATA = {
         "category": "中证500",
         "changePct": null,
         "shareChange": null,
-        "volume": 479582.05,
+        "volume": 476608.25,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "沪50ETF",
@@ -354,11 +354,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 5296.27,
+        "volume": 5294.91,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "上50ETF",
@@ -366,11 +366,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 44982.89,
+        "volume": 44910.28,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "上证50",
@@ -378,11 +378,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 24562.84,
+        "volume": 24493.01,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "1000ETF",
@@ -390,11 +390,11 @@ const DASHBOARD_DATA = {
         "category": "中证1000",
         "changePct": null,
         "shareChange": null,
-        "volume": 2131032.36,
+        "volume": 2087965.94,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "A50ETF",
@@ -402,11 +402,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 3466.48,
+        "volume": 3441.18,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "中证500",
@@ -414,11 +414,11 @@ const DASHBOARD_DATA = {
         "category": "中证500",
         "changePct": null,
         "shareChange": null,
-        "volume": 843339.96,
+        "volume": 829538.27,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "500ETFEW",
@@ -426,11 +426,11 @@ const DASHBOARD_DATA = {
         "category": "中证500",
         "changePct": null,
         "shareChange": null,
-        "volume": 7016.89,
+        "volume": 6998.84,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "沪深300E",
@@ -438,11 +438,11 @@ const DASHBOARD_DATA = {
         "category": "沪深300",
         "changePct": null,
         "shareChange": null,
-        "volume": 254034.76,
+        "volume": 253126.11,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "中证1000",
@@ -450,11 +450,11 @@ const DASHBOARD_DATA = {
         "category": "中证1000",
         "changePct": null,
         "shareChange": null,
-        "volume": 13996.3,
+        "volume": 13966.19,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "AH500ETF",
@@ -466,7 +466,7 @@ const DASHBOARD_DATA = {
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "AH300ETF",
@@ -474,11 +474,11 @@ const DASHBOARD_DATA = {
         "category": "沪深300",
         "changePct": null,
         "shareChange": null,
-        "volume": 95932.98,
+        "volume": 95431.76,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "50ETF基",
@@ -486,11 +486,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 135919.1,
+        "volume": 132104.89,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "SH50ETF",
@@ -498,11 +498,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 15857.87,
+        "volume": 15698.93,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "上证180",
@@ -510,11 +510,11 @@ const DASHBOARD_DATA = {
         "category": "上证180",
         "changePct": null,
         "shareChange": null,
-        "volume": 7017.99,
+        "volume": 7006.4,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "180ETF指",
@@ -526,7 +526,7 @@ const DASHBOARD_DATA = {
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "上180ETF",
@@ -534,11 +534,11 @@ const DASHBOARD_DATA = {
         "category": "上证180",
         "changePct": null,
         "shareChange": null,
-        "volume": 2209.7,
+        "volume": 2206.06,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "中证A500",
@@ -546,11 +546,11 @@ const DASHBOARD_DATA = {
         "category": "中证A500",
         "changePct": null,
         "shareChange": null,
-        "volume": 303217.02,
+        "volume": 301593.61,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "A500ETF",
@@ -558,11 +558,11 @@ const DASHBOARD_DATA = {
         "category": "中证A500",
         "changePct": null,
         "shareChange": null,
-        "volume": 491579.87,
+        "volume": 489976.02,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "云50ETF",
@@ -574,7 +574,7 @@ const DASHBOARD_DATA = {
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "300ETF增",
@@ -582,11 +582,11 @@ const DASHBOARD_DATA = {
         "category": "沪深300",
         "changePct": null,
         "shareChange": null,
-        "volume": 58831.9,
+        "volume": 58403.69,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50",
@@ -594,11 +594,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 8948165.47,
+        "volume": 8839118.94,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50E",
@@ -606,11 +606,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 184523.77,
+        "volume": 185620.75,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创板50",
@@ -618,11 +618,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 4270874.39,
+        "volume": 4194766.27,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50基",
@@ -630,11 +630,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 80646.19,
+        "volume": 79117.7,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "创50ETF",
@@ -642,11 +642,11 @@ const DASHBOARD_DATA = {
         "category": "上证50",
         "changePct": null,
         "shareChange": null,
-        "volume": 299336.62,
+        "volume": 297010.47,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50增",
@@ -654,11 +654,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 13422.02,
+        "volume": 13222.15,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50指",
@@ -666,11 +666,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 134364.18,
+        "volume": 131004.32,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       },
       {
         "name": "科创50GT",
@@ -678,11 +678,11 @@ const DASHBOARD_DATA = {
         "category": "科创50",
         "changePct": null,
         "shareChange": null,
-        "volume": 233285.81,
+        "volume": 229032.96,
         "direction": "基线积累中",
         "status": "listing_pending",
         "source": "上海证券交易所",
-        "sourceDate": "2026-08-27"
+        "sourceDate": "2026-08-28"
       }
     ],
     "fundFlow": {
@@ -702,7 +702,7 @@ const DASHBOARD_DATA = {
     "judgment": {
       "completeness": "有效评分完整度 62%（5/8）",
       "fundSource": "主力资金数据暂缺",
-      "rallyQuality": "偏强；有效评分 5/8，平均 70.7 分",
+      "rallyQuality": "中性；有效评分 5/8，平均 64.7 分",
       "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
     }
   },
@@ -711,62 +711,62 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": 1.32,
+        "weekChange": 1.81,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "深证成指",
-        "weekChange": -0.32,
+        "weekChange": 1.15,
         "prevWeek": null,
-        "trend": "调整"
+        "trend": "反弹"
       },
       {
         "name": "创业板指",
-        "weekChange": -2.04,
+        "weekChange": -0.22,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "科创综指",
-        "weekChange": 0.88,
+        "weekChange": 2.47,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "沪深300",
-        "weekChange": 0.25,
+        "weekChange": 1.01,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "中证500",
-        "weekChange": 1.17,
+        "weekChange": 2.31,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "中证1000",
-        "weekChange": 1.73,
+        "weekChange": 2.85,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": 2.41,
+        "weekChange": 3.73,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "北证50",
-        "weekChange": -0.04,
+        "weekChange": 0.97,
         "prevWeek": null,
-        "trend": "调整"
+        "trend": "反弹"
       }
     ],
     "industries": [],
     "turnover": {
-      "avgDaily": 21412.0,
+      "avgDaily": 21180.0,
       "prevAvg": null,
       "change": null,
       "totalWeekly": null,
@@ -793,57 +793,57 @@ const DASHBOARD_DATA = {
     "indices": [
       {
         "name": "上证指数",
-        "weekChange": 1.32,
+        "weekChange": 1.81,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "深证成指",
-        "weekChange": -0.32,
+        "weekChange": 1.15,
         "prevWeek": null,
-        "trend": "调整"
+        "trend": "反弹"
       },
       {
         "name": "创业板指",
-        "weekChange": -2.04,
+        "weekChange": -0.22,
         "prevWeek": null,
         "trend": "调整"
       },
       {
         "name": "科创综指",
-        "weekChange": 0.88,
+        "weekChange": 2.47,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "沪深300",
-        "weekChange": 0.25,
+        "weekChange": 1.01,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "中证500",
-        "weekChange": 1.17,
+        "weekChange": 2.31,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "中证1000",
-        "weekChange": 1.73,
+        "weekChange": 2.85,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "科创50",
-        "weekChange": 2.41,
+        "weekChange": 3.73,
         "prevWeek": null,
         "trend": "反弹"
       },
       {
         "name": "北证50",
-        "weekChange": -0.04,
+        "weekChange": 0.97,
         "prevWeek": null,
-        "trend": "调整"
+        "trend": "反弹"
       }
     ],
     "styleComparison": {
@@ -910,43 +910,15 @@ const DASHBOARD_DATA = {
       },
       {
         "name": "中国10年国债",
-        "yield": 1.7,
-        "change": 0.01,
+        "yield": 1.69,
+        "change": -0.01,
         "prevChange": null,
         "implication": null
       },
       {
         "name": "中国30年国债",
-        "yield": 2.14,
+        "yield": 2.15,
         "change": 0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国2年国债",
-        "yield": 4.2,
-        "change": 0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国10年国债",
-        "yield": 4.67,
-        "change": 0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "美国30年国债",
-        "yield": 5.19,
-        "change": 0.01,
-        "prevChange": null,
-        "implication": null
-      },
-      {
-        "name": "中美利差(10年)",
-        "yield": -2.97,
-        "change": null,
         "prevChange": null,
         "implication": null
       }
@@ -954,21 +926,21 @@ const DASHBOARD_DATA = {
     "commodities": [
       {
         "name": "COMEX黄金",
-        "changePct": 0.14,
+        "changePct": -3.09,
         "prevChange": null,
-        "implication": "约4654.5美元/盎司"
+        "implication": "约4510.5美元/盎司"
       },
       {
         "name": "LME铜",
-        "changePct": 0.04,
+        "changePct": -0.82,
         "prevChange": null,
         "implication": "-"
       },
       {
         "name": "WTI原油",
-        "changePct": 0.08,
+        "changePct": -0.11,
         "prevChange": null,
-        "implication": "约83.6美元/桶"
+        "implication": "约83.5美元/桶"
       }
     ],
     "rating": [],
@@ -996,6 +968,1681 @@ const DASHBOARD_DATA = {
 
 // 历史数据（供日期选择器使用，每个元素含 date 和 daily）
 const DASHBOARD_HISTORY = [
+  {
+    "date": "2026-08-27",
+    "daily": {
+      "radar": [
+        {
+          "name": "股指表现",
+          "value": 69.8,
+          "status": "green",
+          "formula": "50 + 四大核心指数平均涨跌幅×10",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "行业表现",
+          "value": null,
+          "status": "missing",
+          "formula": "50 + 申万行业主力净流入(亿元)÷20",
+          "sourceDate": "2026-08-27",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "成交活跃度",
+          "value": 100,
+          "status": "green",
+          "formula": "当日成交额÷5日均额×50",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "市场广度",
+          "value": 61.1,
+          "status": "yellow",
+          "formula": "上涨家数÷有效股票数×100",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "杠杆资金",
+          "value": 47.6,
+          "status": "yellow",
+          "formula": "50 + 融资余额日变化(亿元)÷10",
+          "sourceDate": null
+        },
+        {
+          "name": "ETF资金",
+          "value": null,
+          "status": "missing",
+          "formula": "50 + 主要宽基ETF净申购份额(亿份)",
+          "sourceDate": "2026-08-27",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "外资资金",
+          "value": null,
+          "status": "missing",
+          "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
+          "sourceDate": "2026-08-27",
+          "reason": "必需数据缺失"
+        },
+        {
+          "name": "市场情绪",
+          "value": 75.2,
+          "status": "green",
+          "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
+          "sourceDate": "2026-08-27"
+        }
+      ],
+      "indices": [
+        {
+          "name": "上证指数",
+          "close": 3956.57,
+          "change": 44.05,
+          "changePct": 1.13,
+          "volume": 10102,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 5,
+          "avg10": 5
+        },
+        {
+          "name": "深证成指",
+          "close": 14048.88,
+          "change": 207.55,
+          "changePct": 1.5,
+          "volume": 11157,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 6,
+          "avg10": 6
+        },
+        {
+          "name": "创业板指",
+          "close": 3473.35,
+          "change": 58.47,
+          "changePct": 1.71,
+          "volume": 5423,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "科创综指",
+          "close": 1973.98,
+          "change": 68.58,
+          "changePct": 3.6,
+          "volume": 3260,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 0,
+          "avg10": 0
+        },
+        {
+          "name": "沪深300",
+          "close": 4630.28,
+          "change": 39.49,
+          "changePct": 0.86,
+          "volume": 5871,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "中证500",
+          "close": 7946.33,
+          "change": 175.8,
+          "changePct": 2.26,
+          "volume": 3875,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "中证1000",
+          "close": 7732.95,
+          "change": 188.28,
+          "changePct": 2.5,
+          "volume": 4601,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 2,
+          "avg10": 2
+        },
+        {
+          "name": "科创50",
+          "close": 1693.48,
+          "change": 61.46,
+          "changePct": 3.77,
+          "volume": 1018,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 0,
+          "avg10": 0
+        },
+        {
+          "name": "北证50",
+          "close": 1074.96,
+          "change": 6.99,
+          "changePct": 0.65,
+          "volume": 153,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid",
+          "avg5": 0,
+          "avg10": 0
+        }
+      ],
+      "industryPerformance": {
+        "gainers": [],
+        "losers": []
+      },
+      "turnover": {
+        "sh": 10102,
+        "sz": 11157,
+        "bj": 153,
+        "total": 21412,
+        "prevDay": null,
+        "change": null,
+        "changePct": null,
+        "avg5": 11,
+        "vs5d": 21401,
+        "avg10": 11,
+        "vs10d": 21401,
+        "source": "腾讯行情",
+        "sourceDate": "2026-08-27",
+        "status": "valid"
+      },
+      "breadth": {
+        "upCount": 3393,
+        "downCount": 1944,
+        "flatCount": 212,
+        "limitUp": 126,
+        "limitDown": 4,
+        "upPct": 61.1,
+        "downPct": 35,
+        "moneyEffect": "偏强"
+      },
+      "margin": {
+        "financeBalance": null,
+        "securitiesBalance": null,
+        "totalBalance": null,
+        "balanceChange": -24.17,
+        "shBalance": 13648.5,
+        "szBalance": null,
+        "marginTradePct": null,
+        "dataDate": null,
+        "dataLevel": "B"
+      },
+      "northbound": {
+        "netBuy": null,
+        "turnover": null,
+        "turnoverPct": null,
+        "topStocks": null,
+        "dataLevel": "X",
+        "statusNote": "停更：港交所2024-08起不再披露北向实时净买入"
+      },
+      "etf": [
+        {
+          "name": "上证180E",
+          "code": "510040",
+          "category": "上证180",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 3340.7,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "50ETF",
+          "code": "510050",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 2100629.91,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "SZ50ETF",
+          "code": "510100",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 293863.14,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "180ETF",
+          "code": "510180",
+          "category": "上证180",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 1762805.02,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "上证50基",
+          "code": "510190",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 10259.72,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "300ETF",
+          "code": "510300",
+          "category": "沪深300",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 11060762.4,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "HS300ETF",
+          "code": "510310",
+          "category": "沪深300",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 5222646.39,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "500ETF",
+          "code": "510500",
+          "category": "中证500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 4310976.06,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "ZZ500ETF",
+          "code": "510580",
+          "category": "中证500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 479582.05,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "沪50ETF",
+          "code": "510600",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 5296.27,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "上50ETF",
+          "code": "510710",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 44982.89,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "上证50",
+          "code": "510800",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 24562.84,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "1000ETF",
+          "code": "512100",
+          "category": "中证1000",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 2131032.36,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "A50ETF",
+          "code": "512150",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 3466.48,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "中证500",
+          "code": "512500",
+          "category": "中证500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 843339.96,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "500ETFEW",
+          "code": "515590",
+          "category": "中证500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 7016.89,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "沪深300E",
+          "code": "515660",
+          "category": "沪深300",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 254034.76,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "中证1000",
+          "code": "516300",
+          "category": "中证1000",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 13996.3,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "AH500ETF",
+          "code": "517100",
+          "category": "中证500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 14647.41,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "AH300ETF",
+          "code": "517300",
+          "category": "沪深300",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 95932.98,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "50ETF基",
+          "code": "530000",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 135919.1,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "SH50ETF",
+          "code": "530050",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 15857.87,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "上证180",
+          "code": "530180",
+          "category": "上证180",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 7017.99,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "180ETF指",
+          "code": "530280",
+          "category": "上证180",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 3625.01,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "上180ETF",
+          "code": "530800",
+          "category": "上证180",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 2209.7,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "中证A500",
+          "code": "560510",
+          "category": "中证A500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 303217.02,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "A500ETF",
+          "code": "560530",
+          "category": "中证A500",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 491579.87,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "云50ETF",
+          "code": "560660",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 13968.33,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "300ETF增",
+          "code": "562070",
+          "category": "沪深300",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 58831.9,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50",
+          "code": "588000",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 8948165.47,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50E",
+          "code": "588020",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 184523.77,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创板50",
+          "code": "588080",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 4270874.39,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50基",
+          "code": "588180",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 80646.19,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "创50ETF",
+          "code": "588380",
+          "category": "上证50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 299336.62,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50增",
+          "code": "588450",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 13422.02,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50指",
+          "code": "588870",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 134364.18,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        },
+        {
+          "name": "科创50GT",
+          "code": "589360",
+          "category": "科创50",
+          "changePct": null,
+          "shareChange": null,
+          "volume": 233285.81,
+          "direction": "基线积累中",
+          "status": "listing_pending",
+          "source": "上海证券交易所",
+          "sourceDate": "2026-08-27"
+        }
+      ],
+      "fundFlow": {
+        "updateTime": "15:00",
+        "netInflow": null,
+        "gemNetInflow": null,
+        "starNetInflow": null,
+        "csi300NetInflow": null,
+        "tailNetInflow": null,
+        "inflowCount": null,
+        "outflowCount": null,
+        "sectors": [],
+        "source": null,
+        "sourceDate": null,
+        "status": "missing"
+      },
+      "judgment": {
+        "completeness": "有效评分完整度 62%（5/8）",
+        "fundSource": "主力资金数据暂缺",
+        "rallyQuality": "偏强；有效评分 5/8，平均 70.7 分",
+        "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
+      }
+    },
+    "snapshot": {
+      "meta": {
+        "reportDate": "2026-08-27",
+        "dataVersion": "v1.2-verified",
+        "marketSession": "收盘",
+        "fetchedAt": "2026-08-27T22:42:43",
+        "scoringMode": "strict",
+        "completeness": 62
+      },
+      "daily": {
+        "radar": [
+          {
+            "name": "股指表现",
+            "value": 69.8,
+            "status": "green",
+            "formula": "50 + 四大核心指数平均涨跌幅×10",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "行业表现",
+            "value": null,
+            "status": "missing",
+            "formula": "50 + 申万行业主力净流入(亿元)÷20",
+            "sourceDate": "2026-08-27",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "成交活跃度",
+            "value": 100,
+            "status": "green",
+            "formula": "当日成交额÷5日均额×50",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "市场广度",
+            "value": 61.1,
+            "status": "yellow",
+            "formula": "上涨家数÷有效股票数×100",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "杠杆资金",
+            "value": 47.6,
+            "status": "yellow",
+            "formula": "50 + 融资余额日变化(亿元)÷10",
+            "sourceDate": null
+          },
+          {
+            "name": "ETF资金",
+            "value": null,
+            "status": "missing",
+            "formula": "50 + 主要宽基ETF净申购份额(亿份)",
+            "sourceDate": "2026-08-27",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "外资资金",
+            "value": null,
+            "status": "missing",
+            "formula": "停更：港交所2024-08-20起停止日度北向披露，改为季度披露",
+            "sourceDate": "2026-08-27",
+            "reason": "必需数据缺失"
+          },
+          {
+            "name": "市场情绪",
+            "value": 75.2,
+            "status": "green",
+            "formula": "上涨家数占比 + 涨跌停板温度修正(±15)",
+            "sourceDate": "2026-08-27"
+          }
+        ],
+        "indices": [
+          {
+            "name": "上证指数",
+            "close": 3956.57,
+            "change": 44.05,
+            "changePct": 1.13,
+            "volume": 10102,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 5,
+            "avg10": 5
+          },
+          {
+            "name": "深证成指",
+            "close": 14048.88,
+            "change": 207.55,
+            "changePct": 1.5,
+            "volume": 11157,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 6,
+            "avg10": 6
+          },
+          {
+            "name": "创业板指",
+            "close": 3473.35,
+            "change": 58.47,
+            "changePct": 1.71,
+            "volume": 5423,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "科创综指",
+            "close": 1973.98,
+            "change": 68.58,
+            "changePct": 3.6,
+            "volume": 3260,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 0,
+            "avg10": 0
+          },
+          {
+            "name": "沪深300",
+            "close": 4630.28,
+            "change": 39.49,
+            "changePct": 0.86,
+            "volume": 5871,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "中证500",
+            "close": 7946.33,
+            "change": 175.8,
+            "changePct": 2.26,
+            "volume": 3875,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "中证1000",
+            "close": 7732.95,
+            "change": 188.28,
+            "changePct": 2.5,
+            "volume": 4601,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 2,
+            "avg10": 2
+          },
+          {
+            "name": "科创50",
+            "close": 1693.48,
+            "change": 61.46,
+            "changePct": 3.77,
+            "volume": 1018,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 0,
+            "avg10": 0
+          },
+          {
+            "name": "北证50",
+            "close": 1074.96,
+            "change": 6.99,
+            "changePct": 0.65,
+            "volume": 153,
+            "source": "腾讯行情",
+            "sourceDate": "2026-08-27",
+            "status": "valid",
+            "avg5": 0,
+            "avg10": 0
+          }
+        ],
+        "industryPerformance": {
+          "gainers": [],
+          "losers": []
+        },
+        "turnover": {
+          "sh": 10102,
+          "sz": 11157,
+          "bj": 153,
+          "total": 21412,
+          "prevDay": null,
+          "change": null,
+          "changePct": null,
+          "avg5": 11,
+          "vs5d": 21401,
+          "avg10": 11,
+          "vs10d": 21401,
+          "source": "腾讯行情",
+          "sourceDate": "2026-08-27",
+          "status": "valid"
+        },
+        "breadth": {
+          "upCount": 3393,
+          "downCount": 1944,
+          "flatCount": 212,
+          "limitUp": 126,
+          "limitDown": 4,
+          "upPct": 61.1,
+          "downPct": 35,
+          "moneyEffect": "偏强"
+        },
+        "margin": {
+          "financeBalance": null,
+          "securitiesBalance": null,
+          "totalBalance": null,
+          "balanceChange": -24.17,
+          "shBalance": 13648.5,
+          "szBalance": null,
+          "marginTradePct": null,
+          "dataDate": null,
+          "dataLevel": "B"
+        },
+        "northbound": {
+          "netBuy": null,
+          "turnover": null,
+          "turnoverPct": null,
+          "topStocks": null,
+          "dataLevel": "X",
+          "statusNote": "停更：港交所2024-08起不再披露北向实时净买入"
+        },
+        "etf": [
+          {
+            "name": "上证180E",
+            "code": "510040",
+            "category": "上证180",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 3340.7,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "50ETF",
+            "code": "510050",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 2100629.91,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "SZ50ETF",
+            "code": "510100",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 293863.14,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "180ETF",
+            "code": "510180",
+            "category": "上证180",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 1762805.02,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "上证50基",
+            "code": "510190",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 10259.72,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "300ETF",
+            "code": "510300",
+            "category": "沪深300",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 11060762.4,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "HS300ETF",
+            "code": "510310",
+            "category": "沪深300",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 5222646.39,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "500ETF",
+            "code": "510500",
+            "category": "中证500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 4310976.06,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "ZZ500ETF",
+            "code": "510580",
+            "category": "中证500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 479582.05,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "沪50ETF",
+            "code": "510600",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 5296.27,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "上50ETF",
+            "code": "510710",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 44982.89,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "上证50",
+            "code": "510800",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 24562.84,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "1000ETF",
+            "code": "512100",
+            "category": "中证1000",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 2131032.36,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "A50ETF",
+            "code": "512150",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 3466.48,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "中证500",
+            "code": "512500",
+            "category": "中证500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 843339.96,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "500ETFEW",
+            "code": "515590",
+            "category": "中证500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 7016.89,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "沪深300E",
+            "code": "515660",
+            "category": "沪深300",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 254034.76,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "中证1000",
+            "code": "516300",
+            "category": "中证1000",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 13996.3,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "AH500ETF",
+            "code": "517100",
+            "category": "中证500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 14647.41,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "AH300ETF",
+            "code": "517300",
+            "category": "沪深300",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 95932.98,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "50ETF基",
+            "code": "530000",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 135919.1,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "SH50ETF",
+            "code": "530050",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 15857.87,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "上证180",
+            "code": "530180",
+            "category": "上证180",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 7017.99,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "180ETF指",
+            "code": "530280",
+            "category": "上证180",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 3625.01,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "上180ETF",
+            "code": "530800",
+            "category": "上证180",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 2209.7,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "中证A500",
+            "code": "560510",
+            "category": "中证A500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 303217.02,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "A500ETF",
+            "code": "560530",
+            "category": "中证A500",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 491579.87,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "云50ETF",
+            "code": "560660",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 13968.33,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "300ETF增",
+            "code": "562070",
+            "category": "沪深300",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 58831.9,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50",
+            "code": "588000",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 8948165.47,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50E",
+            "code": "588020",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 184523.77,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创板50",
+            "code": "588080",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 4270874.39,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50基",
+            "code": "588180",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 80646.19,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "创50ETF",
+            "code": "588380",
+            "category": "上证50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 299336.62,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50增",
+            "code": "588450",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 13422.02,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50指",
+            "code": "588870",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 134364.18,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          },
+          {
+            "name": "科创50GT",
+            "code": "589360",
+            "category": "科创50",
+            "changePct": null,
+            "shareChange": null,
+            "volume": 233285.81,
+            "direction": "基线积累中",
+            "status": "listing_pending",
+            "source": "上海证券交易所",
+            "sourceDate": "2026-08-27"
+          }
+        ],
+        "fundFlow": {
+          "updateTime": "15:00",
+          "netInflow": null,
+          "gemNetInflow": null,
+          "starNetInflow": null,
+          "csi300NetInflow": null,
+          "tailNetInflow": null,
+          "inflowCount": null,
+          "outflowCount": null,
+          "sectors": [],
+          "source": null,
+          "sourceDate": null,
+          "status": "missing"
+        },
+        "judgment": {
+          "completeness": "有效评分完整度 62%（5/8）",
+          "fundSource": "主力资金数据暂缺",
+          "rallyQuality": "偏强；有效评分 5/8，平均 70.7 分",
+          "riskAlert": "缺失数据：行业表现、ETF资金、外资资金"
+        }
+      },
+      "weekly": {
+        "radar": [],
+        "indices": [
+          {
+            "name": "上证指数",
+            "weekChange": 1.32,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "深证成指",
+            "weekChange": -0.32,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "创业板指",
+            "weekChange": -2.04,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "科创综指",
+            "weekChange": 0.88,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "沪深300",
+            "weekChange": 0.25,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "中证500",
+            "weekChange": 1.17,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "中证1000",
+            "weekChange": 1.73,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "科创50",
+            "weekChange": 2.41,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "北证50",
+            "weekChange": -0.04,
+            "prevWeek": null,
+            "trend": "调整"
+          }
+        ],
+        "industries": [],
+        "turnover": {
+          "avgDaily": 21412,
+          "prevAvg": null,
+          "change": null,
+          "totalWeekly": null,
+          "peakDay": null,
+          "peakVolume": null
+        },
+        "breadth": {
+          "avgUp": null,
+          "avgDown": null,
+          "avgLimitUp": null,
+          "avgLimitDown": null
+        },
+        "margin": [],
+        "etfFlows": [],
+        "fundStrength": [],
+        "observation": {
+          "coreChange": "-",
+          "nextWeek": "-",
+          "maxRisk": "-"
+        }
+      },
+      "monthly": {
+        "radar": [],
+        "indices": [
+          {
+            "name": "上证指数",
+            "weekChange": 1.32,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "深证成指",
+            "weekChange": -0.32,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "创业板指",
+            "weekChange": -2.04,
+            "prevWeek": null,
+            "trend": "调整"
+          },
+          {
+            "name": "科创综指",
+            "weekChange": 0.88,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "沪深300",
+            "weekChange": 0.25,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "中证500",
+            "weekChange": 1.17,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "中证1000",
+            "weekChange": 1.73,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "科创50",
+            "weekChange": 2.41,
+            "prevWeek": null,
+            "trend": "反弹"
+          },
+          {
+            "name": "北证50",
+            "weekChange": -0.04,
+            "prevWeek": null,
+            "trend": "调整"
+          }
+        ],
+        "styleComparison": {
+          "growthVsValue": {
+            "growth": null,
+            "value": null,
+            "gap": null,
+            "direction": null
+          },
+          "largeVsSmall": {
+            "large": null,
+            "small": null,
+            "gap": null,
+            "direction": null
+          },
+          "aVsOverseas": {
+            "aShare": null,
+            "usMarket": null,
+            "hkMarket": null,
+            "direction": null
+          }
+        },
+        "industries": [],
+        "turnover": {
+          "avgDaily": null,
+          "prevMonth": null,
+          "change": null,
+          "total": null,
+          "halfYearAvg": null,
+          "vsHalfYear": null
+        },
+        "leverage": [],
+        "etfFlows": [],
+        "bondsCommodities": [],
+        "rating": [],
+        "observation": {
+          "marketStage": "-",
+          "opportunity": "-",
+          "risk": "-",
+          "validation": "-"
+        }
+      },
+      "fundamentals": {
+        "radar": [],
+        "economicGrowth": [],
+        "earnings": [],
+        "earningsDriver": {
+          "source": "-",
+          "focus": "-"
+        },
+        "liquidity": [],
+        "liquidityJudgment": {
+          "isLoose": "-",
+          "enterEquity": "-",
+          "tighteningRisk": "-"
+        },
+        "ratesBonds": [
+          {
+            "name": "中国2年国债",
+            "yield": 1.25,
+            "change": 0,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "中国10年国债",
+            "yield": 1.7,
+            "change": 0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "中国30年国债",
+            "yield": 2.14,
+            "change": 0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "美国2年国债",
+            "yield": 4.2,
+            "change": 0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "美国10年国债",
+            "yield": 4.67,
+            "change": 0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "美国30年国债",
+            "yield": 5.19,
+            "change": 0.01,
+            "prevChange": null,
+            "implication": null
+          },
+          {
+            "name": "中美利差(10年)",
+            "yield": -2.97,
+            "change": null,
+            "prevChange": null,
+            "implication": null
+          }
+        ],
+        "commodities": [
+          {
+            "name": "COMEX黄金",
+            "changePct": 0.14,
+            "prevChange": null,
+            "implication": "约4654.5美元/盎司"
+          },
+          {
+            "name": "LME铜",
+            "changePct": 0.04,
+            "prevChange": null,
+            "implication": "-"
+          },
+          {
+            "name": "WTI原油",
+            "changePct": 0.08,
+            "prevChange": null,
+            "implication": "约83.6美元/桶"
+          }
+        ],
+        "rating": [],
+        "observation": {
+          "confirmSignals": "-",
+          "overturnSignals": "-",
+          "valuationRisk": "-",
+          "keyMetric": "-",
+          "opportunity": "-",
+          "risk": "-",
+          "nextStage": "-"
+        }
+      },
+      "meso": {
+        "radar": [],
+        "prosperity": [],
+        "valuation": [],
+        "valuationDriver": "-",
+        "crowding": [],
+        "fundSwitching": {},
+        "rating": [],
+        "observation": {}
+      }
+    }
+  },
   {
     "date": "2026-08-26",
     "daily": {
