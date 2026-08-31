@@ -6,7 +6,7 @@ const POLICY_FUNDS_DATA = {
     "version": "v1-mad60",
     "status": "insufficient_coverage",
     "reportDate": "2026-08-31",
-    "updatedAt": "2026-08-31T16:17:13",
+    "updatedAt": "2026-08-31T19:12:38",
     "coverage": 0.0,
     "configVersion": "2026-08-09-v1",
     "disclaimer": "异常宽基ETF流量用于观察潜在政策性资金趋势，不代表国家队实际持仓或账户余额。"
