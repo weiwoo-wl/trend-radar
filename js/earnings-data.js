@@ -3,7 +3,7 @@ const ROLLING_EARNINGS_DATA = {
   "meta": {
     "version": "v1-rules",
     "status": "valid",
-    "updatedAt": "2026-08-31T19:25:07",
+    "updatedAt": "2026-09-01T17:08:06",
     "macroPeriod": "2026年7月",
     "companyPeriod": "20260630",
     "recordCount": 18,
@@ -22,7 +22,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "macro-revenue",
@@ -36,7 +36,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "macro-margin",
@@ -50,7 +50,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "macro-inventory",
@@ -64,7 +64,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "macro-receivable",
@@ -78,7 +78,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "macro-loss-ratio",
@@ -92,7 +92,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31"
+      "checkedAt": "2026-09-01"
     },
     {
       "id": "industry-其他制造业",
@@ -106,7 +106,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31",
+      "checkedAt": "2026-09-01",
       "rawValue": 4.1,
       "previousValue": -1.9
     },
@@ -122,7 +122,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31",
+      "checkedAt": "2026-09-01",
       "rawValue": 0.8,
       "previousValue": -0.1
     },
@@ -138,7 +138,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31",
+      "checkedAt": "2026-09-01",
       "rawValue": -17.2,
       "previousValue": -28.0
     },
@@ -154,7 +154,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31",
+      "checkedAt": "2026-09-01",
       "rawValue": -0.3,
       "previousValue": 10.1
     },
@@ -170,7 +170,7 @@ const ROLLING_EARNINGS_DATA = {
       "sourceName": "国家统计局",
       "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
       "sourceLevel": "A",
-      "checkedAt": "2026-08-31",
+      "checkedAt": "2026-09-01",
       "rawValue": -51.2,
       "previousValue": -25.0
     },
@@ -5321,6 +5321,359 @@ const ROLLING_EARNINGS_DATA = {
             "毛利率": 15.47,
             "扣非每股收益": -0.37,
             "公告标题": "宇晶股份:2026年半年度报告"
+          }
+        }
+      ]
+    },
+    {
+      "archivedAt": "2026-09-01T17:08:06",
+      "macroPeriod": "2026年7月",
+      "companyPeriod": "20260630",
+      "records": [
+        {
+          "id": "macro-profit",
+          "entityType": "macro",
+          "metric": "规上工业企业利润",
+          "latest": "45,820.6亿元",
+          "change": "累计同比 +17.6%",
+          "judgment": "增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "macro-revenue",
+          "entityType": "macro",
+          "metric": "规上工业企业营业收入",
+          "latest": "809,230.7亿元",
+          "change": "累计同比 +6.5%",
+          "judgment": "增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "macro-margin",
+          "entityType": "macro",
+          "metric": "规上工业营业收入利润率",
+          "latest": "5.66%",
+          "change": "利润总额÷营业收入",
+          "judgment": "盈利质量观察",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "macro-inventory",
+          "entityType": "macro",
+          "metric": "规上工业产成品存货",
+          "latest": "+10.8%",
+          "change": "较上期 +1.3个百分点",
+          "judgment": "增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "macro-receivable",
+          "entityType": "macro",
+          "metric": "规上工业应收账款",
+          "latest": "+8.5%",
+          "change": "较上期 +0.4个百分点",
+          "judgment": "增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "macro-loss-ratio",
+          "entityType": "macro",
+          "metric": "规上工业亏损企业比例",
+          "latest": "29.9%",
+          "change": "153,365/512,105家",
+          "judgment": "盈利广度观察",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31"
+        },
+        {
+          "id": "industry-其他制造业",
+          "entityType": "industry",
+          "metric": "其他制造业利润",
+          "latest": "+4.1%",
+          "change": "较上期 +6.0个百分点",
+          "judgment": "增速反转 · 连续改善",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31",
+          "rawValue": 4.1,
+          "previousValue": -1.9
+        },
+        {
+          "id": "industry-专用设备制造业",
+          "entityType": "industry",
+          "metric": "专用设备制造业利润",
+          "latest": "+0.8%",
+          "change": "较上期 +0.9个百分点",
+          "judgment": "增速反转 · 连续改善",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31",
+          "rawValue": 0.8,
+          "previousValue": -0.1
+        },
+        {
+          "id": "industry-纺织服装-服饰业",
+          "entityType": "industry",
+          "metric": "纺织服装、服饰业利润",
+          "latest": "-17.2%",
+          "change": "较上期 +10.8个百分点",
+          "judgment": "连续改善",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31",
+          "rawValue": -17.2,
+          "previousValue": -28.0
+        },
+        {
+          "id": "industry-非金属矿采选业",
+          "entityType": "industry",
+          "metric": "非金属矿采选业利润",
+          "latest": "-0.3%",
+          "change": "较上期 -10.4个百分点",
+          "judgment": "由增转降 · 增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31",
+          "rawValue": -0.3,
+          "previousValue": 10.1
+        },
+        {
+          "id": "industry-黑色金属冶炼和压延加工业",
+          "entityType": "industry",
+          "metric": "黑色金属冶炼和压延加工业利润",
+          "latest": "-51.2%",
+          "change": "较上期 -26.2个百分点",
+          "judgment": "增长减速",
+          "period": "2026年7月",
+          "publishedAt": null,
+          "sourceName": "国家统计局",
+          "sourceUrl": "https://data.stats.gov.cn/dg/website/page.html",
+          "sourceLevel": "A",
+          "checkedAt": "2026-08-31",
+          "rawValue": -51.2,
+          "previousValue": -25.0
+        },
+        {
+          "id": "company-601872",
+          "entityType": "company",
+          "metric": "招商轮船（601872）",
+          "latest": "营收+56.2% / 净利+227.6%",
+          "change": "净利润 69.60亿元",
+          "judgment": "增长加速 · 现金流同步",
+          "period": "20260630",
+          "publishedAt": "2026-08-31",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/601872/AN202608301828734424.html",
+          "sourceLevel": "A-",
+          "industry": "航运港口",
+          "rawValue": 6959500459.03,
+          "previousValue": null,
+          "details": {
+            "营业收入": 196.51,
+            "营收同比": 56.15,
+            "净利润": 69.6,
+            "净利润同比": 227.57,
+            "每股经营现金流": 1.01,
+            "毛利率": 44.98,
+            "扣非每股收益": 0.86,
+            "公告标题": "招商轮船:招商轮船2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-688825",
+          "entityType": "company",
+          "metric": "长鑫科技（688825）",
+          "latest": "营收+873.6% / 净利+3427.8%",
+          "change": "净利润 776.05亿元",
+          "judgment": "低基数高增 · 现金流同步",
+          "period": "20260630",
+          "publishedAt": "2026-08-29",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/688825/AN202608281828635976.html",
+          "sourceLevel": "A-",
+          "industry": "半导体",
+          "rawValue": 77605227520.0,
+          "previousValue": null,
+          "details": {
+            "营业收入": 1503.1,
+            "营收同比": 873.64,
+            "净利润": 776.05,
+            "净利润同比": 3427.76,
+            "每股经营现金流": 2.18,
+            "毛利率": 84.74,
+            "扣非每股收益": 1.31,
+            "公告标题": "长鑫科技:2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-002460",
+          "entityType": "company",
+          "metric": "赣锋锂业（002460）",
+          "latest": "营收+175.7% / 净利+901.4%",
+          "change": "净利润 42.57亿元",
+          "judgment": "低基数高增 · 现金流同步",
+          "period": "20260630",
+          "publishedAt": "2026-08-29",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/002460/AN202608280006758316.html",
+          "sourceLevel": "A-",
+          "industry": "能源金属",
+          "rawValue": 4257164842.1,
+          "previousValue": null,
+          "details": {
+            "营业收入": 230.97,
+            "营收同比": 175.75,
+            "净利润": 42.57,
+            "净利润同比": 901.36,
+            "每股经营现金流": 0.63,
+            "毛利率": 31.51,
+            "扣非每股收益": 1.84,
+            "公告标题": "赣锋锂业:2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-000426",
+          "entityType": "company",
+          "metric": "兴业银锡（000426）",
+          "latest": "营收+73.1% / 净利+184.4%",
+          "change": "净利润 22.63亿元",
+          "judgment": "增长加速 · 现金流同步",
+          "period": "20260630",
+          "publishedAt": "2026-08-29",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/000426/AN202608280006758325.html",
+          "sourceLevel": "A-",
+          "industry": "贵金属",
+          "rawValue": 2263056168.41,
+          "previousValue": null,
+          "details": {
+            "营业收入": 42.82,
+            "营收同比": 73.13,
+            "净利润": 22.63,
+            "净利润同比": 184.42,
+            "每股经营现金流": 1.19,
+            "毛利率": 68.75,
+            "扣非每股收益": 1.02,
+            "公告标题": "兴业银锡:2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-688221",
+          "entityType": "company",
+          "metric": "前沿生物（688221）",
+          "latest": "营收+434.3% / 净利+253.0%",
+          "change": "净利润 1.49亿元",
+          "judgment": "增长加速 · 现金流同步",
+          "period": "20260630",
+          "publishedAt": "2026-08-31",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/688221/AN202608301828734243.html",
+          "sourceLevel": "A-",
+          "industry": "化学制药",
+          "rawValue": 148929627.03,
+          "previousValue": null,
+          "details": {
+            "营业收入": 3.13,
+            "营收同比": 434.27,
+            "净利润": 1.49,
+            "净利润同比": 252.98,
+            "每股经营现金流": 0.48,
+            "毛利率": 84.05,
+            "扣非每股收益": 0.34,
+            "公告标题": "前沿生物:前沿生物2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-603567",
+          "entityType": "company",
+          "metric": "珍宝岛（603567）",
+          "latest": "营收-58.6% / 净利-246.1%",
+          "change": "净利润 -2.71亿元",
+          "judgment": "增长减速",
+          "period": "20260630",
+          "publishedAt": "2026-08-29",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/603567/AN202608281828647556.html",
+          "sourceLevel": "A-",
+          "industry": "中药Ⅱ",
+          "rawValue": -270974735.96,
+          "previousValue": null,
+          "details": {
+            "营业收入": 2.96,
+            "营收同比": -58.6,
+            "净利润": -2.71,
+            "净利润同比": -246.12,
+            "每股经营现金流": 0.11,
+            "毛利率": 5.53,
+            "扣非每股收益": -0.29,
+            "公告标题": "珍宝岛:黑龙江珍宝岛药业股份有限公司2026年半年度报告"
+          }
+        },
+        {
+          "id": "company-600325",
+          "entityType": "company",
+          "metric": "华发股份（600325）",
+          "latest": "营收-50.2% / 净利-2225.7%",
+          "change": "净利润 -36.54亿元",
+          "judgment": "盈利明显承压",
+          "period": "20260630",
+          "publishedAt": "2026-08-31",
+          "sourceName": "交易所公告镜像索引",
+          "sourceUrl": "https://data.eastmoney.com/notices/detail/600325/AN202608301828733871.html",
+          "sourceLevel": "A-",
+          "industry": "房地产开发",
+          "rawValue": -3654293135.73,
+          "previousValue": null,
+          "details": {
+            "营业收入": 190.29,
+            "营收同比": -50.18,
+            "净利润": -36.54,
+            "净利润同比": -2225.71,
+            "每股经营现金流": -0.31,
+            "毛利率": 5.33,
+            "扣非每股收益": -1.35,
+            "公告标题": "华发股份:华发股份2026年半年度报告"
           }
         }
       ]
