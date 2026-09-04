@@ -1,59 +1,92 @@
-name: 每日数据更新（从 Gitee 接力）
+name: 每日数据更新（Gitee 接力 + 自抓兜底）
+
+# 设计说明：
+#   1. Gitee Go（国内 IP）在北京时间 16:30 / 20:30 抓取东方财富数据并写入 Gitee 仓库
+#   2. 本 workflow 在其后 1 小时运行，优先采用 Gitee 的完整数据（含东财，7/8）
+#   3. 若 Gitee 数据日期未前进（Gitee 链路故障），则 GitHub 自抓兜底（海外抓不到
+#      东财，约 5/8），保证数据日期不会冻结
+#   4. 任何情况下，日期没前进就绝不提交，防止用旧数据覆盖新数据（防回退）
+#
+# GitHub Actions 时区为 UTC：北京 17:30 = UTC 9:30，北京 21:30 = UTC 13:30
 
 on:
-  # Gitee Go 在北京时间 16:30 / 20:30 抓取并推到 Gitee；
-  # 本 workflow 在之后 1 小时从 Gitee 拉取，再推到 GitHub Pages。
-  # GitHub Actions 时区为 UTC：北京 17:30 = UTC 9:30，北京 21:30 = UTC 13:30
   schedule:
     - cron: '30 9 * * 1-5'
     - cron: '30 13 * * 1-5'
-  # 支持手动触发
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  sync-from-gitee:
+  update-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout GitHub repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 从 Gitee 拉取数据文件（带重试，私有仓库用 token）
+      - name: 记录更新前的数据日期
+        id: before
+        run: |
+          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"\([0-9-]*\)"$/\1/')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "更新前日期: ${DATE:-(无)}"
+
+      - name: 决策数据源（优先 Gitee，未前进则自抓）
+        id: decide
         env:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         run: |
-          for i in 1 2 3; do
-            rm -rf /tmp/gitee-src
-            for URL in \
-              "https://oauth2:${GITEE_TOKEN}@gitee.com/wyweiwoo/trend-radar.git" \
-              "https://wyweiwoo:${GITEE_TOKEN}@gitee.com/wyweiwoo/trend-radar.git" ; do
-              if git clone --depth 1 "$URL" /tmp/gitee-src 2>/dev/null; then
-                echo "Gitee clone 成功"
-                break 2
-              fi
-            done
-            echo "第 $i 次 clone Gitee 失败，10 秒后重试..."
-            sleep 10
-          done
-          if [ ! -f /tmp/gitee-src/js/data.js ]; then
-            echo "::error::无法从 Gitee 获取 data.js，接力失败"
-            exit 1
-          fi
-          cp /tmp/gitee-src/js/data.js js/data.js
-          cp /tmp/gitee-src/js/policy-funds-data.js js/policy-funds-data.js
-          cp /tmp/gitee-src/js/earnings-data.js js/earnings-data.js
+          python3 scripts/sync_data.py | tee /tmp/decision.txt
+          DECISION=$(tail -1 /tmp/decision.txt)
+          echo "decision=$DECISION" >> $GITHUB_OUTPUT
+          echo "最终决策: $DECISION"
 
-      - name: 提交并推送到 GitHub
+      - name: 自抓兜底（海外环境，东财不可达，约 5/8）
+        if: steps.decide.outputs.decision == 'SELF_FETCH'
+        run: |
+          echo "Gitee 数据未前进，启动自抓兜底..."
+          python3 -m pip install --upgrade pip
+          pip3 install -r scripts/requirements.txt
+          python3 scripts/fetch_data.py || echo "market data fetch failed"
+          python3 scripts/fetch_policy_funds.py || echo "policy funds failed"
+          python3 scripts/fetch_earnings.py || echo "earnings failed"
+
+      - name: 检查数据日期是否前进
+        id: after
+        env:
+          BEFORE: ${{ steps.before.outputs.date }}
+        run: |
+          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"\([0-9-]*\)"$/\1/')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "更新后日期: ${DATE:-(无)}"
+          if [ -n "$DATE" ] && [[ "$DATE" > "$BEFORE" ]]; then
+            echo "advanced=true" >> $GITHUB_OUTPUT
+            echo "日期已前进: ${BEFORE:-(无)} -> $DATE"
+          else
+            echo "advanced=false" >> $GITHUB_OUTPUT
+            echo "日期未前进，将跳过提交（防回退保护）"
+          fi
+
+      - name: 提交并推送（仅当日期前进）
+        if: steps.after.outputs.advanced == 'true'
         run: |
           git config user.email "sync-bot@github.local"
           git config user.name "sync-bot"
           git add js/data.js js/policy-funds-data.js js/earnings-data.js
           if git diff --cached --quiet; then
-            echo "数据无变化，跳过提交"
+            echo "文件无变化，跳过提交"
           else
-            git commit -m "data: sync from Gitee $(date +%Y-%m-%dT%H-%M)"
+            git commit -m "data: update to ${{ steps.after.outputs.date }}"
             git push
-            echo "已推送至 GitHub，GitHub Pages 将自动重新部署"
+            echo "已推送至 GitHub，Pages 将自动重新部署"
           fi
+
+      - name: 汇总
+        run: |
+          echo "=============================="
+          echo "更新前: ${{ steps.before.outputs.date }}"
+          echo "更新后: ${{ steps.after.outputs.date }}"
+          echo "数据源: ${{ steps.decide.outputs.decision }}"
+          echo "是否提交: ${{ steps.after.outputs.advanced }}"
+          echo "=============================="
