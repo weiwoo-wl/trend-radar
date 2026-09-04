@@ -34,6 +34,36 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+# === 全局 socket 超时：海外环境下东方财富接口会"挂起"而不是快速失败，
+# 不设超时会导致整个抓取脚本卡死数小时（GitHub Actions 上实测 14 分钟仍未结束）。
+# 设 30 秒快速失败，让脚本走到腾讯源兜底逻辑。 ===
+try:
+    import socket as _socket
+    _socket.setdefaulttimeout(30)
+except Exception:
+    pass
+
+
+# === OpenSSL 兼容补丁：Gitee Go 容器内 OpenSSL 3.x 与东方财富 TLS 握手失败 (unexpected eof) ===
+try:
+    import ssl
+    _orig_create_default = ssl.create_default_context
+
+    def _patched_create_default_context(*args, **kwargs):
+        ctx = _orig_create_default(*args, **kwargs)
+        try:
+            ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        except Exception:
+            pass
+        return ctx
+
+    ssl.create_default_context = _patched_create_default_context
+    ssl._create_default_https_context = _patched_create_default_context
+    ssl._create_stdlib_context = _patched_create_default_context
+except Exception:
+    pass
+
 OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'data.js')
 POLICY_FUNDS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'js', 'policy-funds-data.js')
 TEST_MODE = '--test' in sys.argv
