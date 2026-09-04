@@ -44,6 +44,7 @@ jobs:
 
       - name: 自抓兜底（海外环境，东财不可达，约 5/8）
         if: steps.decide.outputs.decision == 'SELF_FETCH'
+        timeout-minutes: 20
         run: |
           echo "Gitee 数据未前进，启动自抓兜底..."
           python3 -m pip install --upgrade pip
