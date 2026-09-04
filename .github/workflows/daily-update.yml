@@ -28,7 +28,7 @@ jobs:
       - name: 记录更新前的数据日期
         id: before
         run: |
-          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"\([0-9-]*\)"$/\1/')
+          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"$[0-9-]*$"$/\1/')
           echo "date=$DATE" >> $GITHUB_OUTPUT
           echo "更新前日期: ${DATE:-(无)}"
 
@@ -58,10 +58,10 @@ jobs:
         env:
           BEFORE: ${{ steps.before.outputs.date }}
         run: |
-          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"\([0-9-]*\)"$/\1/')
+          DATE=$(grep -o '"reportDate"[[:space:]]*:[[:space:]]*"[0-9-]*"' js/data.js | head -1 | sed 's/.*"$[0-9-]*$"$/\1/')
           echo "date=$DATE" >> $GITHUB_OUTPUT
           echo "更新后日期: ${DATE:-(无)}"
-        if [ -n "$DATE" ] && { [[ "$DATE" > "$BEFORE" ]] || [[ "$DATE" == "$BEFORE" ]]; }; then
+          if [ -n "$DATE" ] && { [[ "$DATE" > "$BEFORE" ]] || [[ "$DATE" == "$BEFORE" ]]; }; then
             echo "advanced=true" >> $GITHUB_OUTPUT
             echo "日期已前进: ${BEFORE:-(无)} -> $DATE"
           else
