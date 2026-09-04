@@ -108,7 +108,7 @@ def main():
     print("Gitee 数据日期: {}".format(gitee_date or "(无)"))
 
     # 日期为 YYYY-MM-DD 格式，字符串比较等价于时间比较
-    if gitee_date and gitee_date > local_date:
+    if gitee_date and gitee_date >= local_date:
         print("Gitee 数据更新（{} > {}），采用 Gitee 数据".format(gitee_date, local_date))
         adopt_gitee(token, gitee_bytes)
         print("USE_GITEE {}".format(gitee_date))
